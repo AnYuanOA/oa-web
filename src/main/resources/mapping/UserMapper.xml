@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!-- namespace用作标识mapper的唯一，通常包名+dao接口名 -->
+<mapper namespace="com.anyuan.oa.dao.UserDao">
+
+    <resultMap id="user" type="com.anyuan.oa.model.User">
+        <id property="id" column="id" />
+        <result property="account" column="account" />
+        <result property="openId" column="open_id" />
+        <result property="chatNick" column="chat_nick" />
+        <result property="status" column="status" />
+    </resultMap>
+
+    <select id="findAllUser" resultMap="user">
+        select * from user where status=0
+    </select>
+
+</mapper>
