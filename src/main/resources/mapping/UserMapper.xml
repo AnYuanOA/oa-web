@@ -1,18 +1,96 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <!-- namespace用作标识mapper的唯一，通常包名+dao接口名 -->
-<mapper namespace="com.anyuan.oa.dao.UserDao">
+<mapper namespace="com.anyuan.oa.dao.UserMapper">
 
-    <resultMap id="user" type="com.anyuan.oa.model.User">
-        <id property="id" column="id" />
-        <result property="account" column="account" />
-        <result property="openId" column="open_id" />
-        <result property="chatNick" column="chat_nick" />
-        <result property="status" column="status" />
+    <resultMap id="User" type="com.anyuan.oa.model.User">
+        <id property="id" column="ID_" />
+        <result property="account" column="ACCOUNT_" />
+        <result property="openId" column="OPEN_ID_" />
+        <result property="chatNick" column="CHATNICK_" />
+
+        <result property="userName" column="USERNAME_" />
+        <result property="cName" column="CNAME_" />
+        <result property="email" column="EMAIL_" />
+        <result property="mobile" column="MOBILE_" />
+        <result property="password" column="PASSWORD_" />
+        <result property="enabled" column="ENABLED_" />
+        <result property="deptId" column="DEPT_ID_" />
     </resultMap>
 
-    <select id="findAllUser" resultMap="user">
-        select * from user where status=0
+    <select id="findAllUser" resultMap="User">
+        SELECT
+            a.USERNAME_,
+            a.CNAME_,
+            a.EMAIL_,
+            a.MOBILE_,
+            a.PASSWORD_,
+            a.ENABLED_,
+            b.DEPT_ID_,
+            c.*
+        FROM
+            bdf2_user a
+            LEFT JOIN bdf2_user_dept b ON a.USERNAME_ = b.USERNAME_
+            LEFT JOIN bdf2_user_wechat c ON a.USERNAME_ = c.ACCOUNT_
+        WHERE
+            a.ENABLED_ = 1
+            AND a.ADMINISTRATOR_ = 0
     </select>
 
+    <select id="findUserByOpenId" resultMap="User">
+        SELECT
+            a.USERNAME_,
+            a.CNAME_,
+            a.EMAIL_,
+            a.MOBILE_,
+            a.PASSWORD_,
+            a.ENABLED_,
+            b.DEPT_ID_,
+            c.*
+        FROM
+            bdf2_user a
+            LEFT JOIN bdf2_user_dept b ON a.USERNAME_ = b.USERNAME_
+            LEFT JOIN bdf2_user_wechat c ON a.USERNAME_ = c.ACCOUNT_
+        WHERE
+            a.ENABLED_ = 1
+            AND a.ADMINISTRATOR_ = 0 AND c.OPEN_ID_ = #{openId}
+    </select>
+
+    <select id="findUserByAccount" resultMap="User">
+        SELECT
+            a.USERNAME_,
+            a.CNAME_,
+            a.EMAIL_,
+            a.MOBILE_,
+            a.PASSWORD_,
+            a.ENABLED_,
+            b.DEPT_ID_,
+            c.*
+        FROM
+            bdf2_user a
+            LEFT JOIN bdf2_user_dept b ON a.USERNAME_ = b.USERNAME_
+            LEFT JOIN bdf2_user_wechat c ON a.USERNAME_ = c.ACCOUNT_
+        WHERE
+            a.ENABLED_ = 1
+            AND a.ADMINISTRATOR_ = 0 AND a.USERNAME_ = #{account}
+    </select>
+
+    <select id="findUserByDeptId" resultMap="User">
+        SELECT
+            a.USERNAME_,
+            a.CNAME_,
+            a.EMAIL_,
+            a.MOBILE_,
+            a.PASSWORD_,
+            a.ENABLED_,
+            b.DEPT_ID_,
+            c.*
+        FROM
+            bdf2_user a
+            LEFT JOIN bdf2_user_dept b ON a.USERNAME_ = b.USERNAME_
+            LEFT JOIN bdf2_user_wechat c ON a.USERNAME_ = c.ACCOUNT_
+        WHERE
+            a.ENABLED_ = 1
+            AND a.ADMINISTRATOR_ = 0 AND b.DEPT_ID_ = #{deptId}
+    </select>
 </mapper>

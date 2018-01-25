@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!-- namespace用作标识mapper的唯一，通常包名+dao接口名 -->
+<mapper namespace="com.anyuan.oa.dao.DeptMapper">
+
+    <resultMap id="Dept" type="com.anyuan.oa.model.Dept">
+        <id property="id" column="ID_" />
+        <result property="companyId" column="COMPANY_ID_" />
+        <result property="name" column="NAME_" />
+        <result property="parentId" column="PARENT_ID_" />
+    </resultMap>
+
+    <select id="findAllParentDept" resultMap="Dept">
+        SELECT * FROM bdf2_dept WHERE COMPANY_ID_ = 'AY' AND PARENT_ID_ IS NULL
+    </select>
+
+    <select id="findChildDeptdByParentId" resultMap="Dept">
+        SELECT * FROM bdf2_dept WHERE COMPANY_ID_ = 'AY' AND PARENT_ID_ = #{parentId}
+    </select>
+
+    <select id="findDeptById" resultMap="Dept">
+        SELECT * FROM bdf2_dept WHERE COMPANY_ID_ = 'AY' AND ID_ = #{id}
+    </select>
+</mapper>

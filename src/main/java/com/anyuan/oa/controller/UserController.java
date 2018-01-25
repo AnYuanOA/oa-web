@@ -1,8 +1,8 @@
 package com.anyuan.oa.controller;
 
 
+import com.anyuan.oa.dao.UserMapper;
 import com.anyuan.oa.model.User;
-import com.anyuan.oa.service.UserService;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
@@ -19,12 +19,12 @@ import java.util.Map;
 public class UserController extends BaseController{
 
     @Resource
-    private UserService userService;
+    private UserMapper userMapper;
 
     @RequestMapping("/showAllUser")
     @ResponseBody
     public Map<String,Object> showAllUser(){
-        List<User> list=userService.findAllUser();
+        List<User> list=userMapper.findAllUser();
         return coverResultMap("users",list);
     }
 
