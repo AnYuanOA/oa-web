@@ -93,4 +93,8 @@
             a.ENABLED_ = 1
             AND a.ADMINISTRATOR_ = 0 AND b.DEPT_ID_ = #{deptId}
     </select>
+
+    <insert id="insertWeChatUser" parameterType="com.anyuan.oa.model.User">
+        INSERT INTO bdf2_user_wechat (ACCOUNT_, OPEN_ID_, CHATNICK_) VALUES (#{account},#{openId},#{chatNick})
+    </insert>
 </mapper>

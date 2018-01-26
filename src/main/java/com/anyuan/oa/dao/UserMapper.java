@@ -31,4 +31,10 @@ public interface UserMapper {
      * @return
      */
     List<User> findUserByDeptId(String deptId);
+
+    /**
+     * 绑定时插入用户绑定表
+     * @param user
+     */
+    void insertWeChatUser(User user);
 }
