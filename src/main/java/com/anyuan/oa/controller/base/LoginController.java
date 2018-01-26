@@ -22,7 +22,6 @@ import java.util.Map;
  */
 @Controller
 @RequestMapping("/login")
-@SessionAttributes({""})
 public class LoginController extends BaseController {
 
     @Resource
