@@ -4,6 +4,7 @@ import com.anyuan.oa.dao.UserMapper;
 import com.anyuan.oa.model.User;
 import com.anyuan.oa.utils.ConstantUtil;
 import com.anyuan.oa.utils.EncryptUtil;
+import com.anyuan.oa.utils.MD5Util;
 import org.springframework.stereotype.Controller;
 import org.springframework.util.ObjectUtils;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -37,27 +38,22 @@ public class LoginController extends BaseController {
             User oaUser = userMapper.findUserByAccount(paramUser.getAccount());
             if (ObjectUtils.isEmpty(oaUser)) {
                 return coverErrorMessage(ConstantUtil.NO_ACCOUNT);
-            } else if (!oaUser.getPassword().equals(paramUser.getPassword())) {
+            } else if (!oaUser.getPassword().equals(MD5Util.MD5(paramUser.getPassword()))) {
                 return coverErrorMessage(ConstantUtil.ERROR_ACCOUNT);
             } else {
                 //插入绑定表数据记录
                 userMapper.insertWeChatUser(paramUser);
                 //验证通过，写入session会话
-                HttpSession session = request.getSession();
-                String keyAfter = paramUser.getOpenId() + "_" + paramUser.getAccount();
-                String sessionKey = "sessionKey_" + keyAfter;
-                String sessionValue = EncryptUtil.encrypt(sessionKey);
-                session.setAttribute(sessionKey, sessionValue);
-                return coverSuccessData(sessionKey);
+                return coverSuccessData(ConstantUtil.LOGIN_SESSION_ID);
             }
         } else {
             //校验用户登录绑定信息
             if (!weUser.getUserName().equals(paramUser.getAccount())
-                    || !weUser.getPassword().equals(paramUser.getPassword())) {
+                    || !weUser.getPassword().equals(MD5Util.MD5(paramUser.getPassword()))) {
                 return coverErrorMessage(ConstantUtil.ERROR_ACCOUNT);
             } else {
                 //验证通过
-                return coverSuccessData(weUser);
+                return coverSuccessData(ConstantUtil.LOGIN_SESSION_ID);
             }
         }
     }
