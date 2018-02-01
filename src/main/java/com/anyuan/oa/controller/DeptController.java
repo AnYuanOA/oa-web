@@ -42,9 +42,13 @@ public class DeptController extends BaseController {
                 }
                 return coverSuccessData(list);
             } else {
-                Dept dept = deptMapper.findDeptById(key);
-                recurDept(dept);
-                return coverSuccessData(dept);
+                List<Dept> childList = deptMapper.findChildDeptdByParentId(key);
+                if (childList != null && !childList.isEmpty()) {
+                    for (Dept dept : childList) {
+                        recurDept(dept);
+                    }
+                }
+                return coverSuccessData(childList);
             }
         } catch (Exception e) {
             e.printStackTrace();
