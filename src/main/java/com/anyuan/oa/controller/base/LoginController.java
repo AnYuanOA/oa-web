@@ -49,6 +49,7 @@ public class LoginController extends BaseController {
         } else {
             //校验用户登录绑定信息
             if (!weUser.getUserName().equals(paramUser.getAccount())
+                    || !weUser.getOpenId().equals(paramUser.getOpenId())
                     || !weUser.getPassword().equals(MD5Util.MD5(paramUser.getPassword()))) {
                 return coverErrorMessage(ConstantUtil.ERROR_ACCOUNT);
             } else {
