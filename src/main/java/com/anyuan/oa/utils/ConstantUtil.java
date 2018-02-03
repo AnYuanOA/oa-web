@@ -14,4 +14,9 @@ public class ConstantUtil {
     public static final String RESPONSE_EXCEPTION = "服务异常！";
 
     public static final String NO_PERMISSION = "您无权进行访问！";
+
+    /***
+     * 老OA访问授权信息
+     */
+    public static final String OLD_OA_ACCESS_TOKEN = "OLD_OA_ACCESS_TOKEN";
 }
