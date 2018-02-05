@@ -1,20 +1,28 @@
 package com.anyuan.oa.service;
 
 import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.TypeReference;
 import com.anyuan.oa.model.OldAccessToken;
-import com.anyuan.oa.model.response.OldOAToDoListResponse;
-import com.anyuan.oa.model.response.OldOAToReadListResponse;
-import com.anyuan.oa.model.response.OldServiceResponse;
-import com.anyuan.oa.model.response.HTTPResponse;
+import com.anyuan.oa.model.response.*;
+import com.anyuan.oa.utils.ConstantUtil;
 import com.anyuan.oa.utils.HTTPUtil;
+import com.anyuan.oa.utils.thread.HTTPTask;
+import com.anyuan.oa.utils.thread.HTTPTaskCallback;
+import com.sun.org.apache.xpath.internal.operations.Bool;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
+import org.springframework.stereotype.Component;
 
+import javax.annotation.Resource;
 import java.io.IOException;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
  * Created by pengkan on 2018/2/1.
  */
+@Component("oldOAService")
 public class OldOAService {
     /**
      * 基础URL
@@ -41,6 +49,18 @@ public class OldOAService {
      * */
     private static final String TODO_DETAIL_URL = "api/HRC6RestApply/Detail";
     /**
+     * 获取流程详细信息
+     */
+    private static final String WORKFLOW_OPERATION_INFO = "api/WorkFlow/getWFDetailInfoNew";
+    /**
+     * 获取流程附件列表
+     */
+    private static final String WORKFLOW_ATTACHS = "api/HRC6RestApply/GetAttachs";
+    /**
+     * 获取流程办理列表
+     * */
+    private static final String WORKFLOW_DEALT_INFO = "api/workflow/getWFDealtInfo";
+    /**
      * 待办附件列表URI
      * */
     private static final String TODO_ATTACHMENT_URL = "api/C6DjAttachs/GetDJAttachsByDJBH";
@@ -61,6 +81,9 @@ public class OldOAService {
      * 客户端ID
      */
     private static final String CLIENT_ID = "imWebBrowser";
+
+    @Resource(name = "taskExecutor")
+    private ThreadPoolTaskExecutor taskExecutor;
 
     /**
      * 登录 (返回的accessToken保存在session中，供后续接口调用使用)
@@ -145,13 +168,111 @@ public class OldOAService {
      * @param token 保存在session中的accessToken
      * @param appID 待办项ID
      * */
-    public HTTPResponse getToDoDetail(OldAccessToken token, String appID) throws IOException {
-        String url = BASE_URL_BUZAPI + TODO_DETAIL_URL;
-        Map<String, Object> param = new HashMap<String, Object>();
-        param.put("AppID", appID);
+    public OldServiceResponse<OldOAToDoDetailResponse> getToDoDetail(OldAccessToken token, String appID) throws IOException {
+        final Object lock = new Object();
         Map<String, String> headers = getHeaders(token);
-        HTTPResponse result = HTTPUtil.sendPostWithJson(url, param, headers);
-        return result;
+        //待办详情请求结果
+        final HTTPResponse detailResponse = new HTTPResponse();
+        //待办当前允许操作请求结果
+        final HTTPResponse operationResponse = new HTTPResponse();
+        //待办流程已办理节点请求结果
+        final HTTPResponse dealtResponse = new HTTPResponse();
+
+        //待办流程详情任务
+        String detaillUrl = BASE_URL + TODO_DETAIL_URL;
+        Map<String, Object> detailParam = new HashMap<String, Object>();
+        detailParam.put("AppID", appID);
+        HTTPTask detailTask = new HTTPTask(detaillUrl, detailParam, headers, new HTTPTaskCallback() {
+            public void requestComplete(HTTPResponse response) {
+                completeWithResponse(detailResponse, response);
+                synchronized (lock) {
+                    if(operationResponse.isComplete() && dealtResponse.isComplete()){
+                        lock.notify();
+                    }
+                }
+            }
+        });
+
+        //待办流程当前操作任务
+        String operationUrl = BASE_URL + WORKFLOW_OPERATION_INFO;
+        HTTPTask operationTask = new HTTPTask(operationUrl, appID, headers, new HTTPTaskCallback() {
+            public void requestComplete(HTTPResponse response) {
+                completeWithResponse(operationResponse, response);
+                synchronized (lock) {
+                    if(detailResponse.isComplete() && dealtResponse.isComplete()){
+                        lock.notify();
+                    }
+                }
+            }
+        });
+
+        //待办流程已办理节点任务
+        String dealtUrl = BASE_URL + WORKFLOW_DEALT_INFO;
+        HTTPTask dealtTask = new HTTPTask(dealtUrl, appID, headers, new HTTPTaskCallback() {
+            public void requestComplete(HTTPResponse response) {
+                completeWithResponse(dealtResponse, response);
+                synchronized (lock) {
+                    if(detailResponse.isComplete() && operationResponse.isComplete()){
+                        lock.notify();
+                    }
+                }
+            }
+        });
+
+        //并发执行任务
+        OldServiceResponse<OldOAToDoDetailResponse> serviceResponse = new OldServiceResponse<OldOAToDoDetailResponse>();
+        try {
+            synchronized (lock) {
+                taskExecutor.execute(detailTask);
+                taskExecutor.execute(operationTask);
+                taskExecutor.execute(dealtTask);
+                lock.wait();
+            }
+        }catch (InterruptedException e) {
+            e.printStackTrace();
+            serviceResponse.setSuccess(false);
+            serviceResponse.setError(ConstantUtil.RESPONSE_EXCEPTION);
+            serviceResponse.setError_description(ConstantUtil.RESPONSE_EXCEPTION);
+        }
+
+        if(detailResponse.getCode()==HTTPResponse.SUCCESS && operationResponse.getCode()==HTTPResponse.SUCCESS && dealtResponse.getCode()==HTTPResponse.SUCCESS){
+            Map<String, Object> detailJson = JSON.parseObject(detailResponse.getResult(), new TypeReference<Map<String, Object>>(){});
+            Map<String, Object> operationJson = JSON.parseObject(operationResponse.getResult(), new TypeReference<Map<String, Object>>(){});
+            Map<String, Object> dealtJson = JSON.parseObject(dealtResponse.getResult(), new TypeReference<Map<String, Object>>(){});
+            if((Boolean)detailJson.get("isSucceed") && (Integer)operationJson.get("success")==1 && (Integer)dealtJson.get("success")==1){
+                OldOAToDoDetail detail = JSON.parseObject(JSON.toJSONString(detailJson.get("executedModel")), OldOAToDoDetail.class);
+                OldOAToDoOperation operation = JSON.parseObject(JSON.toJSONString(operationJson), OldOAToDoOperation.class);
+                List<OldOAToDoDealt> dealtList = JSON.parseArray(JSON.toJSONString(dealtJson.get("wfDealtList")), OldOAToDoDealt.class);
+                String attachsUrl = BASE_URL + WORKFLOW_ATTACHS;
+                Map<String, Object> attachsParam = new HashMap<String, Object>();
+                attachsParam.put("attL_ID", detail.getAttL_ID());
+                HTTPResponse attachResponse = HTTPUtil.sendPostWithJson(attachsUrl, attachsParam, headers);
+                Map<String, Object> attachJson = JSON.parseObject(attachResponse.getResult(), new TypeReference<Map<String, Object>>(){});
+                if((Boolean) attachJson.get("isSucceed")){
+                    List<OldOAAttachment> attachmentList = JSON.parseArray(JSON.toJSONString(attachJson.get("executedModel")), OldOAAttachment.class);
+                    OldOAToDoDetailResponse detailRes = new OldOAToDoDetailResponse();
+                    detailRes.setDetail(detail);
+                    detailRes.setOperation(operation);
+                    detailRes.setDealtList(dealtList);
+                    detailRes.setAttachmentList(attachmentList);
+                    serviceResponse.setSuccess(true);
+                    serviceResponse.setData(detailRes);
+                }
+            }
+        }
+
+        if(!serviceResponse.isSuccess()){
+            serviceResponse.setError(ConstantUtil.RESPONSE_EXCEPTION);
+            serviceResponse.setError_description(ConstantUtil.RESPONSE_EXCEPTION);
+        }
+
+        return serviceResponse;
+    }
+
+    private void completeWithResponse(HTTPResponse response, HTTPResponse tmpResponse) {
+        response.setComplete(true);
+        response.setCode(tmpResponse.getCode());
+        response.setResult(tmpResponse.getResult());
     }
 
     /**

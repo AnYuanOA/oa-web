@@ -1,5 +1,6 @@
 package com.anyuan.oa.test;
 
+import com.alibaba.fastjson.JSON;
 import com.anyuan.oa.model.OldAccessToken;
 import com.anyuan.oa.model.response.OldServiceResponse;
 import com.anyuan.oa.service.OldOAService;
@@ -20,34 +21,41 @@ public class OldOAServiceTest {
     private static OldOAService oaService;
     private static OldAccessToken token;
 
-    @BeforeClass
-    public static void init(){
-        oaService = new OldOAService();
+    @Test
+    public void test() {
+        String str = "123456";
+        String jsonString = JSON.toJSONString(str);
+        System.out.println(jsonString);
     }
 
-    @Test
-    public void test1Login(){
-        assert oaService!=null;
-        try {
-            OldServiceResponse<OldAccessToken> response = oaService.login("jinher", "666666");
-            token = response.getData();
-            System.out.println("Login: " + response);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
+//    @BeforeClass
+//    public static void init(){
+//        oaService = new OldOAService();
+//    }
 
-    @Test
-    public void test2GetToDoList() {
-        assert oaService!=null;
-        assert token!=null;
-        try {
-            HTTPResponse response = oaService.getToDoList(token);
-            System.out.println("ToDoList: " + response);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
+//    @Test
+//    public void test1Login(){
+//        assert oaService!=null;
+//        try {
+//            OldServiceResponse<OldAccessToken> response = oaService.login("jinher", "666666");
+//            token = response.getData();
+//            System.out.println("Login: " + response);
+//        } catch (IOException e) {
+//            e.printStackTrace();
+//        }
+//    }
+
+//    @Test
+//    public void test2GetToDoList() {
+//        assert oaService!=null;
+//        assert token!=null;
+//        try {
+//            HTTPResponse response = oaService.getToDoList(token);
+//            System.out.println("ToDoList: " + response);
+//        } catch (IOException e) {
+//            e.printStackTrace();
+//        }
+//    }
 
 //    @Test
 //    public void test3GetToDoDetail() {
@@ -97,9 +105,9 @@ public class OldOAServiceTest {
 //        }
 //    }
 
-    @AfterClass
-    public static void destroy() {
-        oaService = null;
-    }
+//    @AfterClass
+//    public static void destroy() {
+//        oaService = null;
+//    }
 
 }

@@ -2,6 +2,8 @@ package com.anyuan.oa.controller;
 
 import com.anyuan.oa.controller.base.BaseController;
 import com.anyuan.oa.model.OldAccessToken;
+import com.anyuan.oa.model.response.OldOAToDoListResponse;
+import com.anyuan.oa.model.response.OldServiceResponse;
 import com.anyuan.oa.service.OldOAService;
 import com.anyuan.oa.utils.ConstantUtil;
 import com.anyuan.oa.model.response.HTTPResponse;
@@ -33,12 +35,11 @@ public class WorkFlowController extends BaseController{
         if(lastTime==null){
             lastTime = "";
         }
-        HTTPResponse response = oldOAService.getToDoList((OldAccessToken) request.getSession().getAttribute(ConstantUtil.OLD_OA_ACCESS_TOKEN));
-        if(response.getCode() == HTTPResponse.SUCCESS){
-
+        OldServiceResponse<OldOAToDoListResponse> response = oldOAService.getToDoList((OldAccessToken) request.getSession().getAttribute(ConstantUtil.OLD_OA_ACCESS_TOKEN), lastTime);
+        if(response.isSuccess()){
+            return coverSuccessData(response.getData());
         }else{
             return coverErrorMessage(ConstantUtil.RESPONSE_EXCEPTION);
         }
-        return null;
     }
 }

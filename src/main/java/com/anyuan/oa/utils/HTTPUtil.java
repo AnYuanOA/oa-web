@@ -53,10 +53,10 @@ public class HTTPUtil {
     /***
      * 向指定 URL 发送POST方法的请求,ContentType = application/json
      * @param url
-     * @param param  json字符串
+     * @param param  Map<String, Object> 或 String
      * @return
      */
-    public static HTTPResponse sendPostWithJson(String url, Map<String, Object> param, Map<String, String> headers) throws IOException {
+    public static HTTPResponse sendPostWithJson(String url, Object param, Map<String, String> headers) throws IOException {
         HttpPost postRequest = new HttpPost(url);
         postRequest.addHeader("Content-type","application/json; charset=utf-8");
         postRequest.setHeader("Accept", "application/json");

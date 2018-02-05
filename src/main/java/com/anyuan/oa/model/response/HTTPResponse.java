@@ -9,8 +9,9 @@ public class HTTPResponse {
     public static final int SUCCESS = 200;
     private int code;
     private String result;
+    private boolean complete;
 
-    protected HTTPResponse(){
+    public HTTPResponse(){
         this.code = 400;
         this.result = null;
     }
@@ -29,6 +30,14 @@ public class HTTPResponse {
 
     public void setResult(String result) {
         this.result = result;
+    }
+
+    public boolean isComplete() {
+        return complete;
+    }
+
+    public void setComplete(boolean complete) {
+        this.complete = complete;
     }
 
     @Override
