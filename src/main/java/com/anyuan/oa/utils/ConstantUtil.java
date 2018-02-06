@@ -19,6 +19,8 @@ public class ConstantUtil {
 
     public static final String USER_NOT_BIND = "未绑定用户";
 
+    public static final String APPID_EMPTY = "appID不能为空";
+
     /***
      * 老OA访问授权信息
      */

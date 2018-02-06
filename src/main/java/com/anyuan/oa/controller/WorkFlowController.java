@@ -2,12 +2,10 @@ package com.anyuan.oa.controller;
 
 import com.anyuan.oa.controller.base.BaseController;
 import com.anyuan.oa.model.OldAccessToken;
-import com.anyuan.oa.model.response.OldOAToDoListResponse;
-import com.anyuan.oa.model.response.OldServiceResponse;
+import com.anyuan.oa.model.response.*;
 import com.anyuan.oa.service.OldOAService;
 import com.anyuan.oa.service.SessionHelper;
 import com.anyuan.oa.utils.ConstantUtil;
-import com.anyuan.oa.model.response.HTTPResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -38,11 +36,54 @@ public class WorkFlowController extends BaseController{
         if(lastTime==null){
             lastTime = "";
         }
-        OldServiceResponse<OldOAToDoListResponse> response = oldOAService.getToDoList((OldAccessToken) SessionHelper.getInstance().getSession(request).getAttribute(ConstantUtil.OLD_OA_ACCESS_TOKEN), lastTime);
+        OldServiceResponse<OldOAToDoListResponse> response = oldOAService.getToDoList(SessionHelper.getInstance().getAccessToken(request), lastTime);
         if(response.isSuccess()){
             return coverSuccessData(response.getData());
         }else{
             return coverErrorMessage(ConstantUtil.RESPONSE_EXCEPTION);
+        }
+    }
+
+    /**
+     * 获取待阅列表
+     * @param currentPage 页码，从1开始
+     * @param request
+     * @return
+     * @throws IOException
+     */
+    @RequestMapping("/getToReadList")
+    @ResponseBody
+    public Map<String, Object> getToReadList(String currentPage, HttpServletRequest request) throws IOException {
+        if(currentPage==null){
+            currentPage = "1";
+        }
+        OldServiceResponse<OldOAToReadListResponse> response = oldOAService.getToReadList(SessionHelper.getInstance().getAccessToken(request), Integer.parseInt(currentPage));
+        if(response.isSuccess()){
+            return coverSuccessData(response.getData());
+        }else {
+            return coverErrorMessage(ConstantUtil.RESPONSE_EXCEPTION);
+        }
+    }
+
+    /**
+     * 获取待办流程详情
+     * @param appID 业务ID
+     * @param request
+     * @return
+     * @throws IOException
+     */
+    @RequestMapping("/getToDoDetail")
+    @ResponseBody
+    public Map<String, Object> getToDoDetail(String appID, HttpServletRequest request) throws IOException {
+        if(appID!=null){
+            OldServiceResponse<OldOAToDoDetailResponse> response = oldOAService.getToDoDetail(SessionHelper.getInstance().getAccessToken(request), appID);
+            if(response.isSuccess()){
+                return coverSuccessData(response.getData());
+            }else{
+                return coverErrorMessage(ConstantUtil.RESPONSE_EXCEPTION);
+            }
+        }else{
+            return coverErrorMessage(ConstantUtil.APPID_EMPTY);
         }
     }
 }

@@ -32,6 +32,14 @@ public class WorkFlowTest {
      * 获取待办列表
      */
     private static final String GET_TODO_LIST_URL = "/workflow/getToDoList";
+    /**
+     * 获取待阅列表
+     */
+    private static final String GET_TOREAD_LIST_URL = "/workflow/getToReadList";
+    /**
+     * 获取待办详情
+     */
+    private static final String GET_TODO_DETAIL_URL = "/workflow/getToDoDetail";
 
     /**
      * 测试用openID
@@ -90,12 +98,32 @@ public class WorkFlowTest {
      * @throws IOException
      */
     @Test
-    public void test2GetToDoList() throws IOException {
+    public void test1GetToDoList() throws IOException {
         assert sessionID!=null;
         String url = BASE_URL + GET_TODO_LIST_URL;
         Map<String, String> headers = getCommomHeaders();
         HTTPResponse response = HTTPUtil.sendPostWithEncodeForm(url, null, headers);
-        System.out.println(response);
+        System.out.println("TodoList: " + response.getResult());
+    }
+
+    @Test
+    public void test2GetToReadList() throws IOException {
+        assert sessionID!=null;
+        String url = BASE_URL + GET_TOREAD_LIST_URL;
+        Map<String, String> headers = getCommomHeaders();
+        HTTPResponse response = HTTPUtil.sendPostWithEncodeForm(url, null, headers);
+        System.out.println("ToReadList: " + response.getResult());
+    }
+
+    @Test
+    public void test3GetToDoDetail() throws IOException {
+        assert sessionID!=null;
+        String url = BASE_URL + GET_TODO_DETAIL_URL;
+        Map<String, String> params = new HashMap<String, String>();
+        params.put("appID", "40945");
+        Map<String, String> headers = getCommomHeaders();
+        HTTPResponse response = HTTPUtil.sendPostWithEncodeForm(url, params, headers);
+        System.out.println("TodoDetail: " + response.getResult());
     }
 
     /**

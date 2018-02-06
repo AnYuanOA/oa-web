@@ -1,5 +1,6 @@
 package com.anyuan.oa.service;
 
+import com.anyuan.oa.model.OldAccessToken;
 import com.anyuan.oa.utils.ConstantUtil;
 
 import javax.servlet.http.HttpServletRequest;
@@ -30,5 +31,9 @@ public class SessionHelper {
             sessionMap.put(JSESSIONID, session);
         }
         return session;
+    }
+
+    public OldAccessToken getAccessToken(HttpServletRequest httpServletRequest) {
+        return (OldAccessToken) getSession(httpServletRequest).getAttribute(ConstantUtil.OLD_OA_ACCESS_TOKEN);
     }
 }
