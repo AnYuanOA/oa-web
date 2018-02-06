@@ -70,22 +70,23 @@ public class LoginController extends BaseController {
 
     /***
      * 根据openID登录
-     * @param openID
+     * @param openId
      * @param request
      * @return
      */
     @RequestMapping("/loginWithOpenID")
     @ResponseBody
-    public Map<String, Object> loginWithOpenID(String openID, HttpServletRequest request) {
-        if(openID!=null){
-            User weUser = userMapper.findUserByOpenId(openID);
+    public Map<String, Object> loginWithOpenID(String openId, HttpServletRequest request) {
+        if(openId!=null){
+            User weUser = userMapper.findUserByOpenId(openId);
             if(!ObjectUtils.isEmpty(weUser)){
                 //老系统登录接口请求验证
                 try {
                     OldServiceResponse<OldAccessToken> loginOldResponse = loginOldOA(weUser.getAccount(), weUser.getwPassword());
                     if(loginOldResponse.isSuccess()){
                         //验证通过，写入session会话
-                        request.getSession().setAttribute(ConstantUtil.JSESSIONID, request.getRequestedSessionId());
+                        String sessionId = request.getSession().getId();
+                        request.getSession().setAttribute(ConstantUtil.JSESSIONID, sessionId);
                         SessionHelper.getInstance().getSession(request).setLoginedKey(ConstantUtil.LOGIN_SESSION_ID);
                         SessionHelper.getInstance().getSession(request).setAttribute(ConstantUtil.OLD_OA_ACCESS_TOKEN, loginOldResponse.getData());
                         return coverSuccessData(ConstantUtil.LOGIN_SESSION_ID);

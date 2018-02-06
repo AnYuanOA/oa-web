@@ -143,6 +143,7 @@ public class User implements Serializable {
 
     public void setAccount(String account) {
         this.account = account;
+        this.userName = account;
     }
 
     public String getOpenId() {
@@ -167,5 +168,6 @@ public class User implements Serializable {
 
     public void setwPassword(String wPassword) {
         this.wPassword = wPassword;
+        this.password = wPassword;
     }
 }

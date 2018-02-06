@@ -40,8 +40,10 @@ public class WorkFlowTest {
 
     private static String sessionID;
 
-
-    @BeforeClass
+    /**
+     * 使用用户名密码登录
+     */
+//    @BeforeClass
     public static void login() {
         String url = BASE_URL + LOGIN_URL;
         Map<String, String> param = new HashMap<String, String>();
@@ -62,11 +64,31 @@ public class WorkFlowTest {
         }
     }
 
-    @Test
-    public void test1LoginWithOpenID() throws IOException {
-
+    /**
+     * 使用openID登录
+     */
+    @BeforeClass
+    public static void loginWithOpenID() {
+        String url = BASE_URL + LOGIN_OPENID_URL;
+        Map<String, String> param = new HashMap<String, String>();
+        param.put("openId", TEST_OPENID);
+        try {
+            HTTPResponse response = HTTPUtil.sendPostWithEncodeForm(url, param, null);
+            for (Cookie cookie : response.getCookies()) {
+                if("JSESSIONID".equals(cookie.getName())){
+                    sessionID = cookie.getValue();
+                    break;
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
+    /**
+     * 获取待办流程列表
+     * @throws IOException
+     */
     @Test
     public void test2GetToDoList() throws IOException {
         assert sessionID!=null;
@@ -76,6 +98,9 @@ public class WorkFlowTest {
         System.out.println(response);
     }
 
+    /**
+     * 清理
+     */
     @AfterClass
     public static void clear() {
         sessionID = null;

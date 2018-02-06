@@ -40,21 +40,11 @@
 
     <select id="findUserByOpenId" resultMap="User">
         SELECT
-            a.USERNAME_,
-            a.CNAME_,
-            a.EMAIL_,
-            a.MOBILE_,
-            a.PASSWORD_,
-            a.ENABLED_,
-            b.DEPT_ID_,
-            c.*
+            *
         FROM
-            bdf2_user a
-            LEFT JOIN bdf2_user_dept b ON a.USERNAME_ = b.USERNAME_
-            LEFT JOIN bdf2_user_wechat c ON a.USERNAME_ = c.ACCOUNT_
+            bdf2_user_wechat
         WHERE
-            a.ENABLED_ = 1
-            AND a.ADMINISTRATOR_ = 0 AND c.OPEN_ID_ = #{openId}
+            OPEN_ID_ = #{openId}
     </select>
 
     <select id="findUserByAccount" resultMap="User">
