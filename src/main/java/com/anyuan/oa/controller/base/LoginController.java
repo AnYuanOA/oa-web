@@ -34,52 +34,43 @@ public class LoginController extends BaseController {
     @RequestMapping("/loginAnyuanUser")
     @ResponseBody
     public Map<String, Object> login(User paramUser, HttpServletRequest request, HttpServletResponse response) {
-        User weUser = userMapper.findUserByOpenId(paramUser.getOpenId());
-        if (ObjectUtils.isEmpty(weUser)) {
-            //第一次进行绑定
-            //验证用户名密码
-            User oaUser = userMapper.findUserByAccount(paramUser.getAccount());
-            if (ObjectUtils.isEmpty(oaUser)) {
-                return coverErrorMessage(ConstantUtil.NO_ACCOUNT);
-            } else if (!oaUser.getPassword().equals(MD5Util.MD5(paramUser.getPassword()))) {
-                return coverErrorMessage(ConstantUtil.ERROR_ACCOUNT);
-            } else {
-                //插入绑定表数据记录
-                userMapper.insertWeChatUser(paramUser);
-                return loginOldOA(paramUser, request);
+        try {
+            //老系统登录接口请求验证
+            OldServiceResponse<OldAccessToken> loginOldResponse=loginOldOA(paramUser);
+            if(loginOldResponse.isSuccess()){
+                //验证通过，写入session会话
+                request.getSession().setAttribute(ConstantUtil.OLD_OA_ACCESS_TOKEN, loginOldResponse.getData());
+                User weUser = userMapper.findUserByOpenId(paramUser.getOpenId());
+                if(ObjectUtils.isEmpty(weUser)){
+                    //第一次绑定
+                    //登录鉴权通过，写入绑定表
+                    userMapper.insertWeChatUser(paramUser);
+                }else{
+                    //验证用户名是否一致，避免拿别人的账号登录
+                    if(!weUser.getUserName().equals(paramUser.getAccount())){
+                        return coverErrorMessage(ConstantUtil.ERROR_ACCOUNT);
+                    }
+                    //已存在绑定用户
+                    paramUser.setId(weUser.getId());
+                    userMapper.updateWeChatUser(paramUser);
+                }
+                return coverSuccessData(ConstantUtil.LOGIN_SESSION_ID);
+            }else{
+                return coverErrorMessage(loginOldResponse.getError_description());
             }
-        } else {
-            //校验用户登录绑定信息
-            if (!weUser.getUserName().equals(paramUser.getAccount())
-                    || !weUser.getOpenId().equals(paramUser.getOpenId())
-                    || !weUser.getPassword().equals(MD5Util.MD5(paramUser.getPassword()))) {
-                return coverErrorMessage(ConstantUtil.ERROR_ACCOUNT);
-            } else {
-                return loginOldOA(paramUser, request);
-            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            return coverErrorMessage(ConstantUtil.RESPONSE_EXCEPTION);
         }
     }
 
     /***
      * 登录老系统
      * @param paramUser
-     * @param request
      * @return
      */
-    private Map<String, Object> loginOldOA(User paramUser, HttpServletRequest request) {
+    private OldServiceResponse<OldAccessToken> loginOldOA(User paramUser) throws Exception{
         //登录老OA平台
-        try {
-            OldServiceResponse<OldAccessToken> loginResponse = oldOAService.login(paramUser.getUserName(), paramUser.getPassword());
-            if(loginResponse.isSuccess()){
-                //验证通过，写入session会话
-                request.getSession().setAttribute(ConstantUtil.OLD_OA_ACCESS_TOKEN, loginResponse.getData());
-                return coverSuccessData(ConstantUtil.LOGIN_SESSION_ID);
-            }else{
-                return coverErrorMessage(ConstantUtil.ERROR_ACCOUNT);
-            }
-        } catch (IOException e) {
-            e.printStackTrace();
-            return coverErrorMessage(ConstantUtil.RESPONSE_EXCEPTION);
-        }
+        return oldOAService.login(paramUser.getUserName(), paramUser.getPassword());
     }
 }

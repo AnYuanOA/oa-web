@@ -66,6 +66,10 @@ public class User implements Serializable {
      */
     private String chatNick;
 
+    /**
+     * 登录秘钥
+     */
+    private String wPassword;
 
     public String getUserName() {
         return userName;
@@ -153,5 +157,13 @@ public class User implements Serializable {
 
     public void setChatNick(String chatNick) {
         this.chatNick = chatNick;
+    }
+
+    public String getwPassword() {
+        return wPassword;
+    }
+
+    public void setwPassword(String wPassword) {
+        this.wPassword = wPassword;
     }
 }

@@ -37,4 +37,10 @@ public interface UserMapper {
      * @param user
      */
     void insertWeChatUser(User user);
+
+    /**
+     * 更新用户绑定表数据
+     * @param paramUser
+     */
+    void updateWeChatUser(User paramUser);
 }
