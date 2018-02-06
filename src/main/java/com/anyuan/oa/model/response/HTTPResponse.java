@@ -1,6 +1,9 @@
 package com.anyuan.oa.model.response;
 
 import com.alibaba.fastjson.JSON;
+import org.apache.http.cookie.Cookie;
+
+import java.util.List;
 
 public class HTTPResponse {
     /**
@@ -10,6 +13,7 @@ public class HTTPResponse {
     private int code;
     private String result;
     private boolean complete;
+    private List<Cookie> cookies;
 
     public HTTPResponse(){
         this.code = 400;
@@ -38,6 +42,14 @@ public class HTTPResponse {
 
     public void setComplete(boolean complete) {
         this.complete = complete;
+    }
+
+    public List<Cookie> getCookies() {
+        return cookies;
+    }
+
+    public void setCookies(List<Cookie> cookies) {
+        this.cookies = cookies;
     }
 
     @Override

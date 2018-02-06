@@ -5,8 +5,9 @@ import com.anyuan.oa.model.OldAccessToken;
 import com.anyuan.oa.model.response.OldServiceResponse;
 import com.anyuan.oa.model.User;
 import com.anyuan.oa.service.OldOAService;
+import com.anyuan.oa.service.Session;
+import com.anyuan.oa.service.SessionHelper;
 import com.anyuan.oa.utils.ConstantUtil;
-import com.anyuan.oa.utils.MD5Util;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.util.ObjectUtils;
@@ -38,8 +39,6 @@ public class LoginController extends BaseController {
             //老系统登录接口请求验证
             OldServiceResponse<OldAccessToken> loginOldResponse=loginOldOA(paramUser);
             if(loginOldResponse.isSuccess()){
-                //验证通过，写入session会话
-                request.getSession().setAttribute(ConstantUtil.OLD_OA_ACCESS_TOKEN, loginOldResponse.getData());
                 User weUser = userMapper.findUserByOpenId(paramUser.getOpenId());
                 if(ObjectUtils.isEmpty(weUser)){
                     //第一次绑定
@@ -54,6 +53,11 @@ public class LoginController extends BaseController {
                     paramUser.setId(weUser.getId());
                     userMapper.updateWeChatUser(paramUser);
                 }
+                //验证通过，写入session会话
+                String sessionId = request.getSession().getId();
+                request.getSession().setAttribute(ConstantUtil.JSESSIONID, sessionId);
+                SessionHelper.getInstance().getSession(request).setLoginedKey(ConstantUtil.LOGIN_SESSION_ID);
+                SessionHelper.getInstance().getSession(request).setAttribute(ConstantUtil.OLD_OA_ACCESS_TOKEN, loginOldResponse.getData());
                 return coverSuccessData(ConstantUtil.LOGIN_SESSION_ID);
             }else{
                 return coverErrorMessage(loginOldResponse.getError_description());
@@ -65,6 +69,42 @@ public class LoginController extends BaseController {
     }
 
     /***
+     * 根据openID登录
+     * @param openID
+     * @param request
+     * @return
+     */
+    @RequestMapping("/loginWithOpenID")
+    @ResponseBody
+    public Map<String, Object> loginWithOpenID(String openID, HttpServletRequest request) {
+        if(openID!=null){
+            User weUser = userMapper.findUserByOpenId(openID);
+            if(!ObjectUtils.isEmpty(weUser)){
+                //老系统登录接口请求验证
+                try {
+                    OldServiceResponse<OldAccessToken> loginOldResponse = loginOldOA(weUser.getAccount(), weUser.getwPassword());
+                    if(loginOldResponse.isSuccess()){
+                        //验证通过，写入session会话
+                        request.getSession().setAttribute(ConstantUtil.JSESSIONID, request.getRequestedSessionId());
+                        SessionHelper.getInstance().getSession(request).setLoginedKey(ConstantUtil.LOGIN_SESSION_ID);
+                        SessionHelper.getInstance().getSession(request).setAttribute(ConstantUtil.OLD_OA_ACCESS_TOKEN, loginOldResponse.getData());
+                        return coverSuccessData(ConstantUtil.LOGIN_SESSION_ID);
+                    }else{
+                        return coverErrorMessage(loginOldResponse.getError_description());
+                    }
+                } catch (IOException e) {
+                    e.printStackTrace();
+                    return coverErrorMessage(ConstantUtil.RESPONSE_EXCEPTION);
+                }
+            }else{
+                return coverErrorMessage(ConstantUtil.USER_NOT_BIND);
+            }
+        }else {
+            return coverErrorMessage(ConstantUtil.OPENID_EMPTY);
+        }
+    }
+
+    /***
      * 登录老系统
      * @param paramUser
      * @return
@@ -72,5 +112,16 @@ public class LoginController extends BaseController {
     private OldServiceResponse<OldAccessToken> loginOldOA(User paramUser) throws Exception{
         //登录老OA平台
         return oldOAService.login(paramUser.getUserName(), paramUser.getPassword());
+    }
+
+    /***
+     * 登录老系统
+     * @param account  通过微信绑定存储的用户名
+     * @param wPassword   通过微信绑定存储的密码
+     * @return
+     * @throws IOException
+     */
+    private OldServiceResponse<OldAccessToken> loginOldOA(String account, String wPassword) throws IOException {
+        return oldOAService.login(account, wPassword);
     }
 }

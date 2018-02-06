@@ -5,11 +5,13 @@ import com.anyuan.oa.model.OldAccessToken;
 import com.anyuan.oa.model.response.OldOAToDoListResponse;
 import com.anyuan.oa.model.response.OldServiceResponse;
 import com.anyuan.oa.service.OldOAService;
+import com.anyuan.oa.service.SessionHelper;
 import com.anyuan.oa.utils.ConstantUtil;
 import com.anyuan.oa.model.response.HTTPResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.ResponseBody;
 
 import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
@@ -31,11 +33,12 @@ public class WorkFlowController extends BaseController{
      * @param request
      */
     @RequestMapping("/getToDoList")
+    @ResponseBody
     public Map<String, Object> getToDoList(String lastTime, HttpServletRequest request) throws IOException {
         if(lastTime==null){
             lastTime = "";
         }
-        OldServiceResponse<OldOAToDoListResponse> response = oldOAService.getToDoList((OldAccessToken) request.getSession().getAttribute(ConstantUtil.OLD_OA_ACCESS_TOKEN), lastTime);
+        OldServiceResponse<OldOAToDoListResponse> response = oldOAService.getToDoList((OldAccessToken) SessionHelper.getInstance().getSession(request).getAttribute(ConstantUtil.OLD_OA_ACCESS_TOKEN), lastTime);
         if(response.isSuccess()){
             return coverSuccessData(response.getData());
         }else{

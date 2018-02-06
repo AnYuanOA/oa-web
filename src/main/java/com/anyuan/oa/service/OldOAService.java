@@ -126,7 +126,7 @@ public class OldOAService {
         param.put("key", "");
         param.put("lastTime", lastTime);
         param.put("setload", setLoad);
-        Map<String, String> headers = getHeaders(token);
+        Map<String, String> headers = HTTPUtil.getAuthHeaders(token);
         HTTPResponse result = HTTPUtil.sendPostWithJson(url, param, headers);
         OldServiceResponse<OldOAToDoListResponse> response = JSON.parseObject(result.getResult(), OldServiceResponse.class);
         if(result.getCode() == HTTPResponse.SUCCESS){
@@ -152,7 +152,7 @@ public class OldOAService {
         param.put("PageSize", 10);
         param.put("lastTime", "");
         param.put("setload", 0);
-        Map<String, String> headers = getHeaders(token);
+        Map<String, String> headers = HTTPUtil.getAuthHeaders(token);
         HTTPResponse result = HTTPUtil.sendPostWithJson(url, param, headers);
         OldServiceResponse<OldOAToReadListResponse> response = JSON.parseObject(result.getResult(), OldServiceResponse.class);
         if(result.getCode() == HTTPResponse.SUCCESS){
@@ -170,7 +170,7 @@ public class OldOAService {
      * */
     public OldServiceResponse<OldOAToDoDetailResponse> getToDoDetail(OldAccessToken token, String appID) throws IOException {
         final Object lock = new Object();
-        Map<String, String> headers = getHeaders(token);
+        Map<String, String> headers = HTTPUtil.getAuthHeaders(token);
         //待办详情请求结果
         final HTTPResponse detailResponse = new HTTPResponse();
         //待办当前允许操作请求结果
@@ -286,7 +286,7 @@ public class OldOAService {
         Map<String, Object> param = new HashMap<String, Object>();
         param.put("DJBH", appOValue);
         param.put("DJSN", wfTemplateDJSN);
-        Map<String, String> headers = getHeaders(token);
+        Map<String, String> headers = HTTPUtil.getAuthHeaders(token);
         HTTPResponse result = HTTPUtil.sendPostWithJson(url, param, headers);
         return result;
     }
@@ -307,7 +307,7 @@ public class OldOAService {
         param.put("businessId", "");
         param.put("condition", "");
         param.put("isNewFlag", 1);
-        Map<String, String> headers = getHeaders(token);
+        Map<String, String> headers = HTTPUtil.getAuthHeaders(token);
         HTTPResponse result = HTTPUtil.sendPostWithJson(url, param, headers);
         return result;
     }
@@ -330,14 +330,8 @@ public class OldOAService {
         param.put("condition", "");
         param.put("isNewFlag", 1);
         param.put("nextStepID", nextStepID);
-        Map<String, String> headers = getHeaders(token);
+        Map<String, String> headers = HTTPUtil.getAuthHeaders(token);
         HTTPResponse result = HTTPUtil.sendPostWithJson(url, param, headers);
         return result;
-    }
-
-    private Map<String, String> getHeaders(OldAccessToken token) {
-        Map<String, String> headers = new HashMap<String, String>();
-        headers.put("Authorization", "Bearer " + token.getAccess_token());
-        return headers;
     }
 }

@@ -77,6 +77,7 @@ public class User implements Serializable {
 
     public void setUserName(String userName) {
         this.userName = userName;
+        this.account = userName;
     }
 
     public String getcName() {
@@ -109,6 +110,7 @@ public class User implements Serializable {
 
     public void setPassword(String password) {
         this.password = password;
+        this.wPassword = password;
     }
 
     public int getEnabled() {

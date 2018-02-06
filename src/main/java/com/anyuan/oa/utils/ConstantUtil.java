@@ -15,8 +15,16 @@ public class ConstantUtil {
 
     public static final String NO_PERMISSION = "您无权进行访问！";
 
+    public static final String OPENID_EMPTY = "openID不能为空";
+
+    public static final String USER_NOT_BIND = "未绑定用户";
+
     /***
      * 老OA访问授权信息
      */
     public static final String OLD_OA_ACCESS_TOKEN = "OLD_OA_ACCESS_TOKEN";
+    /**
+     * sessionID标识
+     */
+    public static final String JSESSIONID = "JSESSIONID";
 }
