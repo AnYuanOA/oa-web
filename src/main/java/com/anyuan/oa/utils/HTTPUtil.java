@@ -3,17 +3,22 @@ package com.anyuan.oa.utils;
 import com.alibaba.fastjson.JSON;
 import com.anyuan.oa.model.OldAccessToken;
 import com.anyuan.oa.model.response.HTTPResponse;
+import org.apache.http.Consts;
 import org.apache.http.HttpEntity;
+import org.apache.http.HttpHost;
 import org.apache.http.NameValuePair;
 import org.apache.http.client.CookieStore;
+import org.apache.http.client.config.RequestConfig;
 import org.apache.http.client.entity.UrlEncodedFormEntity;
 import org.apache.http.client.methods.CloseableHttpResponse;
+import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.BasicCookieStore;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
 import org.apache.http.message.BasicNameValuePair;
+import org.apache.http.protocol.HTTP;
 import org.apache.http.util.EntityUtils;
 
 import java.io.*;
@@ -50,7 +55,8 @@ public class HTTPUtil {
                 postRequest.setHeader(entry.getKey(), entry.getValue());
             }
         }
-        postRequest.setEntity(new UrlEncodedFormEntity(npvs));
+        UrlEncodedFormEntity formEntity = new UrlEncodedFormEntity(npvs, Consts.UTF_8);
+        postRequest.setEntity(formEntity);
         return execute(postRequest);
     }
 
@@ -73,10 +79,18 @@ public class HTTPUtil {
         return execute(postRequest);
     }
 
+    /**
+     * 提交post请求
+     * @param post post请求信息
+     * @return
+     * @throws IOException
+     */
     private static HTTPResponse execute(HttpPost post) throws IOException {
         CookieStore cookieStore = new BasicCookieStore();
         cookieStore.clear();
-        CloseableHttpClient client = HttpClients.custom().setDefaultCookieStore(cookieStore).build();
+        HttpHost proxy = new HttpHost("127.0.0.1", 8888, "http");
+        RequestConfig defaultRequestConfig = RequestConfig.custom().setProxy(proxy).build();
+        CloseableHttpClient client = HttpClients.custom().setDefaultCookieStore(cookieStore).setDefaultRequestConfig(defaultRequestConfig).build();
         HTTPResponse result = new HTTPResponse();
         CloseableHttpResponse response = client.execute(post);
         try {
@@ -84,6 +98,35 @@ public class HTTPUtil {
             result.setCode(response.getStatusLine().getStatusCode());
             result.setResult(EntityUtils.toString(entity));
             result.setCookies(cookieStore.getCookies());
+            EntityUtils.consume(entity);
+        } finally {
+            response.close();
+        }
+        return result;
+    }
+
+    /**
+     * 发送get请求
+     * @param url
+     * @return
+     * @throws IOException
+     */
+    public static HTTPResponse sendGet(String url, Map<String, String> headers) throws IOException {
+        HTTPResponse result = new HTTPResponse();
+        HttpHost proxy = new HttpHost("127.0.0.1", 8888, "http");
+        RequestConfig defaultRequestConfig = RequestConfig.custom().setProxy(proxy).build();
+        CloseableHttpClient client = HttpClients.custom().setDefaultRequestConfig(defaultRequestConfig).build();
+        HttpGet get = new HttpGet(url);
+        if(headers != null){
+            for(Map.Entry<String, String> entry : headers.entrySet()){
+                get.setHeader(entry.getKey(), entry.getValue());
+            }
+        }
+        CloseableHttpResponse response = client.execute(get);
+        try {
+            HttpEntity entity = response.getEntity();
+            result.setCode(response.getStatusLine().getStatusCode());
+            result.setResult(EntityUtils.toString(entity));
             EntityUtils.consume(entity);
         } finally {
             response.close();
