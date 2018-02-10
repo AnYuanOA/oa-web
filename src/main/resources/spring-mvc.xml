@@ -29,7 +29,7 @@
         <!-- 多个拦截器，顺序执行 -->
         <mvc:interceptor>
             <mvc:mapping path="/**"/>
-            <bean class="com.anyuan.oa.service.AccessInterceptor"/>
+            <bean class="com.anyuan.oa.service.interceptor.AccessInterceptor"/>
         </mvc:interceptor>
     </mvc:interceptors>
     <!-- 静态资源默认servlet配置 -->
