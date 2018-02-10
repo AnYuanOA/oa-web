@@ -57,6 +57,10 @@ public class WorkFlowTest {
      * 提交请假申请
      */
     private static final String SUBMIT_LEAVE_URL = "/workflow/submitLeave";
+    /**
+     * 提交用车申请
+     */
+    private static final String SUBMIT_USCAR_URL = "/workflow/submitUsingCar";
 
     /**
      * 测试用openID
@@ -70,12 +74,13 @@ public class WorkFlowTest {
      */
     @BeforeClass
     public static void login() {
+        HTTPUtil.setUsLocalProxy(true);
         String url = BASE_URL + LOGIN_URL;
         Map<String, String> param = new HashMap<String, String>();
-        param.put("userName", "pengkan");
-        param.put("openId", TEST_OPENID);
-        param.put("password", "123456");
-        param.put("chatNick", "Pengkan");
+        param.put("userName", "pengkan");//用户名
+        param.put("openId", TEST_OPENID);//微信小程序openid
+        param.put("password", "123456");//密码
+        param.put("chatNick", "Pengkan");//微信昵称
         try {
             HTTPResponse response = HTTPUtil.sendPostWithEncodeForm(url, param, null);
             for (Cookie cookie : response.getCookies()) {
@@ -96,7 +101,7 @@ public class WorkFlowTest {
     public static void loginWithOpenID() {
         String url = BASE_URL + LOGIN_OPENID_URL;
         Map<String, String> param = new HashMap<String, String>();
-        param.put("openId", TEST_OPENID);
+        param.put("openId", TEST_OPENID);//微信小程序openid
         try {
             HTTPResponse response = HTTPUtil.sendPostWithEncodeForm(url, param, null);
             for (Cookie cookie : response.getCookies()) {
@@ -212,21 +217,56 @@ public class WorkFlowTest {
         params.put("appID", "");
         params.put("in_sp_id", 0);
         params.put("attL_ID", "");
-        params.put("applyUserChnName", "pengkan");
-        params.put("attLT_Name", "事假");
-        params.put("attLT_ID", 2);
-        params.put("rest_start_date", "2018-02-02");
-        params.put("startType", "上午");
-        params.put("rest_end_date", "2018-02-03");
-        params.put("endType", "下午");
-        params.put("rest_day_num", 2);
-        params.put("attL_Reason", "测试");
-        params.put("workflowTitle", "pengkan休假申请（2018-02-02)");
+        params.put("applyUserChnName", "pengkan");//申请人姓名
+        params.put("attLT_Name", "事假");//请假类型名称
+        params.put("attLT_ID", 2);//请假类型ID
+        params.put("rest_start_date", "2018-02-02");//请假开始日期
+        params.put("startType", "上午");//请假开始类型
+        params.put("rest_end_date", "2018-02-03");//请假结束日期
+        params.put("endType", "下午");//请假结束类型
+        params.put("rest_day_num", 2);//请假天数
+        params.put("attL_Reason", "测试");//请假原因
+        params.put("workflowTitle", "pengkan休假申请（2018-02-02)");//流程标题
         params.put("isNew", true);
         Map<String, String> realParams = new HashMap<String, String>();
         realParams.put("param", JSON.toJSONString(params));
         HTTPResponse response = HTTPUtil.sendPostWithEncodeForm(url, realParams, headers);
         System.out.println("AddLeaveProcess: " + response.getResult());
+    }
+
+    /**
+     * 提交用车申请流程
+     * @throws IOException
+     */
+    @Test
+    public void test9AddUsCarProcess() throws IOException {
+        assert sessionID!=null;
+        String url = BASE_URL + SUBMIT_USCAR_URL;
+        Map<String, String> headers = getCommomHeaders();
+        Map<String, Object> params = new HashMap<String, Object>();
+        params.put("appID", "");
+        params.put("in_sp_id", 0);
+        params.put("applyUserChnName", "管理者");//申请人姓名
+        params.put("applyUserDeptName", "湖北安源安全环保科技有限公司");//申请人部门名称
+        params.put("applyUserCellphone", "13088888888");//申请人电话
+        params.put("applyUsingType", "公用");//用车类型名称
+        params.put("applyUsingTypeID", 0);//用车类型ID
+        params.put("driverIsOverWork", false);//司机是否加班
+        params.put("overwork", "否");//司机是否加班
+        params.put("inCarNums", "3");//乘车人数
+        params.put("carUsingHours", "12");//用车时长  小时
+        params.put("usingCarTime", "2018-02-02");//用车日期
+        params.put("usingCarRange", "市内");//用车范围
+        params.put("dest", "汉口");//目的地
+        params.put("startPoint", "公司");//出发点
+        params.put("usingReason", "拜访客户");//用车原因
+        params.put("vehiAID", "");
+        params.put("workflowTitle", "管理者用车申请（2018-02-02）");//流程标题
+        params.put("isNew", true);
+        Map<String, String> realParams = new HashMap<String, String>();
+        realParams.put("param", JSON.toJSONString(params));
+        HTTPResponse response = HTTPUtil.sendPostWithEncodeForm(url, realParams, headers);
+        System.out.println("AddUsCarProcess: " + response.getResult());
     }
 
     /**

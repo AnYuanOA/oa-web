@@ -3,8 +3,10 @@ package com.anyuan.oa.controller;
 import com.alibaba.fastjson.JSON;
 import com.anyuan.oa.controller.base.BaseController;
 import com.anyuan.oa.model.request.OldOALeaveRequest;
+import com.anyuan.oa.model.request.OldOAUsCarRequest;
 import com.anyuan.oa.model.response.*;
 import com.anyuan.oa.service.OldOAService;
+import com.anyuan.oa.service.Session;
 import com.anyuan.oa.service.SessionHelper;
 import com.anyuan.oa.utils.ConstantUtil;
 import com.anyuan.oa.utils.OldServiceConstant;
@@ -169,6 +171,29 @@ public class WorkFlowController extends BaseController{
                 return coverErrorMessage(response.getError_description());
             }
         }else{
+            return coverErrorMessage(ConstantUtil.REQUEST_PARAM_ERROR);
+        }
+    }
+
+    /**
+     * 提交用车申请流程
+     * @param param 参数 json字符串
+     * @param request
+     * @return
+     * @throws IOException
+     */
+    @RequestMapping("/submitUsingCar")
+    @ResponseBody
+    public Map<String, Object> submitUsingCar(String param, HttpServletRequest request) throws IOException{
+        OldOAUsCarRequest requestParam = JSON.parseObject(param, OldOAUsCarRequest.class);
+        if(requestParam != null){
+            OldServiceResponse response = oldOAService.submitUsingCarWorkflow(SessionHelper.getInstance().getAccessToken(request), requestParam);
+            if(response.isSuccess()){
+                return coverSuccessData(response.getData());
+            }else{
+                return coverErrorMessage(response.getError_description());
+            }
+        }else {
             return coverErrorMessage(ConstantUtil.REQUEST_PARAM_ERROR);
         }
     }

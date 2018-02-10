@@ -5,6 +5,7 @@ import com.alibaba.fastjson.TypeReference;
 import com.anyuan.oa.model.OldAccessToken;
 import com.anyuan.oa.model.request.OldOALeaveRequest;
 import com.anyuan.oa.model.request.OldOAProcessWorkflowRequest;
+import com.anyuan.oa.model.request.OldOAUsCarRequest;
 import com.anyuan.oa.model.response.*;
 import com.anyuan.oa.utils.ConstantUtil;
 import com.anyuan.oa.utils.HTTPUtil;
@@ -407,10 +408,13 @@ public class OldOAService {
         HTTPTask addTask = getTask(addUrl, ConstantUtil.HTTP_METHOD_POST, addParam, headers, lock, addResponse, addRelationTasks);
 
         //获取流程开始信息任务
-        String infoUrl = OldServiceConstant.WORKFLOW_START_INFO_URL;
         List<HTTPResponse> infoRelationTasks = new ArrayList<HTTPResponse>();
         infoRelationTasks.add(addResponse);
-        HTTPTask infoTask = getTask(infoUrl, ConstantUtil.HTTP_METHOD_POST, OldServiceConstant.WORKFLOW_NAME_LEAVE, headers, lock, infoResponse, infoRelationTasks);
+        HTTPTask infoTask = getStartInfoTask(OldServiceConstant.WORKFLOW_NAME_LEAVE,
+                token,
+                lock,
+                infoResponse,
+                infoRelationTasks);
 
         //执行并发任务(新增请假数据、获取请假流程基础信息)
         List<HTTPTask> tasks = new ArrayList<HTTPTask>();
@@ -428,56 +432,14 @@ public class OldOAService {
                 success = success && addRes.isBuzDataSaveSucceed();
                 if (success) {
                     OldOAToDoStartInfo startInfo = JSON.parseObject(infoResponse.getResult(), OldOAToDoStartInfo.class);
-                    if (startInfo.getSuccess() == 1 && startInfo.getAppButton().size() > 0) {//请求成功
-                        //请求获取审批步骤接口
-                        String stepUrl = OldServiceConstant.WORKFLOW_GET_STEPLIST_URL;
-                        Map<String, Object> stepParam = new HashMap<String, Object>();
-                        stepParam.put("ButtonType", startInfo.getAppButton().get(0).getButtonId());
-                        stepParam.put("appID", 0);
-                        stepParam.put("appTID", OldServiceConstant.WORKFLOW_NAME_LEAVE);
-                        stepParam.put("appVersion", "1.0");
-                        stepParam.put("businessId", "");
-                        stepParam.put("condition", "");
-                        stepParam.put("isNewFlag", 0);
-                        HTTPResponse stepResponse = HTTPUtil.sendPostWithJson(stepUrl, stepParam, headers);
-                        Map<String, Object> stepJson = JSON.parseObject(stepResponse.getResult(), new TypeReference<Map<String, Object>>() {
-                        });
-                        if ((Integer) stepJson.get("success") == 1) {
-                            List<OldOAToDoStepInfo> stepList = JSON.parseArray(JSON.toJSONString(stepJson.get("wfNextStepList")), OldOAToDoStepInfo.class);
-                            if (stepList.size() > 0) {
-                                //获取第一个审批步骤，组装参数，并执行流程办理任务
-                                OldOAToDoStepInfo step = stepList.get(0);
-                                OldOAAppButton button = startInfo.getAppButton().get(0);
-                                button.setAppFlag("2");
-                                button.setAppID("0");
-                                button.setAppIdea("同意");
-                                button.setAppTID(OldServiceConstant.WORKFLOW_NAME_LEAVE);
-                                button.setAppTitle(requestParam.getWorkflowTitle());
-                                OldOAProcessStep stepInfo = new OldOAProcessStep();
-                                stepInfo.setSuccess(1);
-                                List<OldOAToDoStepInfo> stepInfoList = new ArrayList<OldOAToDoStepInfo>();
-                                stepInfoList.add(step);
-                                stepInfo.setWfNextStepList(stepInfoList);
-                                button.setNextStepList(stepInfo);
-                                button.setPromptContent("同意");
-                                button.setSmsTransactFlag("0");
-                                OldOAProcessWorkflowRequest param = new OldOAProcessWorkflowRequest();
-                                param.setOaSPYJ("true");
-                                param.setOaSPID(addRes.getIn_sp_id());
-                                param.setAppOId(addRes.getBuzPKID());
-                                param.setAppOValue(0);
-                                param.setButton(button);
-                                String processUrl = OldServiceConstant.WORKFLOW_PROCESS_URL;
-                                HTTPResponse processResponse = HTTPUtil.sendPostWithJson(processUrl, param, headers);
-                                if (processResponse.getCode() == HTTPResponse.SUCCESS) {
-                                    Map<String, Object> processJson = JSON.parseObject(processResponse.getResult(), new TypeReference<Map<String, Object>>() {
-                                    });
-                                    if ((Boolean) processJson.get("isSucceed")) {
-                                        serviceResponse.setSuccess(true);
-                                    }
-                                }
-                            }
-                        }
+                    success = success && startInfo.getSuccess()==1 && startInfo.getAppButton().size()>0;
+                    if(success){
+                        serviceResponse = submitWorkflow(token,
+                                startInfo.getAppButton().get(0),
+                                OldServiceConstant.WORKFLOW_NAME_LEAVE,
+                                requestParam.getWorkflowTitle(),
+                                addRes.getIn_sp_id(),
+                                addRes.getBuzPKID());
                     }
                 }
             }
@@ -497,14 +459,71 @@ public class OldOAService {
      * @param token
      * @return
      */
-    public OldServiceResponse submitUsingCarWorkflow(OldAccessToken token) {
-        OldServiceResponse response = new OldServiceResponse();
+    public OldServiceResponse submitUsingCarWorkflow(OldAccessToken token, OldOAUsCarRequest requestParam) throws IOException{
+        OldServiceResponse serviceResponse = new OldServiceResponse();
         /**
-         * 1.调用新增用车申请流程的接口，保存用车申请数据
-         * 2.调用查询流程步骤接口，获取流程步骤信息
-         * 3.调用流程办理接口，办理流程
+         * 1.1. 调用新增用车申请流程的接口，保存用车申请数据
+         * 1.2. 获取流程开始信息 api/WorkFlow/getWokFlowStartInfo
+         * 2. 获取审批流程步骤信息   /bapi/api/WorkFlow/GetWFStepInfo (上述任务完成后才执行此任务)
+         * 3. 调用流程办理接口，办理流程
          */
-        return response;
+        final Object lock = new Object();
+        Map<String, String> headers = HTTPUtil.getAuthHeaders(token);
+        HTTPResponse addResponse = new HTTPResponse();
+        HTTPResponse infoResponse = new HTTPResponse();
+
+        //保存用车申请的任务
+        String addUrl = OldServiceConstant.WORKFLOW_ADDUSCAR_URL;
+        Map<String, Object> addParam = JSON.parseObject(JSON.toJSONString(requestParam), new TypeReference<Map<String, Object>>(){});
+        List<HTTPResponse> addRelationTasks = new ArrayList<HTTPResponse>();
+        addRelationTasks.add(infoResponse);
+        HTTPTask addTask = getTask(addUrl, ConstantUtil.HTTP_METHOD_POST, addParam, headers, lock, addResponse, addRelationTasks);
+
+        //获取流程开始信息的任务
+        List<HTTPResponse> infoRelationTasks = new ArrayList<HTTPResponse>();
+        infoRelationTasks.add(addResponse);
+        HTTPTask infoTask = getStartInfoTask(OldServiceConstant.WORKFLOW_NAME_USCAR,
+                token,
+                lock,
+                infoResponse,
+                infoRelationTasks);
+
+        //执行并发任务
+        List<HTTPTask> tasks = new ArrayList<HTTPTask>();
+        tasks.add(addTask);
+        tasks.add(infoTask);
+        executeSync(serviceResponse, tasks, lock);
+
+        //解析任务执行结果，执行后续任务
+        boolean success = addResponse.getCode()==HTTPResponse.SUCCESS && infoResponse.getCode()==HTTPResponse.SUCCESS;
+        if(success){
+            Map<String, Object> addJson = JSON.parseObject(addResponse.getResult(), new TypeReference<Map<String, Object>>(){});
+            success = success && (Boolean)addJson.get("isSucceed");
+            if(success) {
+                OldOAUsCarResponse addRes = JSON.parseObject(JSON.toJSONString(addJson.get("executedModel")), OldOAUsCarResponse.class);
+                success = success && addRes.isBuzDataSaveSucceed();
+                if(success){
+                    OldOAToDoStartInfo startInfo = JSON.parseObject(infoResponse.getResult(), OldOAToDoStartInfo.class);
+                    success = success && startInfo.getSuccess()==1 && startInfo.getAppButton().size()>0;
+                    if(success){
+                        serviceResponse = submitWorkflow(token,
+                                startInfo.getAppButton().get(0),
+                                OldServiceConstant.WORKFLOW_NAME_USCAR,
+                                requestParam.getWorkflowTitle(),
+                                addRes.getIn_sp_id(),
+                                addRes.getBuzPKID());
+                    }
+                }
+            }
+        }
+
+        //任务没有全部执行成功
+        if(!serviceResponse.isSuccess()){
+            serviceResponse.setError(ConstantUtil.RESPONSE_EXCEPTION);
+            serviceResponse.setError_description(ConstantUtil.RESPONSE_EXCEPTION);
+        }
+
+        return serviceResponse;
     }
 
     /**
@@ -512,10 +531,70 @@ public class OldOAService {
      * @param token
      * @return
      */
-    public OldServiceResponse processWorkflow(OldAccessToken token) {
-        OldServiceResponse response = new OldServiceResponse();
+    public OldServiceResponse submitWorkflow(OldAccessToken token,
+                                             OldOAAppButton button,
+                                             String workflowName,
+                                             String workflowTitle,
+                                             int in_sp_id,
+                                             int buzPKID) throws IOException{
+        OldServiceResponse serviceResponse = new OldServiceResponse();
+        Map<String, String> headers = HTTPUtil.getAuthHeaders(token);
+        //请求获取审批步骤接口
+        String stepUrl = OldServiceConstant.WORKFLOW_GET_STEPLIST_URL;
+        Map<String, Object> stepParam = new HashMap<String, Object>();
+        stepParam.put("ButtonType", button.getButtonId());
+        stepParam.put("appID", 0);
+        stepParam.put("appTID", workflowName);
+        stepParam.put("appVersion", "1.0");
+        stepParam.put("businessId", "");
+        stepParam.put("condition", "");
+        stepParam.put("isNewFlag", 0);
+        HTTPResponse stepResponse = HTTPUtil.sendPostWithJson(stepUrl, stepParam, headers);
+        Map<String, Object> stepJson = JSON.parseObject(stepResponse.getResult(), new TypeReference<Map<String, Object>>() {
+        });
+        if ((Integer) stepJson.get("success") == 1) {
+            List<OldOAToDoStepInfo> stepList = JSON.parseArray(JSON.toJSONString(stepJson.get("wfNextStepList")), OldOAToDoStepInfo.class);
+            if (stepList.size() > 0) {
+                //获取第一个审批步骤，组装参数，并执行流程办理任务
+                OldOAToDoStepInfo step = stepList.get(0);
+                button.setAppFlag("2");
+                button.setAppID("0");
+                button.setAppIdea("同意");
+                button.setAppTID(OldServiceConstant.WORKFLOW_NAME_LEAVE);
+                button.setAppTitle(workflowTitle);
+                OldOAProcessStep stepInfo = new OldOAProcessStep();
+                stepInfo.setSuccess(1);
+                List<OldOAToDoStepInfo> stepInfoList = new ArrayList<OldOAToDoStepInfo>();
+                stepInfoList.add(step);
+                stepInfo.setWfNextStepList(stepInfoList);
+                button.setNextStepList(stepInfo);
+                button.setPromptContent("同意");
+                button.setSmsTransactFlag("0");
+                OldOAProcessWorkflowRequest param = new OldOAProcessWorkflowRequest();
+                param.setOaSPYJ("true");
+                param.setOaSPID(in_sp_id);
+                param.setAppOId(buzPKID);
+                param.setAppOValue(0);
+                param.setButton(button);
+                String processUrl = OldServiceConstant.WORKFLOW_PROCESS_URL;
+                HTTPResponse processResponse = HTTPUtil.sendPostWithJson(processUrl, param, headers);
+                if (processResponse.getCode() == HTTPResponse.SUCCESS) {
+                    Map<String, Object> processJson = JSON.parseObject(processResponse.getResult(), new TypeReference<Map<String, Object>>() {
+                    });
+                    if ((Boolean) processJson.get("isSucceed")) {
+                        serviceResponse.setSuccess(true);
+                    }
+                }
+            }
+        }
 
-        return response;
+        //任务没有全部执行成功
+        if(!serviceResponse.isSuccess()){
+            serviceResponse.setError(ConstantUtil.RESPONSE_EXCEPTION);
+            serviceResponse.setError_description(ConstantUtil.RESPONSE_EXCEPTION);
+        }
+
+        return serviceResponse;
     }
 
     /**
@@ -591,6 +670,26 @@ public class OldOAService {
             }
         });
         return task;
+    }
+
+    /**
+     * 生成获取流程初始信息的任务
+     * @param token
+     * @param lock
+     * @param infoResponse
+     * @param infoRelationTasks
+     * @return
+     */
+    private HTTPTask getStartInfoTask(String workflowName, OldAccessToken token, Object lock, HTTPResponse infoResponse, List<HTTPResponse> infoRelationTasks) {
+        String infoUrl = OldServiceConstant.WORKFLOW_START_INFO_URL;
+        HTTPTask infoTask = getTask(infoUrl,
+                ConstantUtil.HTTP_METHOD_POST,
+                workflowName,
+                HTTPUtil.getAuthHeaders(token),
+                lock,
+                infoResponse,
+                infoRelationTasks);
+        return infoTask;
     }
 
     /**
