@@ -9,6 +9,7 @@
         <result property="openId" column="OPEN_ID_" />
         <result property="chatNick" column="CHATNICK_" />
         <result property="wPassword" column="W_PASSWORD_" />
+        <result property="avatarUrl" column="AVATAR_URL" />
 
         <result property="userName" column="USERNAME_" />
         <result property="cName" column="CNAME_" />
@@ -86,10 +87,10 @@
     </select>
 
     <insert id="insertWeChatUser" parameterType="com.anyuan.oa.model.User">
-        INSERT INTO bdf2_user_wechat (ACCOUNT_, OPEN_ID_, CHATNICK_,W_PASSWORD_) VALUES (#{account},#{openId},#{chatNick},#{wPassword})
+        INSERT INTO bdf2_user_wechat (ACCOUNT_, OPEN_ID_, CHATNICK_,W_PASSWORD_,AVATAR_URL) VALUES (#{account},#{openId},#{chatNick},#{wPassword},#{avatarUrl})
     </insert>
 
     <update id="updateWeChatUser" parameterType="com.anyuan.oa.model.User">
-        UPDATE bdf2_user_wechat SET ACCOUNT_=#{account},OPEN_ID_=#{openId},CHATNICK_=#{chatNick},W_PASSWORD_=#{wPassword} WHERE ID_=#{id}
+        UPDATE bdf2_user_wechat SET ACCOUNT_=#{account},OPEN_ID_=#{openId},CHATNICK_=#{chatNick},W_PASSWORD_=#{wPassword},AVATAR_URL=#{avatarUrl} WHERE ID_=#{id}
     </update>
 </mapper>

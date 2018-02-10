@@ -70,6 +70,11 @@ public class User implements Serializable {
      * 登录秘钥
      */
     private String wPassword;
+    
+    /**
+     * 用户头像
+     */
+    private String avatarUrl;
 
     public String getUserName() {
         return userName;
@@ -170,4 +175,13 @@ public class User implements Serializable {
         this.wPassword = wPassword;
         this.password = wPassword;
     }
+
+    public String getAvatarUrl() {
+        return avatarUrl;
+    }
+
+    public void setAvatarUrl(String avatarUrl) {
+        this.avatarUrl = avatarUrl;
+    }
+    
 }

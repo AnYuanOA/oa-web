@@ -8,3 +8,5 @@ CREATE TABLE bdf2_user_wechat
   W_PASSWORD_ VARCHAR(250) NULL COMMENT '秘钥',
 )
   COMMENT '用户微信绑定表';
+  
+  alter table bdf2_user_wechat add AVATAR_URL varchar(500) ;
