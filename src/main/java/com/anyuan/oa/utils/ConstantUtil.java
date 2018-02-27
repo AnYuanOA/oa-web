@@ -21,6 +21,12 @@ public class ConstantUtil {
 
     public static final String APPID_EMPTY = "appID不能为空";
 
+    public static final String WORKFLOWNAME_EMPTY = "workflowName不能为空";
+
+    public static final String WORKFLOW_NOT_SUPPORT = "不支持的流程名称";
+
+    public static final String REQUEST_PARAM_ERROR = "请求参数格式不正确";
+
     /***
      * 老OA访问授权信息
      */
@@ -29,4 +35,12 @@ public class ConstantUtil {
      * sessionID标识
      */
     public static final String JSESSIONID = "JSESSIONID";
+    /**
+     * HTTP GET方法标识
+     */
+    public static final String HTTP_METHOD_GET = "GET";
+    /**
+     * HTTP POST方法标识
+     */
+    public static final String HTTP_METHOD_POST = "POST";
 }

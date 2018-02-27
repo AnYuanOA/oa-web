@@ -3,18 +3,22 @@ package com.anyuan.oa.service;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.TypeReference;
 import com.anyuan.oa.model.OldAccessToken;
+import com.anyuan.oa.model.request.OldOALeaveRequest;
+import com.anyuan.oa.model.request.OldOAProcessWorkflowRequest;
+import com.anyuan.oa.model.request.OldOAUsCarRequest;
 import com.anyuan.oa.model.response.*;
 import com.anyuan.oa.utils.ConstantUtil;
 import com.anyuan.oa.utils.HTTPUtil;
+import com.anyuan.oa.utils.OldServiceConstant;
 import com.anyuan.oa.utils.thread.HTTPTask;
 import com.anyuan.oa.utils.thread.HTTPTaskCallback;
 import com.sun.org.apache.xpath.internal.operations.Bool;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.Resource;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -24,64 +28,6 @@ import java.util.Map;
  */
 @Component("oldOAService")
 public class OldOAService {
-    /**
-     * 基础URL
-     */
-    private static final String BASE_URL = "http://101.37.171.186/bapi/";
-    /**
-     * 基础业务URL
-     */
-    private static final String BASE_URL_BUZAPI = "http://101.37.171.186/aymapi/";
-    /**
-     * 登录URI
-     */
-    private static final String TOKEN_URL = "Token";
-    /**
-     * 待办列表URI
-     */
-    private static final String TODO_URL = "api/WorkFlow/getMyWFList";
-    /***
-     * 待阅列表
-     */
-    private static final String TOREAD_URL = "api/WorkFlow/GetWaitReadInfos";
-    /**
-     * 待办详情URI
-     * */
-    private static final String TODO_DETAIL_URL = "api/HRC6RestApply/Detail";
-    /**
-     * 获取流程详细信息
-     */
-    private static final String WORKFLOW_OPERATION_INFO = "api/WorkFlow/getWFDetailInfoNew";
-    /**
-     * 获取流程附件列表
-     */
-    private static final String WORKFLOW_ATTACHS = "api/HRC6RestApply/GetAttachs";
-    /**
-     * 获取流程办理列表
-     * */
-    private static final String WORKFLOW_DEALT_INFO = "api/workflow/getWFDealtInfo";
-    /**
-     * 待办附件列表URI
-     * */
-    private static final String TODO_ATTACHMENT_URL = "api/C6DjAttachs/GetDJAttachsByDJBH";
-    /**
-     * 获取下移步骤URI
-     */
-    private static final String TODO_NEXT_STEP_URL = "api/WorkFlow/GetWorkflowNextSteps";
-    /**
-     * 获取下一步审批人URI
-     */
-    private static final String TODO_NEXT_APPROVERS_URL = "api/WorkFlow/GetWorkflowNextApprovers";
-
-    /**
-     * 授权类型
-     */
-    private static final String GRANT_TYPE = "password";
-    /**
-     * 客户端ID
-     */
-    private static final String CLIENT_ID = "imWebBrowser";
-
     @Resource(name = "taskExecutor")
     private ThreadPoolTaskExecutor taskExecutor;
 
@@ -91,12 +37,12 @@ public class OldOAService {
      * @param password 密码
      * */
     public OldServiceResponse<OldAccessToken> login(String username, String password) throws IOException {
-        String url = BASE_URL + TOKEN_URL;
+        String url = OldServiceConstant.TOKEN_URL;
         Map<String, String> param = new HashMap<String, String>();
-        param.put("grant_type", GRANT_TYPE);
+        param.put("grant_type", OldServiceConstant.GRANT_TYPE);
         param.put("username", username);
         param.put("password", password);
-        param.put("client_id", CLIENT_ID);
+        param.put("client_id", OldServiceConstant.CLIENT_ID);
         HTTPResponse result = HTTPUtil.sendPostWithEncodeForm(url, param, null);
         OldServiceResponse<OldAccessToken> response = JSON.parseObject(result.getResult(), OldServiceResponse.class);
         if(result.getCode() == HTTPResponse.SUCCESS){
@@ -112,7 +58,7 @@ public class OldOAService {
      * @param token 保存在session中的accessToken
      * */
     public OldServiceResponse<OldOAToDoListResponse> getToDoList(OldAccessToken token, String lastTime) throws IOException {
-        String url = BASE_URL + TODO_URL;
+        String url = OldServiceConstant.TODO_URL;
         if(lastTime==null){
             lastTime = "";
         }
@@ -142,7 +88,7 @@ public class OldOAService {
      * @param currentPage  页码，从1开始
      */
     public OldServiceResponse<OldOAToReadListResponse> getToReadList(OldAccessToken token, int currentPage) throws IOException {
-        String url  =BASE_URL + TOREAD_URL;
+        String url  = OldServiceConstant.TOREAD_URL;
         if(currentPage<=0){
             currentPage = 1;
         }
@@ -179,62 +125,37 @@ public class OldOAService {
         final HTTPResponse dealtResponse = new HTTPResponse();
 
         //待办流程详情任务
-        String detaillUrl = BASE_URL + TODO_DETAIL_URL;
+        String detaillUrl = OldServiceConstant.TODO_DETAIL_URL;
         Map<String, Object> detailParam = new HashMap<String, Object>();
         detailParam.put("AppID", appID);
-        HTTPTask detailTask = new HTTPTask(detaillUrl, detailParam, headers, new HTTPTaskCallback() {
-            public void requestComplete(HTTPResponse response) {
-                completeWithResponse(detailResponse, response);
-                synchronized (lock) {
-                    if(operationResponse.isComplete() && dealtResponse.isComplete()){
-                        lock.notify();
-                    }
-                }
-            }
-        });
+        List<HTTPResponse> detailRelationTasks = new ArrayList<HTTPResponse>();
+        detailRelationTasks.add(operationResponse);
+        detailRelationTasks.add(dealtResponse);
+        HTTPTask detailTask = getTask(detaillUrl, ConstantUtil.HTTP_METHOD_POST, detailParam, headers, lock, detailResponse, detailRelationTasks);
 
         //待办流程当前操作任务
-        String operationUrl = BASE_URL + WORKFLOW_OPERATION_INFO;
-        HTTPTask operationTask = new HTTPTask(operationUrl, appID, headers, new HTTPTaskCallback() {
-            public void requestComplete(HTTPResponse response) {
-                completeWithResponse(operationResponse, response);
-                synchronized (lock) {
-                    if(detailResponse.isComplete() && dealtResponse.isComplete()){
-                        lock.notify();
-                    }
-                }
-            }
-        });
+        String operationUrl = OldServiceConstant.WORKFLOW_OPERATION_INFO_URL;
+        List<HTTPResponse> operationRelationTasks = new ArrayList<HTTPResponse>();
+        operationRelationTasks.add(detailResponse);
+        operationRelationTasks.add(dealtResponse);
+        HTTPTask operationTask = getTask(operationUrl, ConstantUtil.HTTP_METHOD_POST, appID, headers, lock, operationResponse, operationRelationTasks);
 
         //待办流程已办理节点任务
-        String dealtUrl = BASE_URL + WORKFLOW_DEALT_INFO;
-        HTTPTask dealtTask = new HTTPTask(dealtUrl, appID, headers, new HTTPTaskCallback() {
-            public void requestComplete(HTTPResponse response) {
-                completeWithResponse(dealtResponse, response);
-                synchronized (lock) {
-                    if(detailResponse.isComplete() && operationResponse.isComplete()){
-                        lock.notify();
-                    }
-                }
-            }
-        });
+        String dealtUrl = OldServiceConstant.WORKFLOW_DEALT_INFO_URL;
+        List<HTTPResponse> dealtRelationTasks = new ArrayList<HTTPResponse>();
+        dealtRelationTasks.add(detailResponse);
+        dealtRelationTasks.add(operationResponse);
+        HTTPTask dealtTask = getTask(dealtUrl, ConstantUtil.HTTP_METHOD_POST, appID, headers, lock, dealtResponse, dealtRelationTasks);
 
         //并发执行任务
         OldServiceResponse<OldOAToDoDetailResponse> serviceResponse = new OldServiceResponse<OldOAToDoDetailResponse>();
-        try {
-            synchronized (lock) {
-                taskExecutor.execute(detailTask);
-                taskExecutor.execute(operationTask);
-                taskExecutor.execute(dealtTask);
-                lock.wait();
-            }
-        }catch (InterruptedException e) {
-            e.printStackTrace();
-            serviceResponse.setSuccess(false);
-            serviceResponse.setError(ConstantUtil.RESPONSE_EXCEPTION);
-            serviceResponse.setError_description(ConstantUtil.RESPONSE_EXCEPTION);
-        }
+        List<HTTPTask> tasks = new ArrayList<HTTPTask>();
+        tasks.add(detailTask);
+        tasks.add(operationTask);
+        tasks.add(dealtTask);
+        executeSync(serviceResponse, tasks, lock);
 
+        //处理请求结果
         if(detailResponse.getCode()==HTTPResponse.SUCCESS && operationResponse.getCode()==HTTPResponse.SUCCESS && dealtResponse.getCode()==HTTPResponse.SUCCESS){
             Map<String, Object> detailJson = JSON.parseObject(detailResponse.getResult(), new TypeReference<Map<String, Object>>(){});
             Map<String, Object> operationJson = JSON.parseObject(operationResponse.getResult(), new TypeReference<Map<String, Object>>(){});
@@ -243,12 +164,14 @@ public class OldOAService {
                 OldOAToDoDetail detail = JSON.parseObject(JSON.toJSONString(detailJson.get("executedModel")), OldOAToDoDetail.class);
                 OldOAToDoOperation operation = JSON.parseObject(JSON.toJSONString(operationJson), OldOAToDoOperation.class);
                 List<OldOAToDoDealt> dealtList = JSON.parseArray(JSON.toJSONString(dealtJson.get("wfDealtList")), OldOAToDoDealt.class);
-                String attachsUrl = BASE_URL + WORKFLOW_ATTACHS;
+                //查询待办流程附件列表
+                String attachsUrl = OldServiceConstant.WORKFLOW_ATTACHS_URL;
                 Map<String, Object> attachsParam = new HashMap<String, Object>();
                 attachsParam.put("attL_ID", detail.getAttL_ID());
                 HTTPResponse attachResponse = HTTPUtil.sendPostWithJson(attachsUrl, attachsParam, headers);
                 Map<String, Object> attachJson = JSON.parseObject(attachResponse.getResult(), new TypeReference<Map<String, Object>>(){});
                 if((Boolean) attachJson.get("isSucceed")){
+                    //汇总各接口结果
                     List<OldOAAttachment> attachmentList = JSON.parseArray(JSON.toJSONString(attachJson.get("executedModel")), OldOAAttachment.class);
                     OldOAToDoDetailResponse detailRes = new OldOAToDoDetailResponse();
                     detailRes.setDetail(detail);
@@ -638,6 +561,7 @@ public class OldOAService {
                 button.setAppID("0");
                 button.setAppIdea("同意");
                 button.setAppTID(workflowName);
+                button.setAppTID(OldServiceConstant.WORKFLOW_NAME_LEAVE);
                 button.setAppTitle(workflowTitle);
                 OldOAProcessStep stepInfo = new OldOAProcessStep();
                 stepInfo.setSuccess(1);
@@ -704,62 +628,84 @@ public class OldOAService {
     }
 
     /**
-     * 获取待办附件列表 (返回值不作任何处理，直接交给客户端)
-     * @param token 保存在session中的accessToken
-     * @param appOValue 上两个接口返回的字段
-     * @param wfTemplateDJSN 上两个接口返回的字段
-     * */
-    public HTTPResponse getToDoAttachment(OldAccessToken token, String appOValue, String wfTemplateDJSN) throws IOException {
-        String url = BASE_URL + TODO_ATTACHMENT_URL;
-        Map<String, Object> param = new HashMap<String, Object>();
-        param.put("DJBH", appOValue);
-        param.put("DJSN", wfTemplateDJSN);
-        Map<String, String> headers = HTTPUtil.getAuthHeaders(token);
-        HTTPResponse result = HTTPUtil.sendPostWithJson(url, param, headers);
-        return result;
-    }
-
-    /**
-     * 获取目标待办事项下一审批步骤 (返回值不作任何处理，直接交给客户端)
-     * @param token 保存在session中的accessToken
-     * @param appID 待办项ID
-     * @param appTID 类型ID？ 待办列表有返回此字段
-     * */
-    public HTTPResponse getToDoNextStep(OldAccessToken token, String appID, String appTID) throws IOException {
-        String url = BASE_URL + TODO_NEXT_STEP_URL;
-        Map<String, Object> param = new HashMap<String, Object>();
-        param.put("ButtonType", 6);
-        param.put("appID", appID);
-        param.put("appTID", appTID);
-        param.put("appVersion", "1.0");
-        param.put("businessId", "");
-        param.put("condition", "");
-        param.put("isNewFlag", 1);
-        Map<String, String> headers = HTTPUtil.getAuthHeaders(token);
-        HTTPResponse result = HTTPUtil.sendPostWithJson(url, param, headers);
-        return result;
-    }
-
-    /**
-     * 获取目标步骤审批人
-     * @param token
-     * @param appID
-     * @param appTID
-     * @param nextStepID 步骤ID
+     * 批量提交异步任务，并同步处理结果
+     * @param tasks 需要执行的任务序列
+     * @param lock 同步锁
      */
-    public HTTPResponse getToDoNextStepApprovers(OldAccessToken token, String appID, String appTID, String nextStepID) throws IOException {
-        String url = BASE_URL + TODO_NEXT_APPROVERS_URL;
-        Map<String, Object> param = new HashMap<String, Object>();
-        param.put("ButtonType", 6);
-        param.put("appID", appID);
-        param.put("appTID", appTID);
-        param.put("appVersion", "1.0");
-        param.put("businessId", "");
-        param.put("condition", "");
-        param.put("isNewFlag", 1);
-        param.put("nextStepID", nextStepID);
-        Map<String, String> headers = HTTPUtil.getAuthHeaders(token);
-        HTTPResponse result = HTTPUtil.sendPostWithJson(url, param, headers);
-        return result;
+    private void executeSync(OldServiceResponse serviceResponse, List<HTTPTask> tasks, Object lock) {
+        try {
+            synchronized (lock) {
+                for(HTTPTask task : tasks){
+                    taskExecutor.execute(task);
+                }
+                lock.wait();
+            }
+        }catch (InterruptedException e) {
+            e.printStackTrace();
+            serviceResponse.setSuccess(false);
+            serviceResponse.setError(ConstantUtil.RESPONSE_EXCEPTION);
+            serviceResponse.setError_description(ConstantUtil.RESPONSE_EXCEPTION);
+        }
+    }
+
+    /**
+     * 根据参数生成HTTP请求任务
+     * @param url 目标URL
+     * @param method HTTP方法  GET/POST
+     * @param param 参数  map 或 字符串
+     * @param headers 请求头
+     * @param lock 同步锁
+     * @param doResponse 执行目标任务的请求结果
+     * @param relationTasks 需要同步的关联任务
+     * @return
+     */
+    private HTTPTask getTask(String url, String method, Object param, Map<String, String> headers, final Object lock, final HTTPResponse doResponse, final List<HTTPResponse> relationTasks){
+        HTTPTask task = new HTTPTask(url, method, param, headers, new HTTPTaskCallback() {
+            public void requestComplete(HTTPResponse response) {
+                completeWithResponse(doResponse, response);
+                synchronized (lock) {
+                    if(tasksAllComplete(relationTasks)){
+                        lock.notify();
+                    }
+                }
+            }
+        });
+        return task;
+    }
+
+    /**
+     * 生成获取流程初始信息的任务
+     * @param token
+     * @param lock
+     * @param infoResponse
+     * @param infoRelationTasks
+     * @return
+     */
+    private HTTPTask getStartInfoTask(String workflowName, OldAccessToken token, Object lock, HTTPResponse infoResponse, List<HTTPResponse> infoRelationTasks) {
+        String infoUrl = OldServiceConstant.WORKFLOW_START_INFO_URL;
+        HTTPTask infoTask = getTask(infoUrl,
+                ConstantUtil.HTTP_METHOD_POST,
+                workflowName,
+                HTTPUtil.getAuthHeaders(token),
+                lock,
+                infoResponse,
+                infoRelationTasks);
+        return infoTask;
+    }
+
+    /**
+     * 任务是否全部完成
+     * @param tasks
+     * @return
+     */
+    private boolean tasksAllComplete(List<HTTPResponse> tasks) {
+        boolean complete = true;
+        for(HTTPResponse response : tasks) {
+            if(!response.isComplete()){
+                complete = false;
+                break;
+            }
+        }
+        return complete;
     }
 }

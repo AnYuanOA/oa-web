@@ -19,7 +19,7 @@ public class OldOAAppButton {
     private String appTID;
     private String version;
     private String appTitle;
-    private String nextStepList;
+    private OldOAProcessStep nextStepList;
     private String distributeUsers;
     private String callUsers;
     private String callCheckFlag;
@@ -145,11 +145,11 @@ public class OldOAAppButton {
         this.appTitle = appTitle;
     }
 
-    public String getNextStepList() {
+    public OldOAProcessStep getNextStepList() {
         return nextStepList;
     }
 
-    public void setNextStepList(String nextStepList) {
+    public void setNextStepList(OldOAProcessStep nextStepList) {
         this.nextStepList = nextStepList;
     }
 
