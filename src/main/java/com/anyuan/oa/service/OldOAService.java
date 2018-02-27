@@ -269,6 +269,434 @@ public class OldOAService {
         return serviceResponse;
     }
 
+    /**
+     * 获取请假类型
+     * @param token
+     * @return
+     * @throws IOException
+     */
+    public OldServiceResponse<List<OldOARestType>> getRestTypeList(OldAccessToken token) throws IOException {
+        OldServiceResponse<List<OldOARestType>> serviceResponse = new OldServiceResponse<List<OldOARestType>>();
+        String restTypeUrl = OldServiceConstant.WORKFLOW_GET_RESTTYPE_URL;
+        Map<String, String> headers = HTTPUtil.getAuthHeaders(token);
+        HTTPResponse response = HTTPUtil.sendGet(restTypeUrl, headers);
+        Map<String, Object> restTypeJson = JSON.parseObject(response.getResult(), new TypeReference<Map<String, Object>>(){});
+        boolean success = (Boolean)restTypeJson.get("isSucceed");
+        if(success){
+            List<OldOARestType> restTypes = JSON.parseArray(JSON.toJSONString(restTypeJson.get("executedModel")), OldOARestType.class);
+            serviceResponse.setSuccess(true);
+            serviceResponse.setData(restTypes);
+        }
+        if(!serviceResponse.isSuccess()){
+            serviceResponse.setError(ConstantUtil.RESPONSE_EXCEPTION);
+            serviceResponse.setError_description(ConstantUtil.RESPONSE_EXCEPTION);
+        }
+        return serviceResponse;
+    }
+
+    /**
+     * 获取用车类型
+     * @param token
+     * @return
+     * @throws IOException
+     */
+    public OldServiceResponse<List<OldOAUsingType>> getUsingTypeList(OldAccessToken token) throws IOException {
+        OldServiceResponse<List<OldOAUsingType>> serviceResponse = new OldServiceResponse<List<OldOAUsingType>>();
+
+        String usTypeUrl = OldServiceConstant.WORKFLOW_GET_USCARTYPE_URL;
+        Map<String, String> headers = HTTPUtil.getAuthHeaders(token);
+        HTTPResponse response = HTTPUtil.sendGet(usTypeUrl, headers);
+
+        Map<String, Object> usTypeJson = JSON.parseObject(response.getResult(), new TypeReference<Map<String, Object>>(){});
+        boolean success = (Boolean)usTypeJson.get("isSucceed");
+        if(success){
+            List<OldOAUsingType> usingTypes = JSON.parseArray(JSON.toJSONString(usTypeJson.get("executedModel")), OldOAUsingType.class);
+            serviceResponse.setSuccess(true);
+            serviceResponse.setData(usingTypes);
+        }
+
+        if(!serviceResponse.isSuccess()){
+            serviceResponse.setError(ConstantUtil.RESPONSE_EXCEPTION);
+            serviceResponse.setError_description(ConstantUtil.RESPONSE_EXCEPTION);
+        }
+        return serviceResponse;
+    }
+
+    /**
+     * 获取开始流程所需信息
+     * @param token
+     * @param workflowName  流程名称  请假:IHRM_AttendanceLeave  用车:IOA_Vehicle
+     * @return
+     */
+    public OldServiceResponse<OldOAToDoInfoResponse> getToDoInfo(OldAccessToken token, String workflowName) throws IOException {
+        assert workflowName!=null;
+        assert workflowName.trim().length()>0;
+        OldServiceResponse<OldOAToDoInfoResponse> serviceResponse = new OldServiceResponse<OldOAToDoInfoResponse>();
+        /**
+         * 1.获取流程图信息svg格式字符串  /bapi/api/WorkFlow/GetFlowSvgNodeStr
+         * 2.获取流程开始信息 /bapi/api/WorkFlow/getWokFlowStartInfo
+         * 3.获取用车类型    /bapi/api/HRC6CarUsingApply/GetUsingTypes   用车流程才需要
+         * 4.获取请假类型    /bapi/api/HRC6RestApply/GetRestTypes        请假流程才需要
+         * 5.获取审批流程步骤信息   /bapi/api/WorkFlow/GetWFStepInfo (上述任务完成后才执行此任务)
+         */
+        final Object lock = new Object();
+        Map<String, String> headers = HTTPUtil.getAuthHeaders(token);
+        HTTPResponse svgResponse = new HTTPResponse();
+        HTTPResponse infoResponse = new HTTPResponse();
+        HTTPResponse usTypeResponse = new HTTPResponse();
+        HTTPResponse restTypeResponse = new HTTPResponse();
+
+        //获取流程图svg字符串任务
+        String svgUrl = OldServiceConstant.WORKFLOW_SVGSTR_URL;
+        Map<String, Object> svgParam = new HashMap<String, Object>();
+        svgParam.put("App_ID", 0);
+        svgParam.put("AppTID", workflowName);
+        List<HTTPResponse> svgRelationTasks = new ArrayList<HTTPResponse>();
+        svgRelationTasks.add(infoResponse);
+        if(isLeaveWorkflow(workflowName)){
+            svgRelationTasks.add(restTypeResponse);
+        }else if(isCarWorkflow(workflowName)) {
+            svgRelationTasks.add(usTypeResponse);
+        }
+        HTTPTask svgTask = getTask(svgUrl, ConstantUtil.HTTP_METHOD_POST, svgParam, headers, lock, svgResponse, svgRelationTasks);
+
+        //获取流程初始信息任务
+        String infoUrl = OldServiceConstant.WORKFLOW_START_INFO_URL;
+        List<HTTPResponse> infoRelationTasks = new ArrayList<HTTPResponse>();
+        infoRelationTasks.add(svgResponse);
+        if(isLeaveWorkflow(workflowName)){
+            infoRelationTasks.add(restTypeResponse);
+        }else if(isCarWorkflow(workflowName)) {
+            infoRelationTasks.add(usTypeResponse);
+        }
+        HTTPTask infoTask = getTask(infoUrl, ConstantUtil.HTTP_METHOD_POST, workflowName, headers, lock, infoResponse, infoRelationTasks);
+
+        //用车类型任务
+        HTTPTask usTypeTask = null;
+        //请假类型任务
+        HTTPTask restTypeTask = null;
+        List<HTTPResponse> typeRelationTasks = new ArrayList<HTTPResponse>();
+        typeRelationTasks.add(svgResponse);
+        typeRelationTasks.add(infoResponse);
+        if(isCarWorkflow(workflowName)){
+            String usTypeUrl = OldServiceConstant.WORKFLOW_GET_USCARTYPE_URL;
+            usTypeTask = getTask(usTypeUrl, ConstantUtil.HTTP_METHOD_GET,null, headers, lock, usTypeResponse, typeRelationTasks);
+        }else if(isLeaveWorkflow(workflowName)){
+            String restTypeUrl = OldServiceConstant.WORKFLOW_GET_RESTTYPE_URL;
+            restTypeTask = getTask(restTypeUrl, ConstantUtil.HTTP_METHOD_GET,null, headers, lock, restTypeResponse, typeRelationTasks);
+        }
+
+        //执行并发任务
+        List<HTTPTask> tasks = new ArrayList<HTTPTask>();
+        tasks.add(svgTask);
+        tasks.add(infoTask);
+        if(usTypeTask != null){
+            tasks.add(usTypeTask);
+        }
+        if(restTypeTask != null){
+            tasks.add(restTypeTask);
+        }
+        executeSync(serviceResponse, tasks, lock);
+
+        //判断是否所有请求已处理成功
+        boolean success = svgResponse.getCode()==HTTPResponse.SUCCESS && infoResponse.getCode()==HTTPResponse.SUCCESS;
+        Map<String, Object> usTypeJson = null;
+        Map<String, Object> restTypeJson = null;
+        if(isCarWorkflow(workflowName)){
+            success = success && usTypeResponse.getCode()==HTTPResponse.SUCCESS;
+            if(success){
+                usTypeJson = JSON.parseObject(usTypeResponse.getResult(), new TypeReference<Map<String, Object>>(){});
+                success = success && (Boolean)usTypeJson.get("isSucceed");
+            }
+        }else if(isLeaveWorkflow(workflowName)){
+            success = success && restTypeResponse.getCode()==HTTPResponse.SUCCESS;
+            if(success){
+                restTypeJson = JSON.parseObject(restTypeResponse.getResult(), new TypeReference<Map<String, Object>>(){});
+                success = success && (Boolean)restTypeJson.get("isSucceed");
+            }
+        }
+
+        if(success){
+            OldOAToDoStartInfo startInfo = JSON.parseObject(infoResponse.getResult(), OldOAToDoStartInfo.class);
+            if(startInfo.getSuccess()==1 && startInfo.getAppButton().size()>0){//请求成功
+                //请求获取审批步骤接口
+                String stepUrl = OldServiceConstant.WORKFLOW_GET_STEPLIST_URL;
+                Map<String, Object> stepParam = new HashMap<String, Object>();
+                stepParam.put("ButtonType", startInfo.getAppButton().get(0).getButtonId());
+                stepParam.put("appID", 0);
+                stepParam.put("appTID", workflowName);
+                stepParam.put("appVersion", "1.0");
+                stepParam.put("businessId", "");
+                stepParam.put("condition", "");
+                stepParam.put("isNewFlag", 0);
+                HTTPResponse stepResponse = HTTPUtil.sendPostWithJson(stepUrl, stepParam, headers);
+                Map<String, Object> stepJson = JSON.parseObject(stepResponse.getResult(), new TypeReference<Map<String, Object>>(){});
+                if((Integer) stepJson.get("success") == 1){
+                    List<OldOAToDoStepInfo> stepList = JSON.parseArray(JSON.toJSONString(stepJson.get("wfNextStepList")), OldOAToDoStepInfo.class);
+                    OldOAToDoInfoResponse response = new OldOAToDoInfoResponse();
+                    response.setWorkflowSvg(svgResponse.getResult());
+                    response.setStartInfo(startInfo);
+                    if(usTypeJson != null){
+                        List<OldOAUsingType> usingTypes = JSON.parseArray(JSON.toJSONString(usTypeJson.get("executedModel")), OldOAUsingType.class);
+                        response.setUsingTypes(usingTypes);
+                    }
+                    if(restTypeJson != null){
+                        List<OldOARestType> restTypes = JSON.parseArray(JSON.toJSONString(restTypeJson.get("executedModel")), OldOARestType.class);
+                        response.setRestTypes(restTypes);
+                    }
+                    response.setStepList(stepList);
+                    serviceResponse.setSuccess(true);
+                    serviceResponse.setData(response);
+                }
+            }
+        }
+
+        if(!serviceResponse.isSuccess()){
+            serviceResponse.setError(ConstantUtil.RESPONSE_EXCEPTION);
+            serviceResponse.setError_description(ConstantUtil.RESPONSE_EXCEPTION);
+        }
+        return serviceResponse;
+    }
+
+    /**
+     * 提交请假流程
+     * @param token
+     * @param requestParam 请求参数
+     * @return
+     */
+    public OldServiceResponse submitLeaveWorkflow(OldAccessToken token, OldOALeaveRequest requestParam) throws IOException{
+        OldServiceResponse serviceResponse = new OldServiceResponse();
+        /**
+         * 1.1. 调用新增请假流程的接口，保存请假数据
+         * 1.2. 获取流程开始信息 api/WorkFlow/getWokFlowStartInfo
+         * 2. 获取审批流程步骤信息   /bapi/api/WorkFlow/GetWFStepInfo (上述任务完成后才执行此任务)
+         * 3. 调用流程办理接口，办理流程
+         */
+        final Object lock = new Object();
+        Map<String, String> headers = HTTPUtil.getAuthHeaders(token);
+        HTTPResponse addResponse = new HTTPResponse();
+        HTTPResponse infoResponse = new HTTPResponse();
+
+        //新增请假信息任务
+        String addUrl = OldServiceConstant.WORKFLOW_ADDLEAVE_URL;
+        Map<String, Object> addParam = JSON.parseObject(JSON.toJSONString(requestParam), new TypeReference<Map<String, Object>>(){});
+        List<HTTPResponse> addRelationTasks = new ArrayList<HTTPResponse>();
+        addRelationTasks.add(infoResponse);
+        HTTPTask addTask = getTask(addUrl, ConstantUtil.HTTP_METHOD_POST, addParam, headers, lock, addResponse, addRelationTasks);
+
+        //获取流程开始信息任务
+        List<HTTPResponse> infoRelationTasks = new ArrayList<HTTPResponse>();
+        infoRelationTasks.add(addResponse);
+        HTTPTask infoTask = getStartInfoTask(OldServiceConstant.WORKFLOW_NAME_LEAVE,
+                token,
+                lock,
+                infoResponse,
+                infoRelationTasks);
+
+        //执行并发任务(新增请假数据、获取请假流程基础信息)
+        List<HTTPTask> tasks = new ArrayList<HTTPTask>();
+        tasks.add(addTask);
+        tasks.add(infoTask);
+        executeSync(serviceResponse, tasks, lock);
+
+        //解析参数执行请求审批流程步骤信息的任务
+        boolean success = addResponse.getCode()==HTTPResponse.SUCCESS && infoResponse.getCode()==HTTPResponse.SUCCESS;
+        if(success) {
+            Map<String, Object> addJson = JSON.parseObject(addResponse.getResult(), new TypeReference<Map<String, Object>>(){});
+            success = success && (Boolean)addJson.get("isSucceed");
+            if(success) {
+                OldOALeaveResponse addRes = JSON.parseObject(JSON.toJSONString(addJson.get("executedModel")), OldOALeaveResponse.class);
+                success = success && addRes.isBuzDataSaveSucceed();
+                if (success) {
+                    OldOAToDoStartInfo startInfo = JSON.parseObject(infoResponse.getResult(), OldOAToDoStartInfo.class);
+                    success = success && startInfo.getSuccess()==1 && startInfo.getAppButton().size()>0;
+                    if(success){
+                        serviceResponse = submitWorkflow(token,
+                                startInfo.getAppButton().get(0),
+                                OldServiceConstant.WORKFLOW_NAME_LEAVE,
+                                requestParam.getWorkflowTitle(),
+                                addRes.getIn_sp_id(),
+                                addRes.getBuzPKID());
+                    }
+                }
+            }
+        }
+
+        //任务没有全部执行成功
+        if(!serviceResponse.isSuccess()){
+            serviceResponse.setError(ConstantUtil.RESPONSE_EXCEPTION);
+            serviceResponse.setError_description(ConstantUtil.RESPONSE_EXCEPTION);
+        }
+
+        return serviceResponse;
+    }
+
+    /**
+     * 提交用车申请流程
+     * @param token
+     * @return
+     */
+    public OldServiceResponse submitUsingCarWorkflow(OldAccessToken token, OldOAUsCarRequest requestParam) throws IOException{
+        OldServiceResponse serviceResponse = new OldServiceResponse();
+        /**
+         * 1.1. 调用新增用车申请流程的接口，保存用车申请数据
+         * 1.2. 获取流程开始信息 api/WorkFlow/getWokFlowStartInfo
+         * 2. 获取审批流程步骤信息   /bapi/api/WorkFlow/GetWFStepInfo (上述任务完成后才执行此任务)
+         * 3. 调用流程办理接口，办理流程
+         */
+        final Object lock = new Object();
+        Map<String, String> headers = HTTPUtil.getAuthHeaders(token);
+        HTTPResponse addResponse = new HTTPResponse();
+        HTTPResponse infoResponse = new HTTPResponse();
+
+        //保存用车申请的任务
+        String addUrl = OldServiceConstant.WORKFLOW_ADDUSCAR_URL;
+        Map<String, Object> addParam = JSON.parseObject(JSON.toJSONString(requestParam), new TypeReference<Map<String, Object>>(){});
+        List<HTTPResponse> addRelationTasks = new ArrayList<HTTPResponse>();
+        addRelationTasks.add(infoResponse);
+        HTTPTask addTask = getTask(addUrl, ConstantUtil.HTTP_METHOD_POST, addParam, headers, lock, addResponse, addRelationTasks);
+
+        //获取流程开始信息的任务
+        List<HTTPResponse> infoRelationTasks = new ArrayList<HTTPResponse>();
+        infoRelationTasks.add(addResponse);
+        HTTPTask infoTask = getStartInfoTask(OldServiceConstant.WORKFLOW_NAME_USCAR,
+                token,
+                lock,
+                infoResponse,
+                infoRelationTasks);
+
+        //执行并发任务
+        List<HTTPTask> tasks = new ArrayList<HTTPTask>();
+        tasks.add(addTask);
+        tasks.add(infoTask);
+        executeSync(serviceResponse, tasks, lock);
+
+        //解析任务执行结果，执行后续任务
+        boolean success = addResponse.getCode()==HTTPResponse.SUCCESS && infoResponse.getCode()==HTTPResponse.SUCCESS;
+        if(success){
+            Map<String, Object> addJson = JSON.parseObject(addResponse.getResult(), new TypeReference<Map<String, Object>>(){});
+            success = success && (Boolean)addJson.get("isSucceed");
+            if(success) {
+                OldOAUsCarResponse addRes = JSON.parseObject(JSON.toJSONString(addJson.get("executedModel")), OldOAUsCarResponse.class);
+                success = success && addRes.isBuzDataSaveSucceed();
+                if(success){
+                    OldOAToDoStartInfo startInfo = JSON.parseObject(infoResponse.getResult(), OldOAToDoStartInfo.class);
+                    success = success && startInfo.getSuccess()==1 && startInfo.getAppButton().size()>0;
+                    if(success){
+                        serviceResponse = submitWorkflow(token,
+                                startInfo.getAppButton().get(0),
+                                OldServiceConstant.WORKFLOW_NAME_USCAR,
+                                requestParam.getWorkflowTitle(),
+                                addRes.getIn_sp_id(),
+                                addRes.getBuzPKID());
+                    }
+                }
+            }
+        }
+
+        //任务没有全部执行成功
+        if(!serviceResponse.isSuccess()){
+            serviceResponse.setError(ConstantUtil.RESPONSE_EXCEPTION);
+            serviceResponse.setError_description(ConstantUtil.RESPONSE_EXCEPTION);
+        }
+
+        return serviceResponse;
+    }
+
+    /**
+     * 办理流程
+     * @param token
+     * @return
+     */
+    public OldServiceResponse submitWorkflow(OldAccessToken token,
+                                             OldOAAppButton button,
+                                             String workflowName,
+                                             String workflowTitle,
+                                             int in_sp_id,
+                                             int buzPKID) throws IOException{
+        OldServiceResponse serviceResponse = new OldServiceResponse();
+        Map<String, String> headers = HTTPUtil.getAuthHeaders(token);
+        //请求获取审批步骤接口
+        String stepUrl = OldServiceConstant.WORKFLOW_GET_STEPLIST_URL;
+        Map<String, Object> stepParam = new HashMap<String, Object>();
+        stepParam.put("ButtonType", button.getButtonId());
+        stepParam.put("appID", 0);
+        stepParam.put("appTID", workflowName);
+        stepParam.put("appVersion", "1.0");
+        stepParam.put("businessId", "");
+        stepParam.put("condition", "");
+        stepParam.put("isNewFlag", 0);
+        HTTPResponse stepResponse = HTTPUtil.sendPostWithJson(stepUrl, stepParam, headers);
+        Map<String, Object> stepJson = JSON.parseObject(stepResponse.getResult(), new TypeReference<Map<String, Object>>() {
+        });
+        if ((Integer) stepJson.get("success") == 1) {
+            List<OldOAToDoStepInfo> stepList = JSON.parseArray(JSON.toJSONString(stepJson.get("wfNextStepList")), OldOAToDoStepInfo.class);
+            if (stepList.size() > 0) {
+                //获取第一个审批步骤，组装参数，并执行流程办理任务
+                OldOAToDoStepInfo step = stepList.get(0);
+                button.setAppFlag("2");
+                button.setAppID("0");
+                button.setAppIdea("同意");
+                button.setAppTID(workflowName);
+                button.setAppTitle(workflowTitle);
+                OldOAProcessStep stepInfo = new OldOAProcessStep();
+                stepInfo.setSuccess(1);
+                List<OldOAToDoStepInfo> stepInfoList = new ArrayList<OldOAToDoStepInfo>();
+                stepInfoList.add(step);
+                stepInfo.setWfNextStepList(stepInfoList);
+                button.setNextStepList(stepInfo);
+                button.setPromptContent("同意");
+                button.setSmsTransactFlag("0");
+                OldOAProcessWorkflowRequest param = new OldOAProcessWorkflowRequest();
+                param.setOaSPYJ("true");
+                param.setOaSPID(in_sp_id);
+                param.setAppOId(buzPKID);
+                param.setAppOValue(0);
+                param.setButton(button);
+                String processUrl = OldServiceConstant.WORKFLOW_PROCESS_URL;
+                HTTPResponse processResponse = HTTPUtil.sendPostWithJson(processUrl, param, headers);
+                if (processResponse.getCode() == HTTPResponse.SUCCESS) {
+                    Map<String, Object> processJson = JSON.parseObject(processResponse.getResult(), new TypeReference<Map<String, Object>>() {
+                    });
+                    if ((Boolean) processJson.get("isSucceed")) {
+                        serviceResponse.setSuccess(true);
+                    }
+                }
+            }
+        }
+
+        //任务没有全部执行成功
+        if(!serviceResponse.isSuccess()){
+            serviceResponse.setError(ConstantUtil.RESPONSE_EXCEPTION);
+            serviceResponse.setError_description(ConstantUtil.RESPONSE_EXCEPTION);
+        }
+
+        return serviceResponse;
+    }
+
+    /**
+     * 判断是否是请假流程
+     * @param workflowName 流程名称
+     * @return
+     */
+    private boolean isLeaveWorkflow(String workflowName) {
+        return OldServiceConstant.WORKFLOW_NAME_LEAVE.equals(workflowName);
+    }
+
+    /**
+     * 判断是否是用车申请流程
+     * @param workflowName 流程名称
+     * @return
+     */
+    private boolean isCarWorkflow(String workflowName) {
+        return OldServiceConstant.WORKFLOW_NAME_USCAR.equals(workflowName);
+    }
+
+    /**
+     * 拷贝请求结果
+     * @param response 目标请求，需要写入数据的对象
+     * @param tmpResponse 请求完成获得的临时对象
+     */
     private void completeWithResponse(HTTPResponse response, HTTPResponse tmpResponse) {
         response.setComplete(true);
         response.setCode(tmpResponse.getCode());
