@@ -1,0 +1,118 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!-- namespace用作标识mapper的唯一，通常包名+dao接口名 -->
+<mapper namespace="com.anyuan.oa.dao.PlanMapper">
+
+    <resultMap id="PlanCollect" type="com.anyuan.oa.model.PlanCollect">
+        <result property="planType" column="PLAN_TYPE_" />
+        <result property="planNum" column="PLAN_NUM_" />
+    </resultMap>
+
+    <resultMap id="PlanMain" type="com.anyuan.oa.model.PlanMain">
+        <result property="op05Id" column="OP05_ID_"/>
+        <result property="planDate" column="PLAN_DATE_" />
+        <result property="planTitle" column="PLAN_TITLE_" />
+    </resultMap>
+
+    <resultMap id="PlanDetail" type="com.anyuan.oa.model.PlanDetail">
+        <result property="levelName" column="LEVEL_NAME_"/>
+        <result property="typeName1" column="TYPE_NAME1_" />
+        <result property="typeName2" column="TYPE_NAME2_" />
+        <result property="typeName3" column="TYPE_NAME3_" />
+        <result property="target" column="TARGET_" />
+        <result property="deptXg" column="DEPT_XG_" />
+        <result property="empXg" column="EMP_XG_" />
+        <result property="deptZr" column="DEPT_ZR_" />
+        <result property="empZr" column="EMP_ZR_" />
+    </resultMap>
+
+    <select id="reportPlan" resultMap="PlanCollect">
+        SELECT OP_TYPE_ AS PLAN_TYPE_,count(1) AS PLAN_NUM_ FROM tbop05 GROUP BY OP_TYPE_
+    </select>
+
+    <select id="yearPlanData" resultMap="PlanMain">
+        SELECT OP05_ID_ AS OP05_ID_,CONCAT(YEAR_,'年') AS PLAN_DATE_,TITLE_ AS PLAN_TITLE_ FROM tbop05 WHERE OP_TYPE_='NJH'
+    </select>
+
+    <select id="monthPlanData" resultMap="PlanMain">
+        SELECT OP05_ID_ AS OP05_ID_,CONCAT(YEAR_,'年-',MONTH_,'月') AS PLAN_DATE_,TITLE_ AS PLAN_TITLE_ FROM tbop05 WHERE OP_TYPE_='YJH'
+    </select>
+
+    <select id="weekPlanData" resultMap="PlanMain">
+        SELECT OP05_ID_ AS OP05_ID_,CONCAT(YEAR_,'年-',MONTH_,'月-第',WEEK_,'周') AS PLAN_DATE_,TITLE_ AS PLAN_TITLE_ FROM tbop05 WHERE OP_TYPE_='ZWC'
+    </select>
+
+    <select id="yearPlanDetail" resultMap="PlanDetail" parameterType="java.lang.String">
+        SELECT
+            (
+                SELECT
+                DESP_ONE_
+                FROM
+                tbdca1a
+                WHERE
+                COMP_TAB_CODE_ = 'OP_LEVEL_'
+                AND ITEM_NO_ = C.LEVEL_
+            ) AS LEVEL_NAME_,
+            C.TYPE_NAME_1 AS TYPE_NAME1_,
+            C.TYPE_NAME_2 AS TYPE_NAME2_,
+            C.TYPE_NAME_3 AS TYPE_NAME3_,
+            C.AMT_ AS TARGET_,
+            C.DEPT_NAME_XG_ AS DEPT_XG_,
+            C.EMP_NAME_XG AS EMP_XG_,
+            C.DEPT_NAME_ZR_ AS DEPT_ZR_,
+            C.EMP_NAME_ZR_ AS EMP_ZR_
+        FROM
+            TBOP05 A
+            LEFT JOIN TBOP06 B ON A.OP05_ID_ = B.OP05_ID_
+            LEFT JOIN TBOP02 C ON B.OP02_ID_ = C.OP02_ID_
+        WHERE
+            C.OP02_ID_ IS NOT NULL
+            AND A.OP05_ID_ = #{op05Id}
+    </select>
+
+    <select id="monthPlanDetail" resultMap="PlanDetail" parameterType="java.lang.String">
+        SELECT
+            (
+                SELECT
+                DESP_ONE_
+                FROM
+                tbdca1a
+                WHERE
+                COMP_TAB_CODE_ = 'OP_LEVEL_'
+                AND ITEM_NO_ = C.LEVEL_
+            ) AS LEVEL_NAME_,
+            C.TYPE_NAME_1 AS TYPE_NAME1_,
+            C.TYPE_NAME_2 AS TYPE_NAME2_,
+            C.TYPE_NAME_3 AS TYPE_NAME3_,
+            C.AMT_ AS TARGET_,
+            C.DEPT_NAME_XG_ AS DEPT_XG_,
+            C.EMP_NAME_XG AS EMP_XG_,
+            C.DEPT_NAME_ZR_ AS DEPT_ZR_,
+            C.EMP_NAME_ZR_ AS EMP_ZR_
+        FROM
+            TBOP05 A
+            LEFT JOIN TBOP06 B ON A.OP05_ID_ = B.OP05_ID_
+            LEFT JOIN TBOP02 C ON B.OP02_ID_ = C.OP02_ID_
+        WHERE
+            C.OP02_ID_ IS NOT NULL
+            AND A.OP05_ID_ = #{op05Id}
+            AND C.OP_TYPE_ = 'YJH'
+    </select>
+
+    <select id="weekPlanDetail" resultMap="PlanDetail" parameterType="java.lang.String">
+        SELECT
+            IFNULL(A.CONTENT_,'') AS TARGET_,
+            A.DEPT_NAME_ AS DEPT_XG_,
+            A.EMP_NAME_ AS EMP_XG_,
+            A.DEPT_NAME_ZR_ AS DEPT_ZR_,
+            A.EMP_NAME_ZR_ AS EMP_ZR_
+        FROM
+            TBOP03 A,
+            TBOP05 B
+        WHERE
+            A.YEAR_ = B.YEAR_
+            AND A.MONTH_ = B.MONTH_
+            AND A.WEEK_ = B.WEEK_
+            AND B.OP05_ID_ = #{op05Id}
+    </select>
+</mapper>
