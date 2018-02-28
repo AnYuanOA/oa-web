@@ -58,7 +58,7 @@ public class LoginController extends BaseController {
                 request.getSession().setAttribute(ConstantUtil.JSESSIONID, sessionId);
                 SessionHelper.getInstance().getSession(request).setLoginedKey(ConstantUtil.LOGIN_SESSION_ID);
                 SessionHelper.getInstance().getSession(request).setAttribute(ConstantUtil.OLD_OA_ACCESS_TOKEN, loginOldResponse.getData());
-                return coverSuccessData(ConstantUtil.LOGIN_SESSION_ID);
+                return coverSuccessData(sessionId);
             }else{
                 return coverErrorMessage(loginOldResponse.getError_description());
             }
@@ -89,7 +89,7 @@ public class LoginController extends BaseController {
                         request.getSession().setAttribute(ConstantUtil.JSESSIONID, sessionId);
                         SessionHelper.getInstance().getSession(request).setLoginedKey(ConstantUtil.LOGIN_SESSION_ID);
                         SessionHelper.getInstance().getSession(request).setAttribute(ConstantUtil.OLD_OA_ACCESS_TOKEN, loginOldResponse.getData());
-                        return coverSuccessData(ConstantUtil.LOGIN_SESSION_ID);
+                        return coverSuccessData(sessionId);
                     }else{
                         return coverErrorMessage(loginOldResponse.getError_description());
                     }
