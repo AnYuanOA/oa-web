@@ -36,16 +36,23 @@
             LEFT JOIN bdf2_user_wechat c ON a.USERNAME_ = c.ACCOUNT_
         WHERE
             a.ENABLED_ = 1
-            AND a.ADMINISTRATOR_ = 0
     </select>
 
     <select id="findUserByOpenId" resultMap="User">
         SELECT
-            *
+            a.USERNAME_,
+            a.CNAME_,
+            a.EMAIL_,
+            a.MOBILE_,
+            a.PASSWORD_,
+            a.ENABLED_,
+            c.*
         FROM
-            bdf2_user_wechat
+            bdf2_user a
+            LEFT JOIN bdf2_user_wechat c ON a.USERNAME_ = c.ACCOUNT_
         WHERE
-            OPEN_ID_ = #{openId}
+            a.ENABLED_ = 1
+            AND c.OPEN_ID_ = #{openId}
     </select>
 
     <select id="findUserByAccount" resultMap="User">
@@ -63,8 +70,7 @@
             LEFT JOIN bdf2_user_dept b ON a.USERNAME_ = b.USERNAME_
             LEFT JOIN bdf2_user_wechat c ON a.USERNAME_ = c.ACCOUNT_
         WHERE
-            a.ENABLED_ = 1
-            AND a.ADMINISTRATOR_ = 0 AND a.USERNAME_ = #{account}
+            a.ENABLED_ = 1 AND a.USERNAME_ = #{account}
     </select>
 
     <select id="findUserByDeptId" resultMap="User">
@@ -82,8 +88,7 @@
             LEFT JOIN bdf2_user_dept b ON a.USERNAME_ = b.USERNAME_
             LEFT JOIN bdf2_user_wechat c ON a.USERNAME_ = c.ACCOUNT_
         WHERE
-            a.ENABLED_ = 1
-            AND a.ADMINISTRATOR_ = 0 AND b.DEPT_ID_ = #{deptId}
+            a.ENABLED_ = 1 AND b.DEPT_ID_ = #{deptId}
     </select>
 
     <insert id="insertWeChatUser" parameterType="com.anyuan.oa.model.User">

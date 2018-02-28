@@ -35,4 +35,15 @@ public class UserController extends BaseController {
         }
     }
 
+    @RequestMapping("/getSelfUser")
+    @ResponseBody
+    public Map<String,Object> getSelfUser(User user){
+        try {
+            User selfUser=userMapper.findUserByOpenId(user.getOpenId());
+            return coverSuccessData(selfUser);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return coverErrorMessage(ConstantUtil.RESPONSE_EXCEPTION);
+        }
+    }
 }

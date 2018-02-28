@@ -1,5 +1,6 @@
-package com.anyuan.oa.controller.base;
+package com.anyuan.oa.controller;
 
+import com.anyuan.oa.controller.base.BaseController;
 import com.anyuan.oa.dao.PlanMapper;
 import com.anyuan.oa.model.PlanCollect;
 import com.anyuan.oa.model.PlanDetail;
@@ -19,7 +20,7 @@ import java.util.Map;
  */
 @Controller
 @RequestMapping("/plan")
-public class PlanController extends BaseController{
+public class PlanController extends BaseController {
 
     @Resource
     private PlanMapper planMapper;
