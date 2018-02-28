@@ -20,7 +20,7 @@ import java.util.Map;
  */
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
 public class WorkFlowTest {
-    private static final String BASE_URL = "http://localhost:8080";
+    private static final String BASE_URL = "http://localhost:8080/web-service";
 
     /***
      * 登录
