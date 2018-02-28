@@ -2,6 +2,14 @@ package com.anyuan.oa.utils;
 
 public class ConstantUtil {
     public static final int ERROR_CODE = 500;
+    /**
+     * 无权限code
+     */
+    public static final int NO_PERMISSION_CODE = 10001;
+    /**
+     * 用户未绑定code
+     */
+    public static final int USER_NOT_BIND_CODE = 10002;
 
     public static final int SUCCESS_CODE = 200;
 

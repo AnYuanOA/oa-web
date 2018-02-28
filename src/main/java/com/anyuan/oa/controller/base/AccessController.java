@@ -17,6 +17,6 @@ public class AccessController extends BaseController {
     @RequestMapping("/noPermission")
     @ResponseBody
     public Map<String, Object> noPermission() {
-        return coverErrorMessage(ConstantUtil.NO_PERMISSION);
+        return coverNoPermissionMessage();
     }
 }

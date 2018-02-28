@@ -21,7 +21,10 @@ public class AccessInterceptor implements HandlerInterceptor {
             return true;
         }
         //拦截请求校验sessionId
-        String JSESSIONID = httpServletRequest.getHeader("JSESSIONID");
+        String JSESSIONID = httpServletRequest.getHeader(ConstantUtil.JSESSIONID);
+        if(JSESSIONID == null){
+            JSESSIONID = httpServletRequest.getHeader(ConstantUtil.JSESSIONID.toLowerCase());
+        }
         httpServletRequest.getSession().setAttribute(ConstantUtil.JSESSIONID, JSESSIONID);
         Session session = SessionHelper.getInstance().getSession(httpServletRequest);
         String loginedKey = session.getLoginedKey();
@@ -30,7 +33,7 @@ public class AccessInterceptor implements HandlerInterceptor {
             return true;
         } else {
             //验证不通过则返回无权限页面
-            httpServletResponse.sendRedirect("/access/noPermission");
+            httpServletResponse.sendRedirect("/web-service/access/noPermission");
             return false;
         }
     }

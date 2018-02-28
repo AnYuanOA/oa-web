@@ -98,7 +98,7 @@ public class LoginController extends BaseController {
                     return coverErrorMessage(ConstantUtil.RESPONSE_EXCEPTION);
                 }
             }else{
-                return coverErrorMessage(ConstantUtil.USER_NOT_BIND);
+                return coverMessage(ConstantUtil.USER_NOT_BIND_CODE, ConstantUtil.USER_NOT_BIND);
             }
         }else {
             return coverErrorMessage(ConstantUtil.OPENID_EMPTY);
