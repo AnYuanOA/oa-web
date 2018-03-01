@@ -44,6 +44,10 @@ public class User implements Serializable {
      */
     private String deptId;
 
+    /**
+     * 部门名称
+     */
+    private String deptName;
 
     //*******账号微信关联表信息*******//
     /**
@@ -132,6 +136,14 @@ public class User implements Serializable {
 
     public void setDeptId(String deptId) {
         this.deptId = deptId;
+    }
+
+    public String getDeptName() {
+        return deptName;
+    }
+
+    public void setDeptName(String deptName) {
+        this.deptName = deptName;
     }
 
     public int getId() {

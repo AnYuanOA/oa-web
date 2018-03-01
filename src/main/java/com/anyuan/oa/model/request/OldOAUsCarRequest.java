@@ -1,9 +1,12 @@
 package com.anyuan.oa.model.request;
 
+import java.io.Serializable;
+
 /**
  * Created by pengkan on 2018/2/9.
  */
-public class OldOAUsCarRequest {
+public class OldOAUsCarRequest implements Serializable{
+    private static final long serialVersionUID = -3140191785613535117L;
     private String appID;
     private int in_sp_id;
     private String applyUserChnName;

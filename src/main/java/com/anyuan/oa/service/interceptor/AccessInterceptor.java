@@ -20,6 +20,18 @@ public class AccessInterceptor implements HandlerInterceptor {
             //如果是无权限进行操作的，直接走无权限controller处理
             return true;
         }
+
+
+        //新接口请求session校验
+        String newRequestSessionId=httpServletRequest.getRequestedSessionId();
+        httpServletRequest.getSession().setAttribute(ConstantUtil.JSESSIONID, newRequestSessionId);
+        Session newSession = SessionHelper.getInstance().getSession(httpServletRequest);
+        String newLoginedKey = newSession.getLoginedKey();
+        if(!StringUtils.isEmpty(newLoginedKey)&&newLoginedKey.equals(ConstantUtil.LOGIN_SESSION_ID)){
+            return true;
+        }
+
+
         //拦截请求校验sessionId
         String JSESSIONID = httpServletRequest.getHeader(ConstantUtil.JSESSIONID);
         if(JSESSIONID == null){

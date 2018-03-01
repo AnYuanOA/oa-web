@@ -16,6 +16,7 @@ import com.anyuan.oa.utils.OldServiceConstant;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import javax.servlet.http.HttpServletRequest;
@@ -157,17 +158,16 @@ public class WorkFlowController extends BaseController{
 
     /**
      * 提交请假申请流程
-     * @param param 参数，json字符串
+     * @param oldOALeaveRequest 参数
      * @param request
      * @return
      * @throws IOException
      */
     @RequestMapping("/submitLeave")
     @ResponseBody
-    public Map<String, Object> submitLeave(String param, HttpServletRequest request) throws IOException {
-        OldOALeaveRequest requestParam = JSON.parseObject(param, OldOALeaveRequest.class);
-        if(requestParam!=null) {
-            OldServiceResponse response = oldOAService.submitLeaveWorkflow(SessionHelper.getInstance().getAccessToken(request), requestParam);
+    public Map<String, Object> submitLeave(OldOALeaveRequest oldOALeaveRequest, HttpServletRequest request) throws IOException {
+        if(oldOALeaveRequest!=null) {
+            OldServiceResponse response = oldOAService.submitLeaveWorkflow(SessionHelper.getInstance().getAccessToken(request), oldOALeaveRequest);
             if (response.isSuccess()) {
                 return coverSuccessData(response.getData());
             } else {
@@ -180,17 +180,16 @@ public class WorkFlowController extends BaseController{
 
     /**
      * 提交用车申请流程
-     * @param param 参数 json字符串
+     * @param oldOAUsCarRequest 参数
      * @param request
      * @return
      * @throws IOException
      */
     @RequestMapping("/submitUsingCar")
     @ResponseBody
-    public Map<String, Object> submitUsingCar(String param, HttpServletRequest request) throws IOException{
-        OldOAUsCarRequest requestParam = JSON.parseObject(param, OldOAUsCarRequest.class);
-        if(requestParam != null){
-            OldServiceResponse response = oldOAService.submitUsingCarWorkflow(SessionHelper.getInstance().getAccessToken(request), requestParam);
+    public Map<String, Object> submitUsingCar(OldOAUsCarRequest oldOAUsCarRequest, HttpServletRequest request) throws IOException{
+        if(oldOAUsCarRequest != null){
+            OldServiceResponse response = oldOAService.submitUsingCarWorkflow(SessionHelper.getInstance().getAccessToken(request), oldOAUsCarRequest);
             if(response.isSuccess()){
                 return coverSuccessData(response.getData());
             }else{

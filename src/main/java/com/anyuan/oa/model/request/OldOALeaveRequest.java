@@ -1,9 +1,12 @@
 package com.anyuan.oa.model.request;
 
+import java.io.Serializable;
+
 /**
  * Created by pengkan on 2018/2/8.
  */
-public class OldOALeaveRequest {
+public class OldOALeaveRequest implements Serializable{
+    private static final long serialVersionUID = 4850339960372286599L;
     private String appID;
     private String attL_ID;
     /**

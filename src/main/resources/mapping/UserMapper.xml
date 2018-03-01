@@ -18,6 +18,7 @@
         <result property="password" column="PASSWORD_" />
         <result property="enabled" column="ENABLED_" />
         <result property="deptId" column="DEPT_ID_" />
+        <result property="deptName" column="DEPT_NAME_"/>
     </resultMap>
 
     <select id="findAllUser" resultMap="User">
@@ -46,10 +47,13 @@
             a.MOBILE_,
             a.PASSWORD_,
             a.ENABLED_,
+            e.NAME_ AS DEPT_NAME_,
             c.*
         FROM
             bdf2_user a
             LEFT JOIN bdf2_user_wechat c ON a.USERNAME_ = c.ACCOUNT_
+            LEFT JOIN bdf2_user_dept d ON a.USERNAME_ = d.USERNAME_
+            LEFT JOIN bdf2_dept e ON d.DEPT_ID_ = e.ID_
         WHERE
             a.ENABLED_ = 1
             AND c.OPEN_ID_ = #{openId}
