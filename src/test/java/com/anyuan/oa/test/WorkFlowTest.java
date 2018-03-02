@@ -67,6 +67,19 @@ public class WorkFlowTest {
      */
     private static final String PROCESS_WORKFLOW_URL = "/workflow/processWorkflow";
     /**
+     * 获取消息类型列表
+     */
+    private static final String GET_MESSAGE_TYPE_LIST_URL = "/news/getMessageTypeList";
+    /**
+     * 根据类型获取消息
+     */
+    private static final String GET_MESSAGE_WITH_TYPE_URL = "/news/getMessageListWithType";
+    /**
+     * 获取老OA用户信息
+     */
+    private static final String GET_OLDOA_USER_INFO_URL = "/user/getOldOAUserInfo";
+
+    /**
      * 测试用openID
      */
     private static final String TEST_OPENID = "test6543219780";
@@ -80,9 +93,9 @@ public class WorkFlowTest {
         HTTPUtil.setUsLocalProxy(true);
         String url = BASE_URL + LOGIN_URL;
         Map<String, String> param = new HashMap<String, String>();
-        param.put("userName", "jinher");//用户名
+        param.put("userName", "pengkan");//用户名
         param.put("openId", TEST_OPENID);//微信小程序openid
-        param.put("password", "666666");//密码
+        param.put("password", "123456");//密码
         param.put("chatNick", "jinher");//微信昵称
         try {
             HTTPResponse response = HTTPUtil.sendPostWithEncodeForm(url, param, null);
@@ -295,6 +308,49 @@ public class WorkFlowTest {
         realParams.put("param", JSON.toJSONString(params));
         HTTPResponse response = HTTPUtil.sendPostWithEncodeForm(url, realParams, headers);
         System.out.println("ProcessWorkflow: " + response.getResult());
+    }
+
+    /**
+     * 获取消息类型列表
+     * @throws IOException
+     */
+    @Test
+    public void test11GetMessageTypeList() throws IOException {
+        assert sessionID!=null;
+        String url = BASE_URL + GET_MESSAGE_TYPE_LIST_URL;
+        Map<String, String> headers = getCommomHeaders();
+        HTTPResponse response = HTTPUtil.sendPostWithEncodeForm(url, null, headers);
+        System.out.println("GetMessageTypeList: " + response.getResult());
+    }
+
+    /**
+     * 根据消息类型获取消息
+     * @throws IOException
+     */
+    @Test
+    public void test12GetMessageWithType() throws IOException {
+        assert sessionID!=null;
+        String url = BASE_URL + GET_MESSAGE_WITH_TYPE_URL;
+        Map<String, String> headers = getCommomHeaders();
+        Map<String, String> params = new HashMap<String, String>();
+        params.put("mainType", "7c7cf4e8-ead8-494a-a60c-c2133271e231");
+        params.put("pageIndex", "0");
+        params.put("pageSize", "10");
+        HTTPResponse response = HTTPUtil.sendPostWithEncodeForm(url, params, headers);
+        System.out.println("GetMessageWithType: " + response.getResult());
+    }
+
+    /**
+     * 获取用户信息
+     * @throws IOException
+     */
+    @Test
+    public void test13GetUserInfo() throws IOException {
+        assert sessionID!=null;
+        String url = BASE_URL + GET_OLDOA_USER_INFO_URL;
+        Map<String, String> headers = getCommomHeaders();
+        HTTPResponse response = HTTPUtil.sendPostWithEncodeForm(url, null, headers);
+        System.out.println("GetUserInfo: " + response.getResult());
     }
 
     /**

@@ -7,7 +7,11 @@ public class OldServiceConstant {
     /**
      * 基础URL
      */
-    private static final String BASE_URL = "http://101.37.171.186/bapi/";
+    private static final String BASE_URL = "http://101.37.171.186/bapi/api";
+    /**
+     * OA基础API
+     */
+    private static final String OA_BASE_URL = "http://101.37.171.186/oapi/api";
     /**
      * 基础业务URL
      */
@@ -15,63 +19,75 @@ public class OldServiceConstant {
     /**
      * 登录URI
      */
-    private static final String TOKEN_URI = "Token";
+    private static final String TOKEN_URI = "http://101.37.171.186/bapi/Token";
     /**
      * 待办列表URI
      */
-    private static final String TODO_URI = "api/WorkFlow/getMyWFList";
+    private static final String TODO_URI = "/WorkFlow/getMyWFList";
     /***
      * 待阅列表
      */
-    private static final String TOREAD_URI = "api/WorkFlow/GetWaitReadInfos";
+    private static final String TOREAD_URI = "/WorkFlow/GetWaitReadInfos";
     /**
      * 待办详情URI
      * */
-    private static final String TODO_DETAIL_URI = "api/HRC6RestApply/Detail";
+    private static final String TODO_DETAIL_URI = "/HRC6RestApply/Detail";
     /**
      * 获取流程详细信息
      */
-    private static final String WORKFLOW_OPERATION_INFO = "api/WorkFlow/getWFDetailInfoNew";
+    private static final String WORKFLOW_OPERATION_INFO = "/WorkFlow/getWFDetailInfoNew";
     /**
      * 获取流程附件列表
      */
-    private static final String WORKFLOW_ATTACHS = "api/HRC6RestApply/GetAttachs";
+    private static final String WORKFLOW_ATTACHS = "/HRC6RestApply/GetAttachs";
     /**
      * 获取流程办理列表
      * */
-    private static final String WORKFLOW_DEALT_INFO = "api/workflow/getWFDealtInfo";
+    private static final String WORKFLOW_DEALT_INFO = "/workflow/getWFDealtInfo";
     /**
      * 获取流程图svg字符串
      */
-    private static final String WORKFLOW_SVGSTR_URI = "api/WorkFlow/GetFlowSvgNodeStr";
+    private static final String WORKFLOW_SVGSTR_URI = "/WorkFlow/GetFlowSvgNodeStr";
     /**
      * 获取流程初始信息
      */
-    private static final String WORKFLOW_START_INFO_URI = "api/WorkFlow/getWokFlowStartInfo";
+    private static final String WORKFLOW_START_INFO_URI = "/WorkFlow/getWokFlowStartInfo";
     /**
      * 获取用车类型
      */
-    private static final String WORKFLOW_GET_USCARTYPE_URI = "api/HRC6CarUsingApply/GetUsingTypes";
+    private static final String WORKFLOW_GET_USCARTYPE_URI = "/HRC6CarUsingApply/GetUsingTypes";
     /**
      * 获取请假类型
      */
-    private static final String WORKFLOW_GET_RESTTYPE_URI = "api/HRC6RestApply/GetRestTypes";
+    private static final String WORKFLOW_GET_RESTTYPE_URI = "/HRC6RestApply/GetRestTypes";
     /**
      * 获取流程步骤
      */
-    private static final String WORKFLOW_GET_STEPLIST_URI = "api/WorkFlow/GetWFStepInfo";
+    private static final String WORKFLOW_GET_STEPLIST_URI = "/WorkFlow/GetWFStepInfo";
     /**
      * 新增请假申请
      */
-    private static final String WORKFLOW_ADDLEAVE_URI = "api/HRC6RestApply/Add";
+    private static final String WORKFLOW_ADDLEAVE_URI = "/HRC6RestApply/Add";
     /**
      * 新增用车申请
      */
-    private static final String WORKFLOW_ADDUSCAR_URI = "api/HRC6CarUsingApply/Add";
+    private static final String WORKFLOW_ADDUSCAR_URI = "/HRC6CarUsingApply/Add";
     /**
      * 办理流程
      */
-    private static final String WORKFLOW_PROCESS_URI = "api/WorkFlow/WorkFlowDeal";
+    private static final String WORKFLOW_PROCESS_URI = "/WorkFlow/WorkFlowDeal";
+    /**
+     * 消息类型列表
+     */
+    private static final String MESSAGE_TYPE_LIST_URI = "/oaPortalMsgType/Get";
+    /**
+     * 根据类型获取消息列表
+     */
+    private static final String MESSAGE_BY_TYPE_URI = "/oaPortalMsg/GetListByMainType";
+    /**
+     * 获取用户信息
+     */
+    private static final String USER_INFO_URI = "/Common/GetMyInfo";
 
     /**
      * 授权类型
@@ -93,7 +109,7 @@ public class OldServiceConstant {
     /**
      * 获取token或刷新token
      */
-    public static final String TOKEN_URL = BASE_URL + TOKEN_URI;
+    public static final String TOKEN_URL = TOKEN_URI;
     /**
      * 获取待办列表
      */
@@ -150,4 +166,16 @@ public class OldServiceConstant {
      * 办理流程
      */
     public static final String WORKFLOW_PROCESS_URL = BASE_URL + WORKFLOW_PROCESS_URI;
+    /**
+     * 获取消息类型列表
+     */
+    public static final String MESSAGE_TYPE_LIST_URL = OA_BASE_URL + MESSAGE_TYPE_LIST_URI;
+    /**
+     * 根据消息类型获取消息列表
+     */
+    public static final String MESSAGE_BY_TYPE_URL = OA_BASE_URL + MESSAGE_BY_TYPE_URI;
+    /**
+     * 获取用户个人信息
+     */
+    public static final String USER_INFO_URL = BASE_URL + USER_INFO_URI;
 }

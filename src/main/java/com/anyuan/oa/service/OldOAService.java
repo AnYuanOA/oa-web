@@ -1,6 +1,7 @@
 package com.anyuan.oa.service;
 
 import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.TypeReference;
 import com.anyuan.oa.model.OldAccessToken;
 import com.anyuan.oa.model.request.OldOALeaveRequest;
@@ -586,6 +587,103 @@ public class OldOAService {
                         serviceResponse.setSuccess(true);
                     }
                 }
+            }
+        }
+
+        //任务没有全部执行成功
+        if(!serviceResponse.isSuccess()){
+            serviceResponse.setError(ConstantUtil.RESPONSE_EXCEPTION);
+            serviceResponse.setError_description(ConstantUtil.RESPONSE_EXCEPTION);
+        }
+
+        return serviceResponse;
+    }
+
+    /**
+     * 查询消息类型列表
+     * @param token
+     * @return
+     * @throws IOException
+     */
+    public OldServiceResponse<List<OldOAMessageType>> getMessageTypeList(OldAccessToken token) throws IOException {
+        OldServiceResponse<List<OldOAMessageType>> serviceResponse = new OldServiceResponse<List<OldOAMessageType>>();
+        Map<String, String> headers = HTTPUtil.getAuthHeaders(token);
+        Map<String, Object> params = new HashMap<String, Object>();
+        HTTPResponse response = HTTPUtil.sendPostWithJson(OldServiceConstant.MESSAGE_TYPE_LIST_URL, params, headers);
+        if(response.getCode() == HTTPResponse.SUCCESS){
+            Map<String, Object> responseJson = JSON.parseObject(response.getResult(), new TypeReference<Map<String, Object>>(){});
+            if((Boolean) responseJson.get("isSucceed")){
+                List<OldOAMessageType> msgTypes = JSONArray.parseArray(JSON.toJSONString(responseJson.get("executedModel")), OldOAMessageType.class);
+                serviceResponse.setSuccess(true);
+                serviceResponse.setData(msgTypes);
+            }
+        }
+
+        //任务没有全部执行成功
+        if(!serviceResponse.isSuccess()){
+            serviceResponse.setError(ConstantUtil.RESPONSE_EXCEPTION);
+            serviceResponse.setError_description(ConstantUtil.RESPONSE_EXCEPTION);
+        }
+
+        return serviceResponse;
+    }
+
+    /**
+     * 根据消息类型查询新闻消息
+     * @param mainType 新闻类型ID
+     * @param pageIndex 页码  从0开始
+     * @param pageSize  每页消息条数
+     * @param token 访问token
+     * @return
+     * @throws IOException
+     */
+    public OldServiceResponse<List<OldOAMessage>> getMessageListWithType(
+            String mainType, int pageIndex, int pageSize, OldAccessToken token) throws IOException {
+        OldServiceResponse<List<OldOAMessage>> serviceResponse = new OldServiceResponse<List<OldOAMessage>>();
+        Map<String, String> headers = HTTPUtil.getAuthHeaders(token);
+        Map<String, Object> params = new HashMap<String, Object>();
+        params.put("MainType", mainType);
+        params.put("pageIndex", pageIndex);
+        params.put("pageSize", pageSize);
+        HTTPResponse response = HTTPUtil.sendPostWithJson(OldServiceConstant.MESSAGE_BY_TYPE_URL, params, headers);
+        if(response.getCode() == HTTPResponse.SUCCESS){
+            Map<String, Object> responseJson = JSON.parseObject(response.getResult(), new TypeReference<Map<String, Object>>(){});
+            if((Boolean) responseJson.get("isSucceed")){
+                List<Map<Object, Object>> dataListJson = (List<Map<Object, Object>>)
+                        ((Map<String, Object>)responseJson.get("executedModel")).get("data");
+                List<OldOAMessage> msgs = JSONArray.parseArray(
+                        JSONArray.toJSONString(dataListJson), OldOAMessage.class);
+                serviceResponse.setSuccess(true);
+                serviceResponse.setData(msgs);
+            }
+        }
+
+        //任务没有全部执行成功
+        if(!serviceResponse.isSuccess()){
+            serviceResponse.setError(ConstantUtil.RESPONSE_EXCEPTION);
+            serviceResponse.setError_description(ConstantUtil.RESPONSE_EXCEPTION);
+        }
+
+        return serviceResponse;
+    }
+
+    /**
+     * 查询用户信息
+     * @param token
+     * @return
+     * @throws IOException
+     */
+    public OldServiceResponse<OldOAUser> getUserInfo(OldAccessToken token) throws IOException {
+        OldServiceResponse<OldOAUser> serviceResponse = new OldServiceResponse<OldOAUser>();
+        Map<String, String> headers = HTTPUtil.getAuthHeaders(token);
+        HTTPResponse response = HTTPUtil.sendGet(OldServiceConstant.USER_INFO_URL, headers);
+                //HTTPUtil.sendPostWithJson(OldServiceConstant.USER_INFO_URL, null, headers);
+        if(response.getCode() == HTTPResponse.SUCCESS){
+            Map<String, Object> responseJson = JSON.parseObject(response.getResult(), new TypeReference<Map<String, Object>>(){});
+            if((Boolean) responseJson.get("isSucceed")){
+                OldOAUser user = JSON.parseObject(JSON.toJSONString(responseJson.get("executedModel")), OldOAUser.class);
+                serviceResponse.setSuccess(true);
+                serviceResponse.setData(user);
             }
         }
 
