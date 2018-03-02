@@ -202,22 +202,25 @@ public class WorkFlowController extends BaseController{
 
     /**
      * 办理流程
-     * @param param 参数 json字符串
+     * @param oldOAProcessWorkflowRequest
      * @param request
      * @return
      * @throws IOException
      */
     @RequestMapping("/processWorkflow")
     @ResponseBody
-    public Map<String, Object> processWorkflow(String param, HttpServletRequest request) throws IOException {
-        OldOAProcessWorkflowRequest requestParam = JSON.parseObject(param, OldOAProcessWorkflowRequest.class);
-        if(requestParam != null){
+    public Map<String, Object> processWorkflow(OldOAProcessWorkflowRequest oldOAProcessWorkflowRequest, HttpServletRequest request,String operationButton) throws IOException {
+        OldOAAppButton oldOAAppButton=JSON.parseObject(operationButton, OldOAAppButton.class);
+        if(oldOAProcessWorkflowRequest != null&&oldOAAppButton!=null){
+            oldOAProcessWorkflowRequest.setButton(oldOAAppButton);
+            String jsonParam=JSON.toJSONString(oldOAProcessWorkflowRequest);
+            System.out.println(jsonParam);
             OldServiceResponse response = oldOAService.submitWorkflow(SessionHelper.getInstance().getAccessToken(request),
-                    requestParam.getButton(),
-                    requestParam.getWorkflowName(),
-                    requestParam.getWorkflowTitle(),
-                    requestParam.getOaSPID(),
-                    requestParam.getAppOId());
+                    oldOAProcessWorkflowRequest.getButton(),
+                    oldOAProcessWorkflowRequest.getWorkflowName(),
+                    oldOAProcessWorkflowRequest.getWorkflowTitle(),
+                    oldOAProcessWorkflowRequest.getOaSPID(),
+                    oldOAProcessWorkflowRequest.getAppOId());
             if(response.isSuccess()){
                 return coverSuccessData(response.getData());
             }else {
