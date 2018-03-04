@@ -18,6 +18,25 @@ import java.util.Map;
 @RequestMapping("/group")
 public class GroupController extends BaseController{
 
+    @RequestMapping("/findGroup")
+    @ResponseBody
+    public Map<String,Object> findGroup(String groupName){
+        if(StringUtils.isEmpty(groupName)){
+            return coverErrorMessage(ConstantUtil.REQUEST_PARAM_ERROR);
+        }
+        try {
+            boolean isExist=OpenFireService.findGroup(groupName);
+            if(isExist){
+                return coverSuccessData("群组存在");
+            }else{
+                return coverErrorMessage("群组不存在");
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            return coverErrorMessage(ConstantUtil.RESPONSE_EXCEPTION);
+        }
+    }
+
 
     @RequestMapping("/createGroup")
     @ResponseBody
