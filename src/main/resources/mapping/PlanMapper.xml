@@ -31,15 +31,15 @@
     </select>
 
     <select id="yearPlanData" resultMap="PlanMain">
-        SELECT OP05_ID_ AS OP05_ID_,CONCAT(YEAR_,'年') AS PLAN_DATE_,TITLE_ AS PLAN_TITLE_ FROM tbop05 WHERE OP_TYPE_='NJH'
+        SELECT OP05_ID_ AS OP05_ID_,CONCAT(YEAR_,'年') AS PLAN_DATE_,TITLE_ AS PLAN_TITLE_ FROM tbop05 WHERE OP_TYPE_='NJH' ORDER BY YEAR_ DESC
     </select>
 
     <select id="monthPlanData" resultMap="PlanMain">
-        SELECT OP05_ID_ AS OP05_ID_,CONCAT(YEAR_,'年-',MONTH_,'月') AS PLAN_DATE_,TITLE_ AS PLAN_TITLE_ FROM tbop05 WHERE OP_TYPE_='YJH'
+        SELECT OP05_ID_ AS OP05_ID_,CONCAT(YEAR_,'年-',MONTH_,'月') AS PLAN_DATE_,TITLE_ AS PLAN_TITLE_ FROM tbop05 WHERE OP_TYPE_='YJH' ORDER BY YEAR_ DESC ,MONTH_ DESC
     </select>
 
     <select id="weekPlanData" resultMap="PlanMain">
-        SELECT OP05_ID_ AS OP05_ID_,CONCAT(YEAR_,'年-',MONTH_,'月-第',WEEK_,'周') AS PLAN_DATE_,TITLE_ AS PLAN_TITLE_ FROM tbop05 WHERE OP_TYPE_='ZWC'
+        SELECT OP05_ID_ AS OP05_ID_,CONCAT(YEAR_,'年-',MONTH_,'月-第',WEEK_,'周') AS PLAN_DATE_,TITLE_ AS PLAN_TITLE_ FROM tbop05 WHERE OP_TYPE_='ZWC' ORDER BY YEAR_ DESC ,MONTH_ DESC ,WEEK_ DESC
     </select>
 
     <select id="yearPlanDetail" resultMap="PlanDetail" parameterType="java.lang.String">

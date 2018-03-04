@@ -55,7 +55,7 @@ public class OpenFireService {
             //无用户则新增
             UserEntity newUser=new UserEntity();
             newUser.setUsername(user.getUserName());
-            newUser.setName(user.getcName());
+            newUser.setName(user.getUserName());
             newUser.setPassword(user.getwPassword());
             restApiClient.createUser(newUser);
         }

@@ -5,6 +5,7 @@ import com.anyuan.oa.model.OldAccessToken;
 import com.anyuan.oa.model.response.OldServiceResponse;
 import com.anyuan.oa.model.User;
 import com.anyuan.oa.service.OldOAService;
+import com.anyuan.oa.service.OpenFireService;
 import com.anyuan.oa.service.Session;
 import com.anyuan.oa.service.SessionHelper;
 import com.anyuan.oa.utils.ConstantUtil;
@@ -39,6 +40,9 @@ public class LoginController extends BaseController {
             //老系统登录接口请求验证
             OldServiceResponse<OldAccessToken> loginOldResponse=loginOldOA(paramUser);
             if(loginOldResponse.isSuccess()){
+                //openfire通讯接口嵌套
+                OpenFireService.createOrUpdateUser(paramUser);
+                //查询是否已有登录绑定账号
                 User weUser = userMapper.findUserByOpenId(paramUser.getOpenId());
                 if(ObjectUtils.isEmpty(weUser)){
                     //第一次绑定
