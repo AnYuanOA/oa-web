@@ -1,5 +1,6 @@
 package com.anyuan.oa.controller.base;
 
+import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.anyuan.oa.dao.UserMapper;
 import com.anyuan.oa.model.OldAccessToken;
@@ -137,6 +138,6 @@ public class LoginController extends BaseController {
     @RequestMapping("/getUserOpenId")
     @ResponseBody
     public Map<String, Object> getUserOpenId(String jsCode,HttpServletRequest request, HttpServletResponse response) {
-        return coverSuccessData(WeChatUtil.getConvert(jsCode));
+        return coverSuccessData(JSON.parse(WeChatUtil.getConvert(jsCode)));
     }
 }
