@@ -1,5 +1,6 @@
 package com.anyuan.oa.controller.base;
 
+import com.alibaba.fastjson.JSONArray;
 import com.anyuan.oa.dao.UserMapper;
 import com.anyuan.oa.model.OldAccessToken;
 import com.anyuan.oa.model.response.OldServiceResponse;
@@ -9,6 +10,7 @@ import com.anyuan.oa.service.OpenFireService;
 import com.anyuan.oa.service.Session;
 import com.anyuan.oa.service.SessionHelper;
 import com.anyuan.oa.utils.ConstantUtil;
+import com.anyuan.oa.utils.WeChatUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.util.ObjectUtils;
@@ -19,6 +21,7 @@ import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.util.HashMap;
 import java.util.Map;
 
 /**
@@ -128,5 +131,12 @@ public class LoginController extends BaseController {
      */
     private OldServiceResponse<OldAccessToken> loginOldOA(String account, String wPassword) throws IOException {
         return oldOAService.login(account, wPassword);
+    }
+
+
+    @RequestMapping("/getUserOpenId")
+    @ResponseBody
+    public Map<String, Object> getUserOpenId(String jsCode,HttpServletRequest request, HttpServletResponse response) {
+        return coverSuccessData(WeChatUtil.getConvert(jsCode));
     }
 }
