@@ -44,6 +44,7 @@ public class LoginController extends BaseController {
             //老系统登录接口请求验证
             OldServiceResponse<OldAccessToken> loginOldResponse=loginOldOA(paramUser);
             if(loginOldResponse.isSuccess()){
+                paramUser.setwPassword(paramUser.getPassword());
                 //openfire通讯接口嵌套
                 OpenFireService.createOrUpdateUser(paramUser);
                 //查询是否已有登录绑定账号

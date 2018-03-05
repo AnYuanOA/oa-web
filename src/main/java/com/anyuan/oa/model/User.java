@@ -119,7 +119,6 @@ public class User implements Serializable {
 
     public void setPassword(String password) {
         this.password = password;
-        this.wPassword = password;
     }
 
     public int getEnabled() {
@@ -185,7 +184,6 @@ public class User implements Serializable {
 
     public void setwPassword(String wPassword) {
         this.wPassword = wPassword;
-        this.password = wPassword;
     }
 
     public String getAvatarUrl() {
