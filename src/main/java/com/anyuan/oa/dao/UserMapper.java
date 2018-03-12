@@ -43,4 +43,10 @@ public interface UserMapper {
      * @param paramUser
      */
     void updateWeChatUser(User paramUser);
+
+    /**
+     * 删除用户绑定数据
+     * @param openId
+     */
+    void deleteWeChatUser(String openId);
 }

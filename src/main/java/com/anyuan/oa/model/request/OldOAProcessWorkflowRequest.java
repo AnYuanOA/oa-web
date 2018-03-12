@@ -19,6 +19,10 @@ public class OldOAProcessWorkflowRequest {
      */
     private int appOId;
     /**
+     * 流程当前步骤ID
+     */
+    private String currentStepId;
+    /**
      * 0
      */
     private int appOValue;
@@ -87,5 +91,13 @@ public class OldOAProcessWorkflowRequest {
 
     public void setWorkflowTitle(String workflowTitle) {
         this.workflowTitle = workflowTitle;
+    }
+
+    public String getCurrentStepId() {
+        return currentStepId;
+    }
+
+    public void setCurrentStepId(String currentStepId) {
+        this.currentStepId = currentStepId;
     }
 }

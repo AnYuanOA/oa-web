@@ -440,7 +440,8 @@ public class OldOAService {
                                 OldServiceConstant.WORKFLOW_NAME_LEAVE,
                                 requestParam.getWorkflowTitle(),
                                 addRes.getIn_sp_id(),
-                                addRes.getBuzPKID());
+                                addRes.getBuzPKID(),
+                                null);
                     }
                 }
             }
@@ -512,7 +513,8 @@ public class OldOAService {
                                 OldServiceConstant.WORKFLOW_NAME_USCAR,
                                 requestParam.getWorkflowTitle(),
                                 addRes.getIn_sp_id(),
-                                addRes.getBuzPKID());
+                                addRes.getBuzPKID(),
+                                null);
                     }
                 }
             }
@@ -530,6 +532,12 @@ public class OldOAService {
     /**
      * 办理流程
      * @param token
+     * @param button 流程操作对象
+     * @param workflowName 流程名称
+     * @param workflowTitle 流程标题
+     * @param in_sp_id
+     * @param buzPKID 业务ID
+     * @param currentStepId 当前审批步骤ID，可不填，默认选中流程列表第一步
      * @return
      */
     public OldServiceResponse submitWorkflow(OldAccessToken token,
@@ -537,7 +545,9 @@ public class OldOAService {
                                              String workflowName,
                                              String workflowTitle,
                                              int in_sp_id,
-                                             int buzPKID) throws IOException{
+                                             int buzPKID,
+                                             String currentStepId) throws IOException{
+        HTTPUtil.setUsLocalProxy(true);
         OldServiceResponse serviceResponse = new OldServiceResponse();
         Map<String, String> headers = HTTPUtil.getAuthHeaders(token);
         //请求获取审批步骤接口
@@ -557,12 +567,32 @@ public class OldOAService {
             List<OldOAToDoStepInfo> stepList = JSON.parseArray(JSON.toJSONString(stepJson.get("wfNextStepList")), OldOAToDoStepInfo.class);
             if (stepList.size() > 0) {
                 //获取第一个审批步骤，组装参数，并执行流程办理任务
-                OldOAToDoStepInfo step = stepList.get(0);
+                int currentIndex = 0;
+                if(currentStepId != null){
+                    for(int i=0; i<stepList.size(); i++){
+                        OldOAToDoStepInfo tmp = stepList.get(i);
+                        if(currentStepId.equals(tmp.getNextStepID())){
+                            currentIndex = i;
+                            break;
+                        }
+                    }
+                }
+                if(stepList.size() > currentIndex+1){
+                    currentIndex++;
+                }
+                OldOAToDoStepInfo step = stepList.get(currentIndex);
+//                if(step.getAcceptUserInfo().size()>0){
+//                    List<OldOAToDoAcceptUserInfo> acceptArray = new ArrayList<OldOAToDoAcceptUserInfo>();
+//                    acceptArray.add(step.getAcceptUserInfo().get(0));
+//                    step.setAcceptUserInfo(acceptArray);
+//                }
+
                 button.setAppFlag("2");
-                button.setAppID("0");
+                if(button.getAppID() == null) {
+                    button.setAppID("0");
+                }
                 button.setAppIdea("同意");
                 button.setAppTID(workflowName);
-                button.setAppTID(OldServiceConstant.WORKFLOW_NAME_LEAVE);
                 button.setAppTitle(workflowTitle);
                 OldOAProcessStep stepInfo = new OldOAProcessStep();
                 stepInfo.setSuccess(1);

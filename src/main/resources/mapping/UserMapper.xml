@@ -102,4 +102,11 @@
     <update id="updateWeChatUser" parameterType="com.anyuan.oa.model.User">
         UPDATE bdf2_user_wechat SET ACCOUNT_=#{account},OPEN_ID_=#{openId},CHATNICK_=#{chatNick},W_PASSWORD_=#{wPassword},AVATAR_URL_=#{avatarUrl} WHERE ID_=#{id}
     </update>
+
+    <delete id="deleteWeChatUser">
+        DELETE FROM
+	      bdf2_user_wechat
+        WHERE
+	      OPEN_ID_ = #{openId}
+    </delete>
 </mapper>

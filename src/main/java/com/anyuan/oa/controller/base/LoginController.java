@@ -114,6 +114,24 @@ public class LoginController extends BaseController {
         }
     }
 
+    /**
+     * 退出登录，删除绑定关系
+     * @param openId
+     * @param request
+     * @return
+     * @throws IOException
+     */
+    @RequestMapping("/logout")
+    @ResponseBody
+    public Map<String, Object> logout(String openId, HttpServletRequest request) throws IOException {
+        if(openId != null && openId.trim().length()>0){
+            userMapper.deleteWeChatUser(openId);
+            return coverSuccessData(null);
+        }else {
+            return coverErrorMessage(ConstantUtil.REQUEST_PARAM_ERROR);
+        }
+    }
+
     /***
      * 登录老系统
      * @param paramUser

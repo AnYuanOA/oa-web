@@ -220,7 +220,8 @@ public class WorkFlowController extends BaseController{
                     oldOAProcessWorkflowRequest.getWorkflowName(),
                     oldOAProcessWorkflowRequest.getWorkflowTitle(),
                     oldOAProcessWorkflowRequest.getOaSPID(),
-                    oldOAProcessWorkflowRequest.getAppOId());
+                    oldOAProcessWorkflowRequest.getAppOId(),
+                    oldOAProcessWorkflowRequest.getCurrentStepId());
             if(response.isSuccess()){
                 return coverSuccessData(response.getData());
             }else {
