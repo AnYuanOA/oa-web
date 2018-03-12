@@ -23,6 +23,10 @@ public class OldOAProcessWorkflowRequest {
      */
     private String currentStepId;
     /**
+     * 审批人id及用户名
+     */
+    private String appFieldName;
+    /**
      * 0
      */
     private int appOValue;
@@ -99,5 +103,13 @@ public class OldOAProcessWorkflowRequest {
 
     public void setCurrentStepId(String currentStepId) {
         this.currentStepId = currentStepId;
+    }
+
+    public String getAppFieldName() {
+        return appFieldName;
+    }
+
+    public void setAppFieldName(String appFieldName) {
+        this.appFieldName = appFieldName;
     }
 }

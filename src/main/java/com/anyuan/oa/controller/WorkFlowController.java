@@ -213,15 +213,42 @@ public class WorkFlowController extends BaseController{
         OldOAAppButton oldOAAppButton=JSON.parseObject(operationButton, OldOAAppButton.class);
         if(oldOAProcessWorkflowRequest != null&&oldOAAppButton!=null){
             oldOAProcessWorkflowRequest.setButton(oldOAAppButton);
-            String jsonParam=JSON.toJSONString(oldOAProcessWorkflowRequest);
-            System.out.println(jsonParam);
             OldServiceResponse response = oldOAService.submitWorkflow(SessionHelper.getInstance().getAccessToken(request),
                     oldOAProcessWorkflowRequest.getButton(),
                     oldOAProcessWorkflowRequest.getWorkflowName(),
                     oldOAProcessWorkflowRequest.getWorkflowTitle(),
                     oldOAProcessWorkflowRequest.getOaSPID(),
                     oldOAProcessWorkflowRequest.getAppOId(),
-                    oldOAProcessWorkflowRequest.getCurrentStepId());
+                    oldOAProcessWorkflowRequest.getCurrentStepId(),
+                    oldOAProcessWorkflowRequest.getAppFieldName());
+            if(response.isSuccess()){
+                return coverSuccessData(response.getData());
+            }else {
+                return coverErrorMessage(response.getError_description());
+            }
+        }else {
+            return coverErrorMessage(ConstantUtil.REQUEST_PARAM_ERROR);
+        }
+    }
+
+    /**
+     * 获取下一步审批信息
+     * @param buttonId     审批操作ID
+     * @param workflowName 流程名称
+     * @param currentStepId 当前步骤ID
+     * @param request
+     * @return
+     * @throws IOException
+     */
+    @RequestMapping("/getAcceptUserList")
+    @ResponseBody
+    public Map<String, Object> getAcceptUserList(String buttonId, String workflowName, String currentStepId, HttpServletRequest request) throws IOException {
+        if(buttonId!=null && workflowName!=null){
+            OldServiceResponse<List<OldOAToDoAcceptUserInfo>> response = oldOAService.getAcceptUserList(
+                    SessionHelper.getInstance().getAccessToken(request),
+                    buttonId,
+                    workflowName,
+                    currentStepId);
             if(response.isSuccess()){
                 return coverSuccessData(response.getData());
             }else {
