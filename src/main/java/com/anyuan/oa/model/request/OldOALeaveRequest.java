@@ -53,6 +53,10 @@ public class OldOALeaveRequest implements Serializable{
     /**
      * 是否是新流程  新增为新，更改不为新
      */
+    /**
+     * 审批人id及用户名
+     */
+    private String appFieldName;
     private boolean isNew;
 
     public String getAppID() {
@@ -165,5 +169,13 @@ public class OldOALeaveRequest implements Serializable{
 
     public void setNew(boolean aNew) {
         isNew = aNew;
+    }
+
+    public String getAppFieldName() {
+        return appFieldName;
+    }
+
+    public void setAppFieldName(String appFieldName) {
+        this.appFieldName = appFieldName;
     }
 }
