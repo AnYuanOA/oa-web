@@ -1,6 +1,7 @@
 package com.anyuan.oa.utils;
 
 import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.serializer.SerializerFeature;
 import com.anyuan.oa.model.OldAccessToken;
 import com.anyuan.oa.model.response.HTTPResponse;
 import org.apache.http.Consts;
@@ -36,7 +37,7 @@ public class HTTPUtil {
     /**
      * 是否启用本地代理进行抓包
      */
-    private static boolean usLocalProxy;
+    private static boolean usLocalProxy = false;
 
     public static void setUsLocalProxy(boolean us) {
         usLocalProxy = us;
@@ -85,7 +86,7 @@ public class HTTPUtil {
                 postRequest.setHeader(entry.getKey(), entry.getValue());
             }
         }
-        postRequest.setEntity(new StringEntity(JSON.toJSONString(param), Charset.forName("UTF-8")));
+        postRequest.setEntity(new StringEntity(JSON.toJSONString(param, SerializerFeature.WriteMapNullValue), Charset.forName("UTF-8")));
         return execute(postRequest);
     }
 

@@ -442,7 +442,7 @@ public class OldOAService {
                                 addRes.getIn_sp_id(),
                                 addRes.getBuzPKID(),
                                 null,
-                                null);
+                                requestParam.getAppFieldName());
                     }
                 }
             }
@@ -516,7 +516,7 @@ public class OldOAService {
                                 addRes.getIn_sp_id(),
                                 addRes.getBuzPKID(),
                                 null,
-                                null);
+                                requestParam.getAppFieldName());
                     }
                 }
             }
@@ -557,21 +557,21 @@ public class OldOAService {
         String stepUrl = OldServiceConstant.WORKFLOW_GET_STEPLIST_URL;
         Map<String, Object> stepParam = new HashMap<String, Object>();
         stepParam.put("ButtonType", button.getButtonId());
-        stepParam.put("appID", 0);
+        stepParam.put("appID", button.getAppID()!=null?Integer.parseInt(button.getAppID()):0);
         stepParam.put("appTID", workflowName);
         stepParam.put("appVersion", "1.0");
         stepParam.put("businessId", "");
         stepParam.put("condition", "");
-        stepParam.put("isNewFlag", 0);
+        stepParam.put("isNewFlag", "5".equals(button.getButtonId())?1:0);
         HTTPResponse stepResponse = HTTPUtil.sendPostWithJson(stepUrl, stepParam, headers);
         Map<String, Object> stepJson = JSON.parseObject(stepResponse.getResult(), new TypeReference<Map<String, Object>>() {
         });
-        if ((Integer) stepJson.get("success") == 1) {
+        if ((Integer) stepJson.get("success") == 1 || "9".equals(button.getButtonId())) {
             List<OldOAToDoStepInfo> stepList = JSON.parseArray(JSON.toJSONString(stepJson.get("wfNextStepList")), OldOAToDoStepInfo.class);
-            if (stepList.size() > 0) {
+            if (stepList.size()>0 || "9".equals(button.getButtonId())) {
                 //获取第一个审批步骤，组装参数，并执行流程办理任务
                 int currentIndex = 0;
-                if(currentStepId != null){
+                if(currentStepId != null  && !currentStepId.equals("null")){
                     for(int i=0; i<stepList.size(); i++){
                         OldOAToDoStepInfo tmp = stepList.get(i);
                         if(currentStepId.equals(tmp.getNextStepID())){
@@ -579,48 +579,44 @@ public class OldOAService {
                             break;
                         }
                     }
-                }
-                if(stepList.size() > currentIndex+1){
-                    currentIndex++;
-                }
-                OldOAToDoStepInfo step = stepList.get(currentIndex);
-                if(step.getAcceptUserInfo().size()>0 && appFieldName!=null){
-                    List<OldOAToDoAcceptUserInfo> acceptArray = new ArrayList<OldOAToDoAcceptUserInfo>();
-                    for(int i=0; i<step.getAcceptUserInfo().size(); i++) {
-                        OldOAToDoAcceptUserInfo userInfo = step.getAcceptUserInfo().get(i);
-                        if (appFieldName.equals(userInfo.getAppFieldName())) {
-                            acceptArray.add(userInfo);
-                            break;
-                        }
-                    }
-                    if(acceptArray.size()>0) {
-                        step.setAcceptUserInfo(acceptArray);
+                    if(stepList.size() > currentIndex+1){
+                        currentIndex++;
                     }
                 }
 
-                button.setAppFlag("2");
-                if(button.getAppID() == null) {
-                    button.setAppID("0");
+                OldOAToDoStepInfo step = stepList.size()>currentIndex?stepList.get(currentIndex):null;
+                OldOAToDoAcceptUserInfo userInfo = null;
+                if(step!=null && step.getAcceptUserInfo().size()>0 && appFieldName!=null){
+                    for(int i=0; i<step.getAcceptUserInfo().size(); i++) {
+                        OldOAToDoAcceptUserInfo tmp = step.getAcceptUserInfo().get(i);
+                        if (appFieldName.equals(tmp.getAppFieldName())) {
+                            userInfo = tmp;
+                            break;
+                        }
+                    }
                 }
-                button.setAppIdea("同意");
-                button.setAppTID(workflowName);
-                button.setAppTitle(workflowTitle);
-                OldOAProcessStep stepInfo = new OldOAProcessStep();
-                stepInfo.setSuccess(1);
-                List<OldOAToDoStepInfo> stepInfoList = new ArrayList<OldOAToDoStepInfo>();
-                stepInfoList.add(step);
-                stepInfo.setWfNextStepList(stepInfoList);
-                button.setNextStepList(stepInfo);
-                button.setPromptContent("同意");
-                button.setSmsTransactFlag("0");
-                OldOAProcessWorkflowRequest param = new OldOAProcessWorkflowRequest();
-                param.setOaSPYJ("true");
-                param.setOaSPID(in_sp_id);
-                param.setAppOId(buzPKID);
-                param.setAppOValue(0);
-                param.setButton(button);
+
+                if(userInfo == null && step!=null){
+                    if(step.getAcceptUserInfo().size() > 0){
+                        userInfo = step.getAcceptUserInfo().get(0);
+                    }
+                }
+
+                Map<String, Object> params = buildSubmitProcessParam(
+                        !"5".equals(button.getButtonId()),
+                        in_sp_id,
+                        buzPKID,
+                        Integer.parseInt(button.getAppID()),
+                        workflowName,
+                        workflowTitle,
+                        Integer.parseInt(button.getButtonId()),
+                        userInfo!=null?userInfo.getAppFieldName():null,
+                        userInfo!=null?userInfo.getAppFieldValue():null,
+                        step!=null?step.getNextStepID():null,
+                        step!=null?step.getNextStepName():null
+                );
                 String processUrl = OldServiceConstant.WORKFLOW_PROCESS_URL;
-                HTTPResponse processResponse = HTTPUtil.sendPostWithJson(processUrl, param, headers);
+                HTTPResponse processResponse = HTTPUtil.sendPostWithJson(processUrl, params, headers);
                 if (processResponse.getCode() == HTTPResponse.SUCCESS) {
                     Map<String, Object> processJson = JSON.parseObject(processResponse.getResult(), new TypeReference<Map<String, Object>>() {
                     });
@@ -638,6 +634,93 @@ public class OldOAService {
         }
 
         return serviceResponse;
+    }
+
+    /**
+     * 组装办理流程接口的请求参数
+     * @param agree  是否同意
+     * @param in_sp_id
+     * @param buzPKID
+     * @param appID
+     * @param workflowName
+     * @param workflowTitle
+     * @param buttonId
+     * @param appFieldName
+     * @param appFieldValue
+     * @param nextStepID
+     * @param nextStepName
+     * @return
+     */
+    private Map<String, Object> buildSubmitProcessParam(
+            boolean agree,
+            int in_sp_id,
+            int buzPKID,
+            int appID,
+            String workflowName,
+            String workflowTitle,
+            int buttonId,
+            String appFieldName,
+            String appFieldValue,
+            String nextStepID,
+            String nextStepName) {
+        Map<String, Object> params = new HashMap<String, Object>();
+        params.put("oaSPYJ", agree?"true":"false");
+        params.put("oaSPID", in_sp_id);
+        params.put("appOId", buzPKID);
+        params.put("appOValue", 0);
+        Map<String, Object> buttonParams = new HashMap<String, Object>();
+        params.put("button", buttonParams);
+        buttonParams.put("appFlag", "2");
+        buttonParams.put("appID", appID);
+        buttonParams.put("appIdea", "同意");
+        buttonParams.put("appTID", workflowName);
+        buttonParams.put("appTitle", workflowTitle);
+        buttonParams.put("businessData", null);
+        buttonParams.put("buttonId", buttonId);
+        buttonParams.put("buttonValue", "");
+        buttonParams.put("callCheckFlag", 0);
+        Map<String, Object> callUsersParam = new HashMap<String, Object>();
+        buttonParams.put("callUsers", callUsersParam);
+        List<Object> stepUserArray = new ArrayList<Object>();
+        callUsersParam.put("stepUser", stepUserArray);
+        callUsersParam.put("mes", null);
+        callUsersParam.put("success", 1);
+        buttonParams.put("copyFlag", 0);
+        List<Object> distributeUsersArray = new ArrayList<Object>();
+        buttonParams.put("distributeUsers", distributeUsersArray);
+        buttonParams.put("isJump", "");
+        buttonParams.put("isNewFlag", buttonId==9?1:0);
+        buttonParams.put("isOrder", "");
+        buttonParams.put("maxCount", "");
+        buttonParams.put("mes", null);
+        Map<String, Object> nextStepListParams = new HashMap<String, Object>();
+        buttonParams.put("nextStepList", nextStepListParams);
+        nextStepListParams.put("mes", null);
+        nextStepListParams.put("success", 1);
+        List<Object> wfNextStepListArray = new ArrayList<Object>();
+        nextStepListParams.put("wfNextStepList", wfNextStepListArray);
+        Map<String, Object> acceptUserInfoParams = new HashMap<String, Object>();
+        wfNextStepListArray.add(acceptUserInfoParams);
+        List<Object> acceptUserInfoArray = new ArrayList<Object>();
+        acceptUserInfoParams.put("acceptUserInfo", acceptUserInfoArray);
+        Map<String, Object> acceptUserInfo = new HashMap<String, Object>();
+        acceptUserInfoArray.add(acceptUserInfo);
+        acceptUserInfo.put("appFieldType", null);
+        acceptUserInfo.put("appFieldName", appFieldName);
+        acceptUserInfo.put("appFieldValue", appFieldValue);
+        acceptUserInfoParams.put("callFlag", 1);
+        acceptUserInfoParams.put("isMulti", null);
+        acceptUserInfoParams.put("nextStepID", nextStepID);
+        acceptUserInfoParams.put("nextStepName", nextStepName);
+        acceptUserInfoParams.put("smsFlag", 0);
+        acceptUserInfoParams.put("transactMode", 0);
+        acceptUserInfoParams.put("mes", null);
+        acceptUserInfoParams.put("success", 1);
+        buttonParams.put("promptContent", agree?"同意":"退回");
+        buttonParams.put("smsTransactFlag", 0);
+        buttonParams.put("success", 1);
+        buttonParams.put("version", "1.0");
+        return params;
     }
 
     /**
@@ -674,7 +757,7 @@ public class OldOAService {
             if (stepList.size() > 0) {
                 //获取第一个审批步骤，组装参数，并执行流程办理任务
                 int currentIndex = 0;
-                if (currentStepId != null) {
+                if (currentStepId != null && !currentStepId.equals("null")) {
                     for (int i = 0; i < stepList.size(); i++) {
                         OldOAToDoStepInfo tmp = stepList.get(i);
                         if (currentStepId.equals(tmp.getNextStepID())) {
@@ -682,9 +765,9 @@ public class OldOAService {
                             break;
                         }
                     }
-                }
-                if (stepList.size() > currentIndex + 1) {
-                    currentIndex++;
+                    if (stepList.size() > currentIndex + 1) {
+                        currentIndex++;
+                    }
                 }
                 OldOAToDoStepInfo step = stepList.get(currentIndex);
                 serviceResponse.setSuccess(true);

@@ -26,6 +26,10 @@ public class OldOAUsCarRequest implements Serializable{
     private String vehiAID;
     private String workflowTitle;
     private boolean isNew;
+    /**
+     * 审批人id及用户名
+     */
+    private String appFieldName;
 
     public String getAppID() {
         return appID;
@@ -177,5 +181,13 @@ public class OldOAUsCarRequest implements Serializable{
 
     public void setNew(boolean aNew) {
         isNew = aNew;
+    }
+
+    public String getAppFieldName() {
+        return appFieldName;
+    }
+
+    public void setAppFieldName(String appFieldName) {
+        this.appFieldName = appFieldName;
     }
 }
