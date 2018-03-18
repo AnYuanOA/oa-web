@@ -11,6 +11,7 @@ import com.anyuan.oa.model.response.*;
 import com.anyuan.oa.utils.ConstantUtil;
 import com.anyuan.oa.utils.HTTPUtil;
 import com.anyuan.oa.utils.OldServiceConstant;
+import com.anyuan.oa.utils.WorkflowName;
 import com.anyuan.oa.utils.thread.HTTPTask;
 import com.anyuan.oa.utils.thread.HTTPTaskCallback;
 import com.sun.org.apache.xpath.internal.operations.Bool;
@@ -68,7 +69,7 @@ public class OldOAService {
             setLoad = 1;
         }
         Map<String, Object> param = new HashMap<String, Object>();
-        param.put("count", 10);
+        param.put("count", 100);
         param.put("flag", 1);
         param.put("key", "");
         param.put("lastTime", lastTime);
@@ -96,7 +97,7 @@ public class OldOAService {
         Map<String, Object> param = new HashMap<String, Object>();
         param.put("CurrentPage", currentPage);
         param.put("Obj_Title", "");
-        param.put("PageSize", 10);
+        param.put("PageSize", 100);
         param.put("lastTime", "");
         param.put("setload", 0);
         Map<String, String> headers = HTTPUtil.getAuthHeaders(token);
@@ -114,8 +115,9 @@ public class OldOAService {
      * 获取待办详情 (返回值不作任何处理，直接交给客户端)
      * @param token 保存在session中的accessToken
      * @param appID 待办项ID
+     * @param workflowName 流程名称
      * */
-    public OldServiceResponse<OldOAToDoDetailResponse> getToDoDetail(OldAccessToken token, String appID) throws IOException {
+    public OldServiceResponse<OldOAToDoDetailResponse> getToDoDetail(OldAccessToken token, String appID, String workflowName) throws IOException {
         final Object lock = new Object();
         Map<String, String> headers = HTTPUtil.getAuthHeaders(token);
         //待办详情请求结果
@@ -126,7 +128,7 @@ public class OldOAService {
         final HTTPResponse dealtResponse = new HTTPResponse();
 
         //待办流程详情任务
-        String detaillUrl = OldServiceConstant.TODO_DETAIL_URL;
+        String detaillUrl = getDetailUrlWithWorkflowName(workflowName);//OldServiceConstant.TODO_DETAIL_URL;
         Map<String, Object> detailParam = new HashMap<String, Object>();
         detailParam.put("AppID", appID);
         List<HTTPResponse> detailRelationTasks = new ArrayList<HTTPResponse>();
@@ -157,12 +159,12 @@ public class OldOAService {
         executeSync(serviceResponse, tasks, lock);
 
         //处理请求结果
-        if(detailResponse.getCode()==HTTPResponse.SUCCESS && operationResponse.getCode()==HTTPResponse.SUCCESS && dealtResponse.getCode()==HTTPResponse.SUCCESS){
+        if(operationResponse.getCode()==HTTPResponse.SUCCESS && dealtResponse.getCode()==HTTPResponse.SUCCESS){
             Map<String, Object> detailJson = JSON.parseObject(detailResponse.getResult(), new TypeReference<Map<String, Object>>(){});
             Map<String, Object> operationJson = JSON.parseObject(operationResponse.getResult(), new TypeReference<Map<String, Object>>(){});
             Map<String, Object> dealtJson = JSON.parseObject(dealtResponse.getResult(), new TypeReference<Map<String, Object>>(){});
-            if((Boolean)detailJson.get("isSucceed") && (Integer)operationJson.get("success")==1 && (Integer)dealtJson.get("success")==1){
-                OldOAToDoDetail detail = JSON.parseObject(JSON.toJSONString(detailJson.get("executedModel")), OldOAToDoDetail.class);
+            if((Integer)operationJson.get("success")==1 && (Integer)dealtJson.get("success")==1){
+                OldOAToDoDetail detail = getDetail(JSON.toJSONString(detailJson.get("executedModel")), workflowName);
                 OldOAToDoOperation operation = JSON.parseObject(JSON.toJSONString(operationJson), OldOAToDoOperation.class);
                 List<OldOAToDoDealt> dealtList = JSON.parseArray(JSON.toJSONString(dealtJson.get("wfDealtList")), OldOAToDoDealt.class);
                 //查询待办流程附件列表
@@ -191,6 +193,191 @@ public class OldOAService {
         }
 
         return serviceResponse;
+    }
+
+    /**
+     * 根据流程类型获取查询流程详细信息的接口url
+     * @param workflowName
+     * @return
+     */
+    private String getDetailUrlWithWorkflowName(String workflowName) {
+        String url = OldServiceConstant.TODO_DETAIL_URL;
+        if(WorkflowName.LEAVE.getValue().equals(workflowName)){
+            url = OldServiceConstant.TODO_DETAIL_URL;
+        }else if(WorkflowName.USCAR.getValue().equals(workflowName)){
+            url = OldServiceConstant.WORKFLOW_USCAR_URL;
+        }else if(WorkflowName.CHENGPIN.getValue().equals(workflowName)){
+            url = OldServiceConstant.WORKFLOW_FINISHED_PRODUCT_URL;
+        }else if(WorkflowName.YUSHENXIUGAIGAO.getValue().equals(workflowName)){
+            url = OldServiceConstant.WORKFLOW_FIRST_AUDIT_URL;
+        }else if(WorkflowName.XIANCHANGTAKAN.getValue().equals(workflowName)){
+            url = OldServiceConstant.WORKFLOW_XIANCHANG_URL;
+        }else if(WorkflowName.GUKECAICHAN.getValue().equals(workflowName)){
+            url = OldServiceConstant.WORKFLOW_GUKECAICHAN_URL;
+        }else if(WorkflowName.XIANGMUJIHUA.getValue().equals(workflowName)){
+            url = OldServiceConstant.WORKFLOW_XIANGMU_URL;
+        }else if(WorkflowName.XIANGMUJIHUABIANGENG.getValue().equals(workflowName)){
+            url = OldServiceConstant.WORKFLOW_XIANGMUBIANGENG_URL;
+        }else if(WorkflowName.XIANGMUZUCHENGYUANBIANGENG.getValue().equals(workflowName)){
+            url = OldServiceConstant.WORKFLOW_XIANGMUCHENGYUANBIANGENG_URL;
+        }else if(WorkflowName.XIANGMUZUCHENGYUAN.getValue().equals(workflowName)){
+            url = OldServiceConstant.WORKFLOW_XIANGMUCHENGYUAN_URL;
+        }else if(WorkflowName.XIANGMUKAIGONGTONGZHIDANBIANGENG.getValue().equals(workflowName)){
+            url = OldServiceConstant.WORKFLOW_XIANGMUKAIGONGBIANGENG_URL;
+        }else if(WorkflowName.XIANGMUKAIGONGTONGZHIDAN.getValue().equals(workflowName)){
+            url = OldServiceConstant.WORKFLOW_XIANGMUKAIGONG_URL;
+        }else if(WorkflowName.HETONGBIANGENGSHENQING.getValue().equals(workflowName)){
+            url = OldServiceConstant.WORKFLOW_HETONGBIANGENG_URL;
+        }else if(WorkflowName.HETONGHUIQIANSHENQING.getValue().equals(workflowName)){
+            url = OldServiceConstant.WORKFLOW_HETONG_URL;
+        }else if(WorkflowName.XIANGMUFENGXIANFENXI.getValue().equals(workflowName)){
+            url = OldServiceConstant.WORKFLOW_XIANGMUFENGXIAN_URL;
+        }else if(WorkflowName.XINWENZHONGXIN.getValue().equals(workflowName)){
+            url = OldServiceConstant.WORKFLOW_NEWSCENTER_URL;
+        }else if(WorkflowName.QINGSHIBANLI.getValue().equals(workflowName)){
+            url = OldServiceConstant.WORKFLOW_QINGSHI_URL;
+        }else if(WorkflowName.SHOUWENBANLILIUCHENG.getValue().equals(workflowName)){
+            url = OldServiceConstant.WORKFLOW_SHOUWEN_URL;
+        }else if(WorkflowName.FAWENBANLILIUCHENG.getValue().equals(workflowName)){
+            url = OldServiceConstant.WORKFLOW_FAWEN_URL;
+        }
+        return url;
+    }
+
+    /**
+     * 根据流程类型处理接口返回值
+     * @param result
+     * @param workflowName
+     * @return
+     */
+    private OldOAToDoDetail getDetail(String result, String workflowName) {
+        /**
+         * workflowTitle
+         * workflowTemplateID
+         * in_sp_id
+         * buzPKID
+         * attLT_Name
+         * attL_Reason
+         */
+        OldOAToDoDetail detail = new OldOAToDoDetail();
+        Map<String, Object> detailJson = JSON.parseObject(result, new TypeReference<Map<String, Object>>(){});
+        detail.setWorkflowTitle(detailJson.get("workflowTitle")==null?"":(String) detailJson.get("workflowTitle"));
+        detail.setWorkflowTemplateID(workflowName);
+        detail.setIn_sp_id(detailJson.get("in_sp_id")==null?0:(Integer) detailJson.get("in_sp_id"));
+        detail.setBuzPKID(detailJson.get("buzPKID")==null?0:(Integer) detailJson.get("buzPKID"));
+        if(WorkflowName.LEAVE.getValue().equals(workflowName)){
+            detail = JSON.parseObject(result, OldOAToDoDetail.class);
+        }else if(WorkflowName.USCAR.getValue().equals(workflowName)){
+            if(detailJson.get("applyUsingType") != null) {
+                detail.setAttLT_Name((String) detailJson.get("applyUsingType"));
+            }
+            if(detailJson.get("usingReason") != null){
+                detail.setAttL_Reason((String) detailJson.get("usingReason"));
+            }
+        }else if(WorkflowName.CHENGPIN.getValue().equals(workflowName) ||
+                WorkflowName.YUSHENXIUGAIGAO.getValue().equals(workflowName)
+                ){
+            if(detailJson.get("baogaomingcheng") != null){
+                detail.setAttLT_Name((String) detailJson.get("baogaomingcheng"));
+            }
+            if(detailJson.get("xiangmumingcheng") != null){
+                detail.setAttL_Reason((String) detailJson.get("xiangmumingcheng"));
+            }
+        }else if(WorkflowName.XIANCHANGTAKAN.getValue().equals(workflowName)){
+            if(detailJson.get("takanqingkuang") != null){
+                detail.setAttLT_Name((String) detailJson.get("takanqingkuang"));
+            }
+            if(detailJson.get("xiangmumingcheng") != null){
+                detail.setAttL_Reason((String) detailJson.get("xiangmumingcheng"));
+            }
+        }else if(WorkflowName.GUKECAICHAN.getValue().equals(workflowName)){
+            if(detailJson.get("gukecaichanneirong") != null){
+                detail.setAttLT_Name((String) detailJson.get("gukecaichanneirong"));
+            }
+            if(detailJson.get("xiangmumingcheng") != null){
+                detail.setAttL_Reason((String) detailJson.get("xiangmumingcheng"));
+            }
+        }else if(WorkflowName.XIANGMUJIHUA.getValue().equals(workflowName)){
+            if(detailJson.get("gongzuofanwei") != null){
+                detail.setAttLT_Name((String) detailJson.get("gongzuofanwei"));
+            }
+            if(detailJson.get("xiangmumingcheng") != null){
+                detail.setAttL_Reason((String) detailJson.get("xiangmumingcheng"));
+            }
+        }else if(WorkflowName.XIANGMUJIHUABIANGENG.getValue().equals(workflowName) ||
+                WorkflowName.XIANGMUZUCHENGYUANBIANGENG.getValue().equals(workflowName) ||
+                WorkflowName.XIANGMUKAIGONGTONGZHIDANBIANGENG.getValue().equals(workflowName)){
+            if(detailJson.get("biangengshuoming") != null){
+                detail.setAttLT_Name((String) detailJson.get("biangengshuoming"));
+            }
+            if(detailJson.get("xiangmumingcheng") != null){
+                detail.setAttL_Reason((String) detailJson.get("xiangmumingcheng"));
+            }
+        }else if(WorkflowName.XIANGMUZUCHENGYUAN.getValue().equals(workflowName)){
+            if(detailJson.get("xmtd_sm") != null){
+                detail.setAttLT_Name((String) detailJson.get("xmtd_sm"));
+            }
+            if(detailJson.get("xiangmumingcheng") != null){
+                detail.setAttL_Reason((String) detailJson.get("xiangmumingcheng"));
+            }
+        }else if(WorkflowName.XIANGMUKAIGONGTONGZHIDAN.getValue().equals(workflowName)){
+            if(detailJson.get("xiangguanyaoqiu") != null){
+                detail.setAttLT_Name((String) detailJson.get("xiangguanyaoqiu"));
+            }
+            if(detailJson.get("xiangmumingcheng") != null){
+                detail.setAttL_Reason((String) detailJson.get("xiangmumingcheng"));
+            }
+        }else if(WorkflowName.HETONGBIANGENGSHENQING.getValue().equals(workflowName)){
+            if(detailJson.get("biangengshuoming") != null){
+                detail.setAttLT_Name((String) detailJson.get("biangengshuoming"));
+            }
+            if(detailJson.get("hetongbiaoti") != null){
+                detail.setAttL_Reason((String) detailJson.get("hetongbiaoti"));
+            }
+        }else if(WorkflowName.HETONGHUIQIANSHENQING.getValue().equals(workflowName)){
+            if(detailJson.get("yezhuxuqiu") != null){
+                detail.setAttLT_Name((String) detailJson.get("yezhuxuqiu"));
+            }
+            if(detailJson.get("hetongbiaoti") != null){
+                detail.setAttL_Reason((String) detailJson.get("hetongbiaoti"));
+            }
+        }else if(WorkflowName.XIANGMUFENGXIANFENXI.getValue().equals(workflowName)){
+            if(detailJson.get("xiangmugaikuang") != null){
+                detail.setAttLT_Name((String) detailJson.get("xiangmugaikuang"));
+            }
+            if(detailJson.get("xmfx_xiangmumingcheng") != null){
+                detail.setAttL_Reason((String) detailJson.get("xmfx_xiangmumingcheng"));
+            }
+        }else if(WorkflowName.XINWENZHONGXIN.getValue().equals(workflowName)){
+            if(detailJson.get("moduleTypeName") != null){
+                detail.setAttLT_Name((String) detailJson.get("moduleTypeName"));
+            }
+            if(detailJson.get("messageTitle") != null){
+                detail.setAttL_Reason((String) detailJson.get("messageTitle"));
+            }
+        }else if(WorkflowName.QINGSHIBANLI.getValue().equals(workflowName)){
+            if(detailJson.get("askType") != null){
+                detail.setAttLT_Name((String) detailJson.get("askType"));
+            }
+            if(detailJson.get("askTitle") != null){
+                detail.setAttL_Reason((String) detailJson.get("askTitle"));
+            }
+        }else if(WorkflowName.SHOUWENBANLILIUCHENG.getValue().equals(workflowName)){
+            if(detailJson.get("acceptType") != null){
+                detail.setAttLT_Name((String) detailJson.get("acceptType"));
+            }
+            if(detailJson.get("acceptTitle") != null){
+                detail.setAttL_Reason((String) detailJson.get("acceptTitle"));
+            }
+        }else if(WorkflowName.FAWENBANLILIUCHENG.getValue().equals(workflowName)){
+            if(detailJson.get("sendKey") != null){
+                detail.setAttLT_Name((String) detailJson.get("sendKey"));
+            }
+            if(detailJson.get("sendTitle") != null){
+                detail.setAttL_Reason((String) detailJson.get("sendTitle"));
+            }
+        }
+        return detail;
     }
 
     /**
@@ -411,7 +598,7 @@ public class OldOAService {
         //获取流程开始信息任务
         List<HTTPResponse> infoRelationTasks = new ArrayList<HTTPResponse>();
         infoRelationTasks.add(addResponse);
-        HTTPTask infoTask = getStartInfoTask(OldServiceConstant.WORKFLOW_NAME_LEAVE,
+        HTTPTask infoTask = getStartInfoTask(WorkflowName.LEAVE.getValue(),
                 token,
                 lock,
                 infoResponse,
@@ -437,7 +624,7 @@ public class OldOAService {
                     if(success){
                         serviceResponse = submitWorkflow(token,
                                 startInfo.getAppButton().get(0),
-                                OldServiceConstant.WORKFLOW_NAME_LEAVE,
+                                WorkflowName.LEAVE.getValue(),
                                 requestParam.getWorkflowTitle(),
                                 addRes.getIn_sp_id(),
                                 addRes.getBuzPKID(),
@@ -485,7 +672,7 @@ public class OldOAService {
         //获取流程开始信息的任务
         List<HTTPResponse> infoRelationTasks = new ArrayList<HTTPResponse>();
         infoRelationTasks.add(addResponse);
-        HTTPTask infoTask = getStartInfoTask(OldServiceConstant.WORKFLOW_NAME_USCAR,
+        HTTPTask infoTask = getStartInfoTask(WorkflowName.USCAR.getValue(),
                 token,
                 lock,
                 infoResponse,
@@ -511,7 +698,7 @@ public class OldOAService {
                     if(success){
                         serviceResponse = submitWorkflow(token,
                                 startInfo.getAppButton().get(0),
-                                OldServiceConstant.WORKFLOW_NAME_USCAR,
+                                WorkflowName.USCAR.getValue(),
                                 requestParam.getWorkflowTitle(),
                                 addRes.getIn_sp_id(),
                                 addRes.getBuzPKID(),
@@ -887,7 +1074,7 @@ public class OldOAService {
      * @return
      */
     private boolean isLeaveWorkflow(String workflowName) {
-        return OldServiceConstant.WORKFLOW_NAME_LEAVE.equals(workflowName);
+        return WorkflowName.LEAVE.getValue().equals(workflowName);
     }
 
     /**
@@ -896,7 +1083,7 @@ public class OldOAService {
      * @return
      */
     private boolean isCarWorkflow(String workflowName) {
-        return OldServiceConstant.WORKFLOW_NAME_USCAR.equals(workflowName);
+        return WorkflowName.USCAR.getValue().equals(workflowName);
     }
 
     /**

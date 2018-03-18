@@ -15,7 +15,7 @@ public class OldServiceConstant {
     /**
      * 基础业务URL
      */
-    private static final String BASE_URL_BUZAPI = "http://101.37.171.186/aymapi/";
+    private static final String BASE_URL_BUZAPI = "http://101.37.171.186/aymapi/api";
     /**
      * 登录URI
      */
@@ -88,6 +88,26 @@ public class OldServiceConstant {
      * 获取用户信息
      */
     private static final String USER_INFO_URI = "/Common/GetMyInfo";
+    /**
+     * 成品会签流程详情
+     */
+    private static final String WORKFLOW_FINISHED_PRODUCT_URI = "/Ay/W023";
+    /**
+     * 预审修改稿会签
+     */
+    private static final String WORKFLOW_FIRST_AUDIT_URI = "/Ay/W022";
+    /**
+     * 现场踏勘
+     */
+    private static final String WORKFLOW_XIANCHANG_URI = "/Ay/W019";
+    /**
+     * 顾客财产
+     */
+    private static final String WORKFLOW_GUKECAICHAN_URI = "/Ay/W017";
+    /**
+     * 项目计划
+     */
+    private static final String WORKFLOW_XIANGMU_URI = "/Ay/W013";
 
     /**
      * 授权类型
@@ -97,14 +117,7 @@ public class OldServiceConstant {
      * 客户端ID
      */
     public static final String CLIENT_ID = "imWebBrowser";
-    /**
-     * 请假流程名称
-     */
-    public static final String WORKFLOW_NAME_LEAVE = "IHRM_AttendanceLeave";
-    /**
-     * 用车流程名称
-     */
-    public static final String WORKFLOW_NAME_USCAR = "IOA_Vehicle";
+
 
     /**
      * 获取token或刷新token
@@ -178,4 +191,76 @@ public class OldServiceConstant {
      * 获取用户个人信息
      */
     public static final String USER_INFO_URL = BASE_URL + USER_INFO_URI;
+    /**
+     * 成品会签流程详情
+     */
+    public static final String WORKFLOW_FINISHED_PRODUCT_URL = BASE_URL_BUZAPI + WORKFLOW_FINISHED_PRODUCT_URI;
+    /**
+     * 预审修改稿会签
+     */
+    public static final String WORKFLOW_FIRST_AUDIT_URL = BASE_URL_BUZAPI + WORKFLOW_FIRST_AUDIT_URI;
+    /**
+     * 现场踏勘
+     */
+    public static final String WORKFLOW_XIANCHANG_URL = BASE_URL_BUZAPI + WORKFLOW_XIANCHANG_URI;
+    /**
+     * 顾客财产
+     */
+    public static final String WORKFLOW_GUKECAICHAN_URL = BASE_URL_BUZAPI + WORKFLOW_GUKECAICHAN_URI;
+    /**
+     * 项目计划
+     */
+    public static final String WORKFLOW_XIANGMU_URL = BASE_URL_BUZAPI + WORKFLOW_XIANGMU_URI;
+    /**
+     * 项目计划变更
+     */
+    public static final String WORKFLOW_XIANGMUBIANGENG_URL = BASE_URL_BUZAPI + "/Ay/W014";
+    /**
+     * 项目成员变更
+     */
+    public static final String WORKFLOW_XIANGMUCHENGYUANBIANGENG_URL = BASE_URL_BUZAPI + "/Ay/W012";
+    /**
+     * 项目成员
+     */
+    public static final String WORKFLOW_XIANGMUCHENGYUAN_URL = BASE_URL_BUZAPI + "/Ay/W011";
+    /**
+     * 项目开工通知单变更
+     */
+    public static final String WORKFLOW_XIANGMUKAIGONGBIANGENG_URL = BASE_URL_BUZAPI + "/Ay/W008";
+    /**
+     * 项目开工通知单
+     */
+    public static final String WORKFLOW_XIANGMUKAIGONG_URL = BASE_URL_BUZAPI + "/Ay/W001";
+    /**
+     * 合同变更
+     */
+    public static final String WORKFLOW_HETONGBIANGENG_URL = BASE_URL_BUZAPI + "/Ay/W006";
+    /**
+     * 合同申请
+     */
+    public static final String WORKFLOW_HETONG_URL = BASE_URL_BUZAPI + "/Ay/W005";
+    /**
+     * 项目风险分析
+     */
+    public static final String WORKFLOW_XIANGMUFENGXIAN_URL = BASE_URL_BUZAPI + "/Ay/W007";
+    /**
+     * 新闻中心
+     */
+    public static final String WORKFLOW_NEWSCENTER_URL = BASE_URL + "/HRC6MessageApprove/Detail";
+    /**
+     * 用车申请
+     */
+    public static final String WORKFLOW_USCAR_URL = BASE_URL + "/HRC6CarUsingApply/Detail";
+    /**
+     * 请示办理
+     */
+    public static final String WORKFLOW_QINGSHI_URL = BASE_URL + "/GWC6AskDoc/Detail";
+    /**
+     * 收文办理
+     */
+    public static final String WORKFLOW_SHOUWEN_URL = BASE_URL + "/GWC6AccteptDoc/Detail";
+    /**
+     * 发文办理
+     */
+    public static final String WORKFLOW_FAWEN_URL = BASE_URL + "/GWC6SendDoc/Detail";
 }

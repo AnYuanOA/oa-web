@@ -13,6 +13,7 @@ import com.anyuan.oa.service.Session;
 import com.anyuan.oa.service.SessionHelper;
 import com.anyuan.oa.utils.ConstantUtil;
 import com.anyuan.oa.utils.OldServiceConstant;
+import com.anyuan.oa.utils.WorkflowName;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -83,9 +84,9 @@ public class WorkFlowController extends BaseController{
      */
     @RequestMapping("/getToDoDetail")
     @ResponseBody
-    public Map<String, Object> getToDoDetail(String appID, HttpServletRequest request) throws IOException {
+    public Map<String, Object> getToDoDetail(String appID, String workflowName, HttpServletRequest request) throws IOException {
         if(appID!=null){
-            OldServiceResponse<OldOAToDoDetailResponse> response = oldOAService.getToDoDetail(SessionHelper.getInstance().getAccessToken(request), appID);
+            OldServiceResponse<OldOAToDoDetailResponse> response = oldOAService.getToDoDetail(SessionHelper.getInstance().getAccessToken(request), appID, workflowName);
             if(response.isSuccess()){
                 return coverSuccessData(response.getData());
             }else{
@@ -107,7 +108,7 @@ public class WorkFlowController extends BaseController{
     @ResponseBody
     public Map<String, Object> getToDoInfo(String workflowName, HttpServletRequest request) throws IOException{
         if(workflowName!=null && workflowName.trim().length()>0){
-            if(workflowName.equals(OldServiceConstant.WORKFLOW_NAME_LEAVE) || workflowName.equals(OldServiceConstant.WORKFLOW_NAME_USCAR)){
+            if(workflowName.equals(WorkflowName.LEAVE.getValue()) || workflowName.equals(WorkflowName.USCAR.getValue())){
                 OldServiceResponse<OldOAToDoInfoResponse> response = oldOAService.getToDoInfo(SessionHelper.getInstance().getAccessToken(request), workflowName);
                 if(response.isSuccess()){
                     return coverSuccessData(response.getData());
