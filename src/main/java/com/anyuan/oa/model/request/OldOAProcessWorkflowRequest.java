@@ -41,6 +41,10 @@ public class OldOAProcessWorkflowRequest {
      */
     private String workflowTitle;
 
+    private String flowVersion;
+
+    private String targetStepID;
+
     public String getOaSPYJ() {
         return oaSPYJ;
     }
@@ -111,5 +115,21 @@ public class OldOAProcessWorkflowRequest {
 
     public void setAppFieldName(String appFieldName) {
         this.appFieldName = appFieldName;
+    }
+
+    public String getFlowVersion() {
+        return flowVersion;
+    }
+
+    public void setFlowVersion(String flowVersion) {
+        this.flowVersion = flowVersion;
+    }
+
+    public String getTargetStepID() {
+        return targetStepID;
+    }
+
+    public void setTargetStepID(String targetStepID) {
+        this.targetStepID = targetStepID;
     }
 }

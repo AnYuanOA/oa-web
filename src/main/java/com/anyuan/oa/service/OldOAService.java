@@ -629,7 +629,10 @@ public class OldOAService {
                                 addRes.getIn_sp_id(),
                                 addRes.getBuzPKID(),
                                 null,
-                                requestParam.getAppFieldName());
+                                requestParam.getAppFieldName(),
+                                0,
+                                "1.0",
+                                null);
                     }
                 }
             }
@@ -703,7 +706,10 @@ public class OldOAService {
                                 addRes.getIn_sp_id(),
                                 addRes.getBuzPKID(),
                                 null,
-                                requestParam.getAppFieldName());
+                                requestParam.getAppFieldName(),
+                                0,
+                                "1.0",
+                                null);
                     }
                 }
             }
@@ -737,7 +743,10 @@ public class OldOAService {
                                              int in_sp_id,
                                              int buzPKID,
                                              String currentStepId,
-                                             String appFieldName) throws IOException{
+                                             String appFieldName,
+                                             int isNewFlag,
+                                             String flowVersion,
+                                             String targetStepId) throws IOException{
         OldServiceResponse serviceResponse = new OldServiceResponse();
         Map<String, String> headers = HTTPUtil.getAuthHeaders(token);
         //请求获取审批步骤接口
@@ -746,10 +755,10 @@ public class OldOAService {
         stepParam.put("ButtonType", button.getButtonId());
         stepParam.put("appID", button.getAppID()!=null?Integer.parseInt(button.getAppID()):0);
         stepParam.put("appTID", workflowName);
-        stepParam.put("appVersion", "1.0");
+        stepParam.put("appVersion", flowVersion);
         stepParam.put("businessId", "");
         stepParam.put("condition", "");
-        stepParam.put("isNewFlag", "5".equals(button.getButtonId())?1:0);
+        stepParam.put("isNewFlag", isNewFlag);
         HTTPResponse stepResponse = HTTPUtil.sendPostWithJson(stepUrl, stepParam, headers);
         Map<String, Object> stepJson = JSON.parseObject(stepResponse.getResult(), new TypeReference<Map<String, Object>>() {
         });
@@ -758,16 +767,26 @@ public class OldOAService {
             if (stepList.size()>0 || "9".equals(button.getButtonId())) {
                 //获取第一个审批步骤，组装参数，并执行流程办理任务
                 int currentIndex = 0;
-                if(currentStepId != null  && !currentStepId.equals("null")){
-                    for(int i=0; i<stepList.size(); i++){
+                if(targetStepId != null){
+                    for (int i = 0; i < stepList.size(); i++) {
                         OldOAToDoStepInfo tmp = stepList.get(i);
-                        if(currentStepId.equals(tmp.getNextStepID())){
+                        if (targetStepId.equals(tmp.getNextStepID())) {
                             currentIndex = i;
                             break;
                         }
                     }
-                    if(stepList.size() > currentIndex+1){
-                        currentIndex++;
+                }else {
+                    if (currentStepId != null && !currentStepId.equals("null")) {
+                        for (int i = 0; i < stepList.size(); i++) {
+                            OldOAToDoStepInfo tmp = stepList.get(i);
+                            if (currentStepId.equals(tmp.getNextStepID())) {
+                                currentIndex = i;
+                                break;
+                            }
+                        }
+                        if (stepList.size() > currentIndex + 1) {
+                            currentIndex++;
+                        }
                     }
                 }
 
@@ -800,7 +819,9 @@ public class OldOAService {
                         userInfo!=null?userInfo.getAppFieldName():null,
                         userInfo!=null?userInfo.getAppFieldValue():null,
                         step!=null?step.getNextStepID():null,
-                        step!=null?step.getNextStepName():null
+                        step!=null?step.getNextStepName():null,
+                        isNewFlag,
+                        flowVersion
                 );
                 String processUrl = OldServiceConstant.WORKFLOW_PROCESS_URL;
                 HTTPResponse processResponse = HTTPUtil.sendPostWithJson(processUrl, params, headers);
@@ -849,7 +870,9 @@ public class OldOAService {
             String appFieldName,
             String appFieldValue,
             String nextStepID,
-            String nextStepName) {
+            String nextStepName,
+            int isNewFlag,
+            String flowVersion) {
         Map<String, Object> params = new HashMap<String, Object>();
         params.put("oaSPYJ", agree?"true":"false");
         params.put("oaSPID", in_sp_id);
@@ -876,7 +899,7 @@ public class OldOAService {
         List<Object> distributeUsersArray = new ArrayList<Object>();
         buttonParams.put("distributeUsers", distributeUsersArray);
         buttonParams.put("isJump", "");
-        buttonParams.put("isNewFlag", buttonId==9?1:0);
+        buttonParams.put("isNewFlag", isNewFlag);
         buttonParams.put("isOrder", "");
         buttonParams.put("maxCount", "");
         buttonParams.put("mes", null);
@@ -906,7 +929,7 @@ public class OldOAService {
         buttonParams.put("promptContent", agree?"同意":"退回");
         buttonParams.put("smsTransactFlag", 0);
         buttonParams.put("success", 1);
-        buttonParams.put("version", "1.0");
+        buttonParams.put("version", flowVersion);
         return params;
     }
 
@@ -923,7 +946,9 @@ public class OldOAService {
             OldAccessToken token,
             String buttonId,
             String workflowName,
-            String currentStepId) throws IOException {
+            String currentStepId,
+            String flowVersion,
+            int isNewFlag) throws IOException {
         OldServiceResponse serviceResponse = new OldServiceResponse();
         Map<String, String> headers = HTTPUtil.getAuthHeaders(token);
         //请求获取审批步骤接口
@@ -931,11 +956,11 @@ public class OldOAService {
         Map<String, Object> stepParam = new HashMap<String, Object>();
         stepParam.put("ButtonType", buttonId);
         stepParam.put("appID", 0);
-        stepParam.put("appTID", workflowName);
-        stepParam.put("appVersion", "1.0");
+        stepParam.put("appTID", workflowName.toUpperCase());
+        stepParam.put("appVersion", flowVersion);
         stepParam.put("businessId", "");
         stepParam.put("condition", "");
-        stepParam.put("isNewFlag", 0);
+        stepParam.put("isNewFlag", isNewFlag);
         HTTPResponse stepResponse = HTTPUtil.sendPostWithJson(stepUrl, stepParam, headers);
         Map<String, Object> stepJson = JSON.parseObject(stepResponse.getResult(), new TypeReference<Map<String, Object>>() {
         });
@@ -976,22 +1001,27 @@ public class OldOAService {
      * @param token
      * @param buttonId
      * @param workflowName
+     * @param appID
      * @return
      * @throws IOException
      */
-    public OldServiceResponse<List<OldOAToDoStepInfo>> getStepList(OldAccessToken token, String buttonId, String workflowName) throws IOException{
+    public OldServiceResponse<List<OldOAToDoStepInfo>> getStepList(OldAccessToken token,
+                                                                   String buttonId,
+                                                                   String workflowName,
+                                                                   String appID,
+                                                                   String flowVersion) throws IOException{
         OldServiceResponse serviceResponse = new OldServiceResponse();
         Map<String, String> headers = HTTPUtil.getAuthHeaders(token);
         //请求获取审批步骤接口
         String stepUrl = OldServiceConstant.WORKFLOW_GET_STEPLIST_URL;
         Map<String, Object> stepParam = new HashMap<String, Object>();
         stepParam.put("ButtonType", buttonId);
-        stepParam.put("appID", 0);
+        stepParam.put("appID", appID==null?0:Integer.parseInt(appID));
         stepParam.put("appTID", workflowName);
-        stepParam.put("appVersion", "1.0");
+        stepParam.put("appVersion", flowVersion);
         stepParam.put("businessId", "");
         stepParam.put("condition", "");
-        stepParam.put("isNewFlag", 0);
+        stepParam.put("isNewFlag", 1);
         HTTPResponse stepResponse = HTTPUtil.sendPostWithJson(stepUrl, stepParam, headers);
         Map<String, Object> stepJson = JSON.parseObject(stepResponse.getResult(), new TypeReference<Map<String, Object>>() {
         });

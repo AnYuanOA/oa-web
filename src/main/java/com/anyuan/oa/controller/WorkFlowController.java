@@ -221,7 +221,10 @@ public class WorkFlowController extends BaseController{
                     oldOAProcessWorkflowRequest.getOaSPID(),
                     oldOAProcessWorkflowRequest.getAppOId(),
                     oldOAProcessWorkflowRequest.getCurrentStepId(),
-                    oldOAProcessWorkflowRequest.getAppFieldName());
+                    oldOAProcessWorkflowRequest.getAppFieldName(),
+                    1,
+                    oldOAProcessWorkflowRequest.getFlowVersion(),
+                    oldOAProcessWorkflowRequest.getTargetStepID());
             if(response.isSuccess()){
                 return coverSuccessData(response.getData());
             }else {
@@ -237,19 +240,27 @@ public class WorkFlowController extends BaseController{
      * @param buttonId     审批操作ID
      * @param workflowName 流程名称
      * @param currentStepId 当前步骤ID
+     * @param flowVersion
      * @param request
      * @return
      * @throws IOException
      */
     @RequestMapping("/getAcceptUserList")
     @ResponseBody
-    public Map<String, Object> getAcceptUserList(String buttonId, String workflowName, String currentStepId, HttpServletRequest request) throws IOException {
+    public Map<String, Object> getAcceptUserList(String buttonId,
+                                                 String workflowName,
+                                                 String currentStepId,
+                                                 String flowVersion,
+                                                 String isNewFlag,
+                                                 HttpServletRequest request) throws IOException {
         if(buttonId!=null && workflowName!=null){
             OldServiceResponse<List<OldOAToDoAcceptUserInfo>> response = oldOAService.getAcceptUserList(
                     SessionHelper.getInstance().getAccessToken(request),
                     buttonId,
                     workflowName,
-                    currentStepId);
+                    currentStepId,
+                    flowVersion,
+                    isNewFlag==null?0:Integer.parseInt(isNewFlag));
             if(response.isSuccess()){
                 return coverSuccessData(response.getData());
             }else {
@@ -264,18 +275,25 @@ public class WorkFlowController extends BaseController{
      * 获取流程步骤
      * @param buttonId
      * @param workflowName
+     * @param flowVersion
      * @param request
      * @return
      * @throws IOException
      */
     @RequestMapping("/getStepList")
     @ResponseBody
-    public Map<String, Object> getStepList(String buttonId, String workflowName, HttpServletRequest request) throws IOException {
-        if(buttonId!=null && workflowName!=null){
+    public Map<String, Object> getStepList(String buttonId,
+                                           String workflowName,
+                                           String appID,
+                                           String flowVersion,
+                                           HttpServletRequest request) throws IOException {
+        if(buttonId!=null && workflowName!=null && appID!=null){
             OldServiceResponse<List<OldOAToDoStepInfo>> response = oldOAService.getStepList(
                     SessionHelper.getInstance().getAccessToken(request),
                     buttonId,
-                    workflowName);
+                    workflowName,
+                    appID,
+                    flowVersion);
             if(response.isSuccess()){
                 return coverSuccessData(response.getData());
             }else {
