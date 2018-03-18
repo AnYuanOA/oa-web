@@ -972,6 +972,45 @@ public class OldOAService {
     }
 
     /**
+     * 获取流程步骤信息
+     * @param token
+     * @param buttonId
+     * @param workflowName
+     * @return
+     * @throws IOException
+     */
+    public OldServiceResponse<List<OldOAToDoStepInfo>> getStepList(OldAccessToken token, String buttonId, String workflowName) throws IOException{
+        OldServiceResponse serviceResponse = new OldServiceResponse();
+        Map<String, String> headers = HTTPUtil.getAuthHeaders(token);
+        //请求获取审批步骤接口
+        String stepUrl = OldServiceConstant.WORKFLOW_GET_STEPLIST_URL;
+        Map<String, Object> stepParam = new HashMap<String, Object>();
+        stepParam.put("ButtonType", buttonId);
+        stepParam.put("appID", 0);
+        stepParam.put("appTID", workflowName);
+        stepParam.put("appVersion", "1.0");
+        stepParam.put("businessId", "");
+        stepParam.put("condition", "");
+        stepParam.put("isNewFlag", 0);
+        HTTPResponse stepResponse = HTTPUtil.sendPostWithJson(stepUrl, stepParam, headers);
+        Map<String, Object> stepJson = JSON.parseObject(stepResponse.getResult(), new TypeReference<Map<String, Object>>() {
+        });
+        if ((Integer) stepJson.get("success") == 1) {
+            List<OldOAToDoStepInfo> stepList = JSON.parseArray(JSON.toJSONString(stepJson.get("wfNextStepList")), OldOAToDoStepInfo.class);
+            serviceResponse.setSuccess(true);
+            serviceResponse.setData(stepList);
+        }
+
+        //任务没有全部执行成功
+        if(!serviceResponse.isSuccess()){
+            serviceResponse.setError(ConstantUtil.RESPONSE_EXCEPTION);
+            serviceResponse.setError_description(ConstantUtil.RESPONSE_EXCEPTION);
+        }
+
+        return serviceResponse;
+    }
+
+    /**
      * 查询消息类型列表
      * @param token
      * @return

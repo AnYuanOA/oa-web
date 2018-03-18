@@ -259,4 +259,30 @@ public class WorkFlowController extends BaseController{
             return coverErrorMessage(ConstantUtil.REQUEST_PARAM_ERROR);
         }
     }
+
+    /**
+     * 获取流程步骤
+     * @param buttonId
+     * @param workflowName
+     * @param request
+     * @return
+     * @throws IOException
+     */
+    @RequestMapping("/getStepList")
+    @ResponseBody
+    public Map<String, Object> getStepList(String buttonId, String workflowName, HttpServletRequest request) throws IOException {
+        if(buttonId!=null && workflowName!=null){
+            OldServiceResponse<List<OldOAToDoStepInfo>> response = oldOAService.getStepList(
+                    SessionHelper.getInstance().getAccessToken(request),
+                    buttonId,
+                    workflowName);
+            if(response.isSuccess()){
+                return coverSuccessData(response.getData());
+            }else {
+                return coverErrorMessage(response.getError_description());
+            }
+        }else {
+            return coverErrorMessage(ConstantUtil.REQUEST_PARAM_ERROR);
+        }
+    }
 }
