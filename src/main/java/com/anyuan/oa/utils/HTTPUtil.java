@@ -22,6 +22,7 @@ import org.apache.http.impl.client.HttpClients;
 import org.apache.http.message.BasicNameValuePair;
 import org.apache.http.protocol.HTTP;
 import org.apache.http.util.EntityUtils;
+import org.apache.log4j.Logger;
 
 import java.io.*;
 import java.nio.charset.Charset;
@@ -38,6 +39,8 @@ public class HTTPUtil {
      * 是否启用本地代理进行抓包
      */
     private static boolean usLocalProxy = false;
+
+    private static Logger logger = Logger.getLogger(HTTPUtil.class);
 
     public static void setUsLocalProxy(boolean us) {
         usLocalProxy = us;
@@ -107,6 +110,11 @@ public class HTTPUtil {
         }
         CloseableHttpClient client = clientBuilder.build();
         HTTPResponse result = new HTTPResponse();
+        StringBuilder log = new StringBuilder();
+        log.append("============ 第三方接口访问日志 ============\n");
+        log.append("url: " + post.getURI());
+        log.append("headers: " + JSON.toJSONString(post.getAllHeaders()));
+        log.append("parameter: " + EntityUtils.toString(post.getEntity()));
         CloseableHttpResponse response = client.execute(post);
         try {
             HttpEntity entity = response.getEntity();
@@ -114,6 +122,9 @@ public class HTTPUtil {
             result.setResult(EntityUtils.toString(entity));
             result.setCookies(cookieStore.getCookies());
             EntityUtils.consume(entity);
+            log.append("response: " + result.getResult());
+            log.append("====================================");
+            logger.info(log);
         } finally {
             response.close();
         }

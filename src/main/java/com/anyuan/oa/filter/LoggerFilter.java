@@ -32,13 +32,15 @@ public class LoggerFilter implements Filter{
         List<Map<String, Object>> headers = getHeaders(req);
         List<Map<String, Object>> parameters = getParameters(req);
         byte[] bytes = resP.getBytes();
-        logger.info("============ 接口访问日志 ============");
-        logger.info("from: " + req.getRemoteAddr());
-        logger.info("uri: " + req.getRequestURI());
-        logger.info("headers: " + JSON.toJSONString(headers));
-        logger.info("parameter: " + JSON.toJSONString(parameters));
-        logger.info("response: " + new String(bytes, "utf-8"));
-        logger.info("====================================");
+        StringBuffer log = new StringBuffer();
+        log.append("============ 接口访问日志 ============\n");
+        log.append("from: " + req.getRemoteAddr());
+        log.append("uri: " + req.getRequestURI());
+        log.append("headers: " + JSON.toJSONString(headers));
+        log.append("parameter: " + JSON.toJSONString(parameters));
+        log.append("response: " + new String(bytes, "utf-8"));
+        log.append("====================================");
+        logger.info(log);
 
         res.getOutputStream().write(bytes);
     }
