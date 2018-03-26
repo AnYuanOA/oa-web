@@ -539,7 +539,7 @@ public class OldOAService {
                 stepParam.put("appVersion", "1.0");
                 stepParam.put("businessId", "");
                 stepParam.put("condition", "");
-                stepParam.put("isNewFlag", 0);
+                stepParam.put("isNewFlag", getIsNewFlag(workflowName));
                 HTTPResponse stepResponse = HTTPUtil.sendPostWithJson(stepUrl, stepParam, headers);
                 Map<String, Object> stepJson = JSON.parseObject(stepResponse.getResult(), new TypeReference<Map<String, Object>>(){});
                 if((Integer) stepJson.get("success") == 1){
@@ -758,7 +758,7 @@ public class OldOAService {
         stepParam.put("appVersion", flowVersion);
         stepParam.put("businessId", "");
         stepParam.put("condition", "");
-        stepParam.put("isNewFlag", isNewFlag);
+        stepParam.put("isNewFlag", getIsNewFlag(workflowName));
         HTTPResponse stepResponse = HTTPUtil.sendPostWithJson(stepUrl, stepParam, headers);
         Map<String, Object> stepJson = JSON.parseObject(stepResponse.getResult(), new TypeReference<Map<String, Object>>() {
         });
@@ -899,7 +899,7 @@ public class OldOAService {
         List<Object> distributeUsersArray = new ArrayList<Object>();
         buttonParams.put("distributeUsers", distributeUsersArray);
         buttonParams.put("isJump", "");
-        buttonParams.put("isNewFlag", isNewFlag);
+        buttonParams.put("isNewFlag", getIsNewFlag(workflowName));
         buttonParams.put("isOrder", "");
         buttonParams.put("maxCount", "");
         buttonParams.put("mes", null);
@@ -942,25 +942,25 @@ public class OldOAService {
      * @return
      * @throws IOException
      */
-    public OldServiceResponse<List<OldOAToDoAcceptUserInfo>> getAcceptUserList(
+    public OldServiceResponse<OldOAToDoStepInfo> getAcceptUserList(
             OldAccessToken token,
             String buttonId,
             String workflowName,
             String currentStepId,
             String flowVersion,
-            int isNewFlag) throws IOException {
+            String appID) throws IOException {
         OldServiceResponse serviceResponse = new OldServiceResponse();
         Map<String, String> headers = HTTPUtil.getAuthHeaders(token);
         //请求获取审批步骤接口
         String stepUrl = OldServiceConstant.WORKFLOW_GET_STEPLIST_URL;
         Map<String, Object> stepParam = new HashMap<String, Object>();
         stepParam.put("ButtonType", buttonId);
-        stepParam.put("appID", 0);
-        stepParam.put("appTID", workflowName.toUpperCase());
+        stepParam.put("appID", appID==null?0:Integer.parseInt(appID));
+        stepParam.put("appTID", workflowName);
         stepParam.put("appVersion", flowVersion);
         stepParam.put("businessId", "");
         stepParam.put("condition", "");
-        stepParam.put("isNewFlag", isNewFlag);
+        stepParam.put("isNewFlag", getIsNewFlag(workflowName));
         HTTPResponse stepResponse = HTTPUtil.sendPostWithJson(stepUrl, stepParam, headers);
         Map<String, Object> stepJson = JSON.parseObject(stepResponse.getResult(), new TypeReference<Map<String, Object>>() {
         });
@@ -983,7 +983,7 @@ public class OldOAService {
                 }
                 OldOAToDoStepInfo step = stepList.get(currentIndex);
                 serviceResponse.setSuccess(true);
-                serviceResponse.setData(step.getAcceptUserInfo());
+                serviceResponse.setData(step);
             }
         }
 
@@ -1021,7 +1021,7 @@ public class OldOAService {
         stepParam.put("appVersion", flowVersion);
         stepParam.put("businessId", "");
         stepParam.put("condition", "");
-        stepParam.put("isNewFlag", 1);
+        stepParam.put("isNewFlag", getIsNewFlag(workflowName));
         HTTPResponse stepResponse = HTTPUtil.sendPostWithJson(stepUrl, stepParam, headers);
         Map<String, Object> stepJson = JSON.parseObject(stepResponse.getResult(), new TypeReference<Map<String, Object>>() {
         });
@@ -1135,6 +1135,14 @@ public class OldOAService {
         }
 
         return serviceResponse;
+    }
+
+    private int getIsNewFlag(String workflowName) {
+        if(isLeaveWorkflow(workflowName) || isCarWorkflow(workflowName)){
+            return 0;
+        }else {
+            return 1;
+        }
     }
 
     /**

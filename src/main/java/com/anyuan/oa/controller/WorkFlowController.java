@@ -251,16 +251,16 @@ public class WorkFlowController extends BaseController{
                                                  String workflowName,
                                                  String currentStepId,
                                                  String flowVersion,
-                                                 String isNewFlag,
+                                                 String appID,
                                                  HttpServletRequest request) throws IOException {
         if(buttonId!=null && workflowName!=null){
-            OldServiceResponse<List<OldOAToDoAcceptUserInfo>> response = oldOAService.getAcceptUserList(
+            OldServiceResponse<OldOAToDoStepInfo> response = oldOAService.getAcceptUserList(
                     SessionHelper.getInstance().getAccessToken(request),
                     buttonId,
                     workflowName,
                     currentStepId,
                     flowVersion,
-                    isNewFlag==null?0:Integer.parseInt(isNewFlag));
+                    appID);
             if(response.isSuccess()){
                 return coverSuccessData(response.getData());
             }else {
