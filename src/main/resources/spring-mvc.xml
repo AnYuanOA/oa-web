@@ -29,6 +29,7 @@
         <!-- 多个拦截器，顺序执行 -->
         <mvc:interceptor>
             <mvc:mapping path="/**"/>
+            <mvc:exclude-mapping path="/file/**"/>
             <bean class="com.anyuan.oa.service.interceptor.AccessInterceptor"/>
         </mvc:interceptor>
     </mvc:interceptors>

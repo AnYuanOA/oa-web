@@ -3,23 +3,20 @@ package com.anyuan.oa.controller.base;
 import org.apache.commons.io.FileUtils;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.core.io.support.PropertiesLoaderUtils;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
-import org.springframework.http.ResponseEntity;
 import org.springframework.util.Assert;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import javax.servlet.http.HttpServletResponse;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.OutputStream;
 import java.util.HashMap;
 import java.util.Map;
 
 @RestController
+@RequestMapping("/file")
 public class FileController implements InitializingBean {
 
     private String uploadDir;
@@ -37,19 +34,33 @@ public class FileController implements InitializingBean {
         return map;
     }
 
-    @RequestMapping(value = "download", method = RequestMethod.GET)
-    public ResponseEntity<byte[]> handleDownload(@RequestParam("name") String fileName) throws IOException {
+    @RequestMapping(value = "/{fileName:.+}", method = RequestMethod.GET)
+    public void handleDownload(@PathVariable("fileName") String fileName, HttpServletResponse response) {
         StringBuilder filePath = new StringBuilder(uploadDir).append("/").append(fileName);
         File file = new File(filePath.toString());
-        HttpHeaders headers = new HttpHeaders();
-        //下载显示的文件名，解决中文名称乱码问题
-        String downloadFileName = new String(file.getName().getBytes("UTF-8"), "iso-8859-1");
-        //通知浏览器以attachment（下载方式）打开图片
-        headers.setContentDispositionFormData("inline", downloadFileName);
-        //application/octet-stream ： 二进制流数据（最常见的文件下载）。
-        headers.setContentType(MediaType.APPLICATION_OCTET_STREAM);
-        return new ResponseEntity<byte[]>(FileUtils.readFileToByteArray(file),
-                headers, HttpStatus.OK);
+
+        FileInputStream fis = null;
+        OutputStream os = null;
+
+        try {
+            os = response.getOutputStream();
+            fis = new FileInputStream(file);
+            int count = 0;
+            byte[] buffer = new byte[1024 * 8];
+            while ((count = fis.read(buffer)) != -1) {
+                os.write(buffer, 0, count);
+                os.flush();
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        } finally {
+            try {
+                fis.close();
+                os.close();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
     }
 
     @Override
