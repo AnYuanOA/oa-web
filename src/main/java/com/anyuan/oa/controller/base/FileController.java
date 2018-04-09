@@ -7,6 +7,7 @@ import org.springframework.util.Assert;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.File;
 import java.io.FileInputStream;
@@ -16,25 +17,32 @@ import java.util.HashMap;
 import java.util.Map;
 
 @RestController
-@RequestMapping("/file")
 public class FileController implements InitializingBean {
+
+    private static final String controllerPrefix = "/file";
+
 
     private String uploadDir;
 
-    @RequestMapping(value = "/upload", method = RequestMethod.POST)
-    public Map<String, Object> handleFormUpload(@RequestParam("file") MultipartFile file) throws IOException {
+    @RequestMapping(value = controllerPrefix + "/upload", method = RequestMethod.POST)
+    public Map<String, Object> handleFormUpload(@RequestParam("file") MultipartFile file, HttpServletRequest request) throws IOException {
+
+        StringBuilder baseUrl = new StringBuilder().append(request.getScheme()).append("://").append(request.getServerName())
+                .append(":").append(request.getServerPort()).append(request.getContextPath())
+                .append(controllerPrefix);
+
         Map<String, Object> map = new HashMap<String, Object>();
         StringBuilder serPath = new StringBuilder();
         if (!file.isEmpty()) {
             serPath = serPath.append(uploadDir).append("/").append(file.getOriginalFilename());
             File wxFile = new File(serPath.toString());
             file.transferTo(wxFile);
-            map.put("filePath", file.getOriginalFilename());
+            map.put("src", baseUrl + "/" + file.getOriginalFilename());
         }
         return map;
     }
 
-    @RequestMapping(value = "/{fileName:.+}", method = RequestMethod.GET)
+    @RequestMapping(value = controllerPrefix + "/{fileName:.+}", method = RequestMethod.GET)
     public void handleDownload(@PathVariable("fileName") String fileName, HttpServletResponse response) {
         StringBuilder filePath = new StringBuilder(uploadDir).append("/").append(fileName);
         File file = new File(filePath.toString());
