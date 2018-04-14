@@ -1,5 +1,7 @@
 package com.anyuan.oa.model.response;
 
+import java.util.List;
+
 /**
  * Created by pengkan on 2018/2/5.
  */
@@ -26,6 +28,7 @@ public class OldOAToDoDetail {
     private String currentUserChnName;
     private int in_sp_id;
     private String djr;
+    private List<OldOaDetailField> fields;
 
     public int getAttL_ID() {
         return attL_ID;
@@ -201,5 +204,13 @@ public class OldOAToDoDetail {
 
     public void setDjr(String djr) {
         this.djr = djr;
+    }
+
+    public List<OldOaDetailField> getFields() {
+        return fields;
+    }
+
+    public void setFields(List<OldOaDetailField> fields) {
+        this.fields = fields;
     }
 }

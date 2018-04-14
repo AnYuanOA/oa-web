@@ -93,9 +93,9 @@ public class WorkFlowTest {
         HTTPUtil.setUsLocalProxy(true);
         String url = BASE_URL + LOGIN_URL;
         Map<String, String> param = new HashMap<String, String>();
-        param.put("userName", "pengkan");//用户名
+        param.put("userName", "jinher");//用户名
         param.put("openId", TEST_OPENID);//微信小程序openid
-        param.put("password", "123456");//密码
+        param.put("password", "666666");//密码
         param.put("chatNick", "jinher");//微信昵称
         try {
             HTTPResponse response = HTTPUtil.sendPostWithEncodeForm(url, param, null);

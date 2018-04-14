@@ -69,7 +69,7 @@ public class OldOAService {
             setLoad = 1;
         }
         Map<String, Object> param = new HashMap<String, Object>();
-        param.put("count", 100);
+        param.put("count", 10);
         param.put("flag", 1);
         param.put("key", "");
         param.put("lastTime", lastTime);
@@ -265,117 +265,45 @@ public class OldOAService {
         detail.setWorkflowTemplateID(workflowName);
         detail.setIn_sp_id(detailJson.get("in_sp_id")==null?0:(Integer) detailJson.get("in_sp_id"));
         detail.setBuzPKID(detailJson.get("buzPKID")==null?0:(Integer) detailJson.get("buzPKID"));
-        if(WorkflowName.LEAVE.getValue().equals(workflowName)){
-            detail = JSON.parseObject(result, OldOAToDoDetail.class);
-        }else if(WorkflowName.USCAR.getValue().equals(workflowName)){
-            if(detailJson.get("applyUsingType") != null) {
-                detail.setAttLT_Name((String) detailJson.get("applyUsingType"));
-            }
-            if(detailJson.get("usingReason") != null){
-                detail.setAttL_Reason((String) detailJson.get("usingReason"));
-            }
-        }else if(WorkflowName.CHENGPIN.getValue().equals(workflowName) ||
-                WorkflowName.YUSHENXIUGAIGAO.getValue().equals(workflowName)
-                ){
-            if(detailJson.get("baogaomingcheng") != null){
-                detail.setAttLT_Name((String) detailJson.get("baogaomingcheng"));
-            }
-            if(detailJson.get("xiangmumingcheng") != null){
-                detail.setAttL_Reason((String) detailJson.get("xiangmumingcheng"));
-            }
-        }else if(WorkflowName.XIANCHANGTAKAN.getValue().equals(workflowName)){
-            if(detailJson.get("takanqingkuang") != null){
-                detail.setAttLT_Name((String) detailJson.get("takanqingkuang"));
-            }
-            if(detailJson.get("xiangmumingcheng") != null){
-                detail.setAttL_Reason((String) detailJson.get("xiangmumingcheng"));
-            }
-        }else if(WorkflowName.GUKECAICHAN.getValue().equals(workflowName)){
-            if(detailJson.get("gukecaichanneirong") != null){
-                detail.setAttLT_Name((String) detailJson.get("gukecaichanneirong"));
-            }
-            if(detailJson.get("xiangmumingcheng") != null){
-                detail.setAttL_Reason((String) detailJson.get("xiangmumingcheng"));
-            }
-        }else if(WorkflowName.XIANGMUJIHUA.getValue().equals(workflowName)){
-            if(detailJson.get("gongzuofanwei") != null){
-                detail.setAttLT_Name((String) detailJson.get("gongzuofanwei"));
-            }
-            if(detailJson.get("xiangmumingcheng") != null){
-                detail.setAttL_Reason((String) detailJson.get("xiangmumingcheng"));
-            }
-        }else if(WorkflowName.XIANGMUJIHUABIANGENG.getValue().equals(workflowName) ||
-                WorkflowName.XIANGMUZUCHENGYUANBIANGENG.getValue().equals(workflowName) ||
-                WorkflowName.XIANGMUKAIGONGTONGZHIDANBIANGENG.getValue().equals(workflowName)){
-            if(detailJson.get("biangengshuoming") != null){
-                detail.setAttLT_Name((String) detailJson.get("biangengshuoming"));
-            }
-            if(detailJson.get("xiangmumingcheng") != null){
-                detail.setAttL_Reason((String) detailJson.get("xiangmumingcheng"));
-            }
-        }else if(WorkflowName.XIANGMUZUCHENGYUAN.getValue().equals(workflowName)){
-            if(detailJson.get("xmtd_sm") != null){
-                detail.setAttLT_Name((String) detailJson.get("xmtd_sm"));
-            }
-            if(detailJson.get("xiangmumingcheng") != null){
-                detail.setAttL_Reason((String) detailJson.get("xiangmumingcheng"));
-            }
-        }else if(WorkflowName.XIANGMUKAIGONGTONGZHIDAN.getValue().equals(workflowName)){
-            if(detailJson.get("xiangguanyaoqiu") != null){
-                detail.setAttLT_Name((String) detailJson.get("xiangguanyaoqiu"));
-            }
-            if(detailJson.get("xiangmumingcheng") != null){
-                detail.setAttL_Reason((String) detailJson.get("xiangmumingcheng"));
-            }
-        }else if(WorkflowName.HETONGBIANGENGSHENQING.getValue().equals(workflowName)){
-            if(detailJson.get("biangengshuoming") != null){
-                detail.setAttLT_Name((String) detailJson.get("biangengshuoming"));
-            }
-            if(detailJson.get("hetongbiaoti") != null){
-                detail.setAttL_Reason((String) detailJson.get("hetongbiaoti"));
-            }
-        }else if(WorkflowName.HETONGHUIQIANSHENQING.getValue().equals(workflowName)){
-            if(detailJson.get("yezhuxuqiu") != null){
-                detail.setAttLT_Name((String) detailJson.get("yezhuxuqiu"));
-            }
-            if(detailJson.get("hetongbiaoti") != null){
-                detail.setAttL_Reason((String) detailJson.get("hetongbiaoti"));
-            }
-        }else if(WorkflowName.XIANGMUFENGXIANFENXI.getValue().equals(workflowName)){
-            if(detailJson.get("xiangmugaikuang") != null){
-                detail.setAttLT_Name((String) detailJson.get("xiangmugaikuang"));
-            }
-            if(detailJson.get("xmfx_xiangmumingcheng") != null){
-                detail.setAttL_Reason((String) detailJson.get("xmfx_xiangmumingcheng"));
-            }
-        }else if(WorkflowName.XINWENZHONGXIN.getValue().equals(workflowName)){
-            if(detailJson.get("moduleTypeName") != null){
-                detail.setAttLT_Name((String) detailJson.get("moduleTypeName"));
-            }
-            if(detailJson.get("messageTitle") != null){
-                detail.setAttL_Reason((String) detailJson.get("messageTitle"));
-            }
-        }else if(WorkflowName.QINGSHIBANLI.getValue().equals(workflowName)){
-            if(detailJson.get("askType") != null){
-                detail.setAttLT_Name((String) detailJson.get("askType"));
-            }
-            if(detailJson.get("askTitle") != null){
-                detail.setAttL_Reason((String) detailJson.get("askTitle"));
-            }
-        }else if(WorkflowName.SHOUWENBANLILIUCHENG.getValue().equals(workflowName)){
-            if(detailJson.get("acceptType") != null){
-                detail.setAttLT_Name((String) detailJson.get("acceptType"));
-            }
-            if(detailJson.get("acceptTitle") != null){
-                detail.setAttL_Reason((String) detailJson.get("acceptTitle"));
-            }
-        }else if(WorkflowName.FAWENBANLILIUCHENG.getValue().equals(workflowName)){
-            if(detailJson.get("sendKey") != null){
-                detail.setAttLT_Name((String) detailJson.get("sendKey"));
-            }
-            if(detailJson.get("sendTitle") != null){
-                detail.setAttL_Reason((String) detailJson.get("sendTitle"));
-            }
+        detail.setFields(new ArrayList<OldOaDetailField>());
+        if(WorkflowName.LEAVE.getValue().equals(workflowName)){//请假流程
+            setUpLevelDetailFields(detail, detailJson);
+        }else if(WorkflowName.USCAR.getValue().equals(workflowName)){//用车申请流程
+            setUpUsCarDetailFields(detail, detailJson);
+        }else if(WorkflowName.CHENGPIN.getValue().equals(workflowName)){//成品会签流程
+            setUpChengPinDetailFields(detail, detailJson);
+        }else if(WorkflowName.YUSHENXIUGAIGAO.getValue().equals(workflowName)){//预审修改稿流程
+            setUpYuShenXiuGaiGaoDetailFields(detail, detailJson);
+        }else if(WorkflowName.XIANCHANGTAKAN.getValue().equals(workflowName)){//现场踏勘流程
+            setUpXianChangTaKanDetailFields(detail, detailJson);
+        }else if(WorkflowName.GUKECAICHAN.getValue().equals(workflowName)){//顾客财产流程
+            setUpGuKeCaiChanDetailFields(detail, detailJson);
+        }else if(WorkflowName.XIANGMUJIHUA.getValue().equals(workflowName)){//项目计划流程
+            setUpXiangMuJiHuaDetailFields(detail, detailJson);
+        }else if(WorkflowName.XIANGMUJIHUABIANGENG.getValue().equals(workflowName)){//项目计划变更流程
+            setUpXiangMuJiHuaBianGengDetailFields(detail, detailJson);
+        }else if(WorkflowName.XIANGMUZUCHENGYUAN.getValue().equals(workflowName)){//项目组成员审批表流程
+            setUpXiangMuZuChengYuanDetailFields(detail, detailJson);
+        }else if(WorkflowName.XIANGMUZUCHENGYUANBIANGENG.getValue().equals(workflowName)){//项目组成员变更流程
+            setUpXiangMuZuChengYuanBianGengDetailFields(detail, detailJson);
+        }else if(WorkflowName.XIANGMUKAIGONGTONGZHIDANBIANGENG.getValue().equals(workflowName)){//项目开工通知单变更流程
+            setUpXiangMuKaiGongTongZhiDanBianGengDetailFields(detail, detailJson);
+        }else if(WorkflowName.XIANGMUKAIGONGTONGZHIDAN.getValue().equals(workflowName)){//项目开工通知单流程
+            setUpXiangMuKaiGongTongZhiDanDetailFields(detail, detailJson);
+        }else if(WorkflowName.HETONGBIANGENGSHENQING.getValue().equals(workflowName)){//合同变更申请流程
+            setUpHeTongBianGengShenQingDeailFields(detail, detailJson);
+        }else if(WorkflowName.HETONGHUIQIANSHENQING.getValue().equals(workflowName)){//合同会签申请流程
+            setUpHeTongHuiQianShenQingDetailFields(detail, detailJson);
+        }else if(WorkflowName.XIANGMUFENGXIANFENXI.getValue().equals(workflowName)){//项目风险分析流程
+            setUpXiangMuFengXianFenXiDetailFields(detail, detailJson);
+        }else if(WorkflowName.XINWENZHONGXIN.getValue().equals(workflowName)){//新闻中心流程
+            setUpXinWenZhongXinDetailFields(detail, detailJson);
+        }else if(WorkflowName.QINGSHIBANLI.getValue().equals(workflowName)){//请示办理流程
+            setUpQingShiBanLiDetailFields(detail, detailJson);
+        }else if(WorkflowName.SHOUWENBANLILIUCHENG.getValue().equals(workflowName)){//收文办理流程
+            setUpShouWenBanLiDetailFields(detail, detailJson);
+        }else if(WorkflowName.FAWENBANLILIUCHENG.getValue().equals(workflowName)){//发文办理流程
+            setUpFaWenBanLiDetailFields(detail, detailJson);
         }
         return detail;
     }
@@ -1138,11 +1066,11 @@ public class OldOAService {
     }
 
     private int getIsNewFlag(String workflowName) {
-        if(isLeaveWorkflow(workflowName) || isCarWorkflow(workflowName)){
-            return 0;
-        }else {
+//        if(isLeaveWorkflow(workflowName) || isCarWorkflow(workflowName)){
+//            return 0;
+//        }else {
             return 1;
-        }
+//        }
     }
 
     /**
@@ -1254,5 +1182,1147 @@ public class OldOAService {
             }
         }
         return complete;
+    }
+
+    /**
+     * 设置请假流程需要显示的字段
+     * @param detail
+     * @param detailJson
+     */
+    private void setUpLevelDetailFields(OldOAToDoDetail detail, Map<String, Object> detailJson) {
+        Object applyObj = detailJson.get("applyUserChnName");
+        Object typeObj = detailJson.get("attLT_Name");
+        Object startObj = detailJson.get("rest_start_date");
+        Object startTypeObj = detailJson.get("startType");
+        Object endObj = detailJson.get("rest_end_date");
+        Object endTypeObj = detailJson.get("endType");
+        Object daysObj = detailJson.get("rest_day_num");
+        Object reasonObj = detailJson.get("attL_Reason");
+
+        //1.申请人
+        OldOaDetailField applyField = new OldOaDetailField();
+        applyField.setFieldName("申请人");
+        applyField.setFieldValue(applyObj);
+        detail.getFields().add(applyField);
+        //2.休假类型
+        OldOaDetailField typeField = new OldOaDetailField();
+        typeField.setFieldName("休假类型");
+        typeField.setFieldValue(typeObj);
+        detail.getFields().add(typeField);
+        //3.开始时间
+        OldOaDetailField startField = new OldOaDetailField();
+        startField.setFieldName("开始时间");
+        startField.setFieldValue(startObj);
+        detail.getFields().add(startField);
+        //4.开始类型
+        OldOaDetailField startTypeField = new OldOaDetailField();
+        startTypeField.setFieldName("类型");
+        startTypeField.setFieldValue(startTypeObj);
+        detail.getFields().add(startTypeField);
+        //5.结束时间
+        OldOaDetailField endField = new OldOaDetailField();
+        endField.setFieldName("结束时间");
+        endField.setFieldValue(endObj);
+        detail.getFields().add(endField);
+        //6.结束类型
+        OldOaDetailField endTypeField = new OldOaDetailField();
+        endTypeField.setFieldName("类型");
+        endTypeField.setFieldValue(endTypeObj);
+        detail.getFields().add(endTypeField);
+        //7.休假天数
+        OldOaDetailField daysField = new OldOaDetailField();
+        daysField.setFieldName("休假天数");
+        daysField.setFieldValue(daysObj);
+        detail.getFields().add(daysField);
+        //8.休假原因
+        OldOaDetailField reasonField = new OldOaDetailField();
+        reasonField.setFieldName("休假原因");
+        reasonField.setFieldValue(reasonObj);
+        detail.getFields().add(reasonField);
+    }
+
+    /**
+     * 设置用车流程需要显示的字段
+     * @param detail
+     * @param detailJson
+     */
+    private void setUpUsCarDetailFields(OldOAToDoDetail detail, Map<String, Object> detailJson) {
+        Object applyObj = detailJson.get("applyUserChnName");
+        Object deptObj = detailJson.get("applyUserDeptName");
+        Object phoneObj = detailJson.get("applyUserCellphone");
+        Object useTypeObj = detailJson.get("applyUsingType");
+        Object overObj = detailJson.get("driverIsOverWork");
+        Object countObj = detailJson.get("inCarNums");
+        Object spandObj = detailJson.get("carUsingHours");
+        Object useTimeObj = detailJson.get("usingCarTime");
+        Object rangeObj = detailJson.get("usingCarRange");
+        Object toObj = detailJson.get("dest");
+        Object fromObj = detailJson.get("startPoint");
+        Object reasonObj = detailJson.get("usingReason");
+
+        //1.申请人
+        OldOaDetailField applyField = new OldOaDetailField();
+        applyField.setFieldName("申请人");
+        applyField.setFieldValue(applyObj);
+        detail.getFields().add(applyField);
+        //2.用车部门
+        OldOaDetailField deptField = new OldOaDetailField();
+        deptField.setFieldName("用车部门");
+        deptField.setFieldValue(deptObj);
+        detail.getFields().add(deptField);
+        //3.联系电话
+        OldOaDetailField phoneField = new OldOaDetailField();
+        phoneField.setFieldName("联系电话");
+        phoneField.setFieldValue(phoneObj);
+        detail.getFields().add(phoneField);
+        //4.用车性质
+        OldOaDetailField useTypeField = new OldOaDetailField();
+        useTypeField.setFieldName("用车性质");
+        useTypeField.setFieldValue(useTypeObj);
+        detail.getFields().add(useTypeField);
+        //5.司机是否加班
+        boolean over = overObj!=null?(Boolean)overObj:false;
+        OldOaDetailField overField = new OldOaDetailField();
+        overField.setFieldName("司机是否加班");
+        overField.setFieldValue(overObj);
+        detail.getFields().add(overField);
+        //6.用车人数
+        OldOaDetailField countField = new OldOaDetailField();
+        countField.setFieldName("用车人数");
+        countField.setFieldValue(countObj);
+        detail.getFields().add(countField);
+        //7.占用时间
+        OldOaDetailField spandField = new OldOaDetailField();
+        spandField.setFieldName("占用时间");
+        spandField.setFieldValue(spandObj);
+        detail.getFields().add(spandField);
+        //8.用车时间
+        OldOaDetailField useTimeField = new OldOaDetailField();
+        useTimeField.setFieldName("用车时间");
+        useTimeField.setFieldValue(useTimeObj);
+        detail.getFields().add(useTimeField);
+        //9.市内/市外
+        OldOaDetailField rangeField = new OldOaDetailField();
+        rangeField.setFieldName("市内/市外");
+        rangeField.setFieldValue(rangeObj);
+        detail.getFields().add(rangeField);
+        //10.去往地点
+        OldOaDetailField toField = new OldOaDetailField();
+        toField.setFieldName("去往地点");
+        toField.setFieldValue(toObj);
+        detail.getFields().add(toField);
+        //11.发车地点
+        OldOaDetailField fromField = new OldOaDetailField();
+        fromField.setFieldName("发车地点");
+        fromField.setFieldValue(fromObj);
+        detail.getFields().add(fromField);
+        //12.申请原因
+        OldOaDetailField reasonField = new OldOaDetailField();
+        reasonField.setFieldName("申请原因");
+        reasonField.setFieldValue(reasonObj);
+        detail.getFields().add(reasonField);
+    }
+
+    /**
+     * 设置成品会签要显示的字段
+     * @param detail
+     * @param detailJson
+     */
+    private void setUpChengPinDetailFields(OldOAToDoDetail detail, Map<String, Object> detailJson) {
+        Object titleObj = detailJson.get("workflowTitle");
+        Object serialObj = detailJson.get("lsh");
+        Object projectObj = detailJson.get("xiangmumingcheng");
+        Object noObj = detailJson.get("xiangmubianhao");
+        Object leaderObj = detailJson.get("fzr");
+        Object reportObj = detailJson.get("baogaobianhao");
+        Object endObj = detailJson.get("zhonggaowcsj");
+
+        //1.流程标题
+        OldOaDetailField titleField = new OldOaDetailField();
+        titleField.setFieldName("流程标题");
+        titleField.setFieldValue(titleObj);
+        detail.getFields().add(titleField);
+        //2.流水号
+        OldOaDetailField serialField = new OldOaDetailField();
+        serialField.setFieldName("流水号");
+        serialField.setFieldValue(serialObj);
+        detail.getFields().add(serialField);
+        //3.项目名称
+        OldOaDetailField projectField = new OldOaDetailField();
+        projectField.setFieldName("项目名称");
+        projectField.setFieldValue(projectObj);
+        detail.getFields().add(projectField);
+        //4.项目编号
+        OldOaDetailField noField = new OldOaDetailField();
+        noField.setFieldName("项目编号");
+        noField.setFieldValue(noObj);
+        detail.getFields().add(noField);
+        //5.负责人
+        OldOaDetailField leaderField = new OldOaDetailField();
+        leaderField.setFieldName("负责人");
+        leaderField.setFieldValue(leaderObj);
+        detail.getFields().add(leaderField);
+        //6.报告编号
+        OldOaDetailField reportField = new OldOaDetailField();
+        reportField.setFieldName("报告编号");
+        reportField.setFieldValue(reportObj);
+        detail.getFields().add(reportField);
+        //7.终稿完成时间
+        OldOaDetailField endField = new OldOaDetailField();
+        endField.setFieldName("终稿完成时间");
+        endField.setFieldValue(endObj);
+        detail.getFields().add(endField);
+    }
+
+    /**
+     * 设置预审修改稿需要显示的字段
+     * @param detail
+     * @param detailJson
+     */
+    private void setUpYuShenXiuGaiGaoDetailFields(OldOAToDoDetail detail, Map<String, Object> detailJson) {
+        Object titleObj = detailJson.get("workflowTitle");
+        Object serialObj = detailJson.get("lsh");
+        Object projectObj = detailJson.get("xiangmumingcheng");
+        Object noObj = detailJson.get("xiangmubianhao");
+        Object leaderObj = detailJson.get("fzr");
+        Object reportObj = detailJson.get("baogaobianhao");
+        Object endObj = detailJson.get("xiugaigaowcsj");
+
+        //1.流程标题
+        OldOaDetailField titleField = new OldOaDetailField();
+        titleField.setFieldName("流程标题");
+        titleField.setFieldValue(titleObj);
+        detail.getFields().add(titleField);
+        //2.流水号
+        OldOaDetailField serialField = new OldOaDetailField();
+        serialField.setFieldName("流水号");
+        serialField.setFieldValue(serialObj);
+        detail.getFields().add(serialField);
+        //3.项目名称
+        OldOaDetailField projectField = new OldOaDetailField();
+        projectField.setFieldName("项目名称");
+        projectField.setFieldValue(projectObj);
+        detail.getFields().add(projectField);
+        //4.项目编号
+        OldOaDetailField noField = new OldOaDetailField();
+        noField.setFieldName("项目编号");
+        noField.setFieldValue(noObj);
+        detail.getFields().add(noField);
+        //5.负责人
+        OldOaDetailField leaderField = new OldOaDetailField();
+        leaderField.setFieldName("负责人");
+        leaderField.setFieldValue(leaderObj);
+        detail.getFields().add(leaderField);
+        //6.报告编号
+        OldOaDetailField reportField = new OldOaDetailField();
+        reportField.setFieldName("报告编号");
+        reportField.setFieldValue(reportObj);
+        detail.getFields().add(reportField);
+        //7.修改稿完成时间
+        OldOaDetailField endField = new OldOaDetailField();
+        endField.setFieldName("修改稿完成时间");
+        endField.setFieldValue(endObj);
+        detail.getFields().add(endField);
+    }
+
+    /**
+     * 设置现场踏勘详情需要显示的字段
+     * @param detail
+     * @param detailJson
+     */
+    private void setUpXianChangTaKanDetailFields(OldOAToDoDetail detail, Map<String, Object> detailJson) {
+        Object titleObj = detailJson.get("workflowTitle");
+        Object serialObj = detailJson.get("lsh");
+        Object projectObj = detailJson.get("xiangmumingcheng");
+        Object noObj = detailJson.get("xiangmubianhao");
+        Object leaderObj = detailJson.get("fzr");
+        Object peopleObj = detailJson.get("xianchangtakanrys");
+        Object caseObj = detailJson.get("takanqingkuang");
+
+        //1.流程标题
+        OldOaDetailField titleField = new OldOaDetailField();
+        titleField.setFieldName("流程标题");
+        titleField.setFieldValue(titleObj);
+        detail.getFields().add(titleField);
+        //2.流水号
+        OldOaDetailField serialField = new OldOaDetailField();
+        serialField.setFieldName("流水号");
+        serialField.setFieldValue(serialObj);
+        detail.getFields().add(serialField);
+        //3.项目名称
+        OldOaDetailField projectField = new OldOaDetailField();
+        projectField.setFieldName("项目名称");
+        projectField.setFieldValue(projectObj);
+        detail.getFields().add(projectField);
+        //4.项目编号
+        OldOaDetailField noField = new OldOaDetailField();
+        noField.setFieldName("项目编号");
+        noField.setFieldValue(noObj);
+        detail.getFields().add(noField);
+        //5.负责人
+        OldOaDetailField leaderField = new OldOaDetailField();
+        leaderField.setFieldName("负责人");
+        leaderField.setFieldValue(leaderObj);
+        detail.getFields().add(leaderField);
+        //6.现场踏勘人员
+        OldOaDetailField peopleField = new OldOaDetailField();
+        peopleField.setFieldName("现场踏勘人员");
+        peopleField.setFieldValue(peopleObj);
+        detail.getFields().add(peopleField);
+        //7.踏勘情况
+        OldOaDetailField caseField = new OldOaDetailField();
+        caseField.setFieldName("踏勘情况");
+        caseField.setFieldValue(caseObj);
+        detail.getFields().add(caseField);
+    }
+
+    /**
+     * 设置顾客财产需要显示的字段
+     * @param detail
+     * @param detailJson
+     */
+    private void setUpGuKeCaiChanDetailFields(OldOAToDoDetail detail, Map<String, Object> detailJson) {
+        Object titleObj = detailJson.get("workflowTitle");
+        Object serialObj = detailJson.get("lsh");
+        Object projectObj = detailJson.get("xiangmumingcheng");
+        Object noObj = detailJson.get("xiangmubianhao");
+        Object leaderObj = detailJson.get("fzr");
+        Object contentObj = detailJson.get("gukecaichanneirong");
+        Object opinionObj = detailJson.get("yanzhengyijian");
+        Object opinionRemarkObj = detailJson.get("yanzhengyijiansm");
+        Object applyObj = detailJson.get("isShiyong");
+
+        //1.流程标题
+        OldOaDetailField titleField = new OldOaDetailField();
+        titleField.setFieldName("流程标题");
+        titleField.setFieldValue(titleObj);
+        detail.getFields().add(titleField);
+        //2.流水号
+        OldOaDetailField serialField = new OldOaDetailField();
+        serialField.setFieldName("流水号");
+        serialField.setFieldValue(serialObj);
+        detail.getFields().add(serialField);
+        //3.项目名称
+        OldOaDetailField projectField = new OldOaDetailField();
+        projectField.setFieldName("项目名称");
+        projectField.setFieldValue(projectObj);
+        detail.getFields().add(projectField);
+        //4.项目编号
+        OldOaDetailField noField = new OldOaDetailField();
+        noField.setFieldName("项目编号");
+        noField.setFieldValue(noObj);
+        detail.getFields().add(noField);
+        //5.负责人
+        OldOaDetailField leaderField = new OldOaDetailField();
+        leaderField.setFieldName("负责人");
+        leaderField.setFieldValue(leaderObj);
+        detail.getFields().add(leaderField);
+        //6.顾客财产的内容
+        OldOaDetailField contentField = new OldOaDetailField();
+        contentField.setFieldName("顾客财产的内容");
+        contentField.setFieldValue(contentObj);
+        detail.getFields().add(contentField);
+        //7.验证意见
+        OldOaDetailField opinionField = new OldOaDetailField();
+        opinionField.setFieldName("验证意见");
+        opinionField.setFieldValue(opinionObj);
+        detail.getFields().add(opinionField);
+        //8.验证意见说明
+        OldOaDetailField opinionRemarkField = new OldOaDetailField();
+        opinionRemarkField.setFieldName("验证意见说明");
+        opinionRemarkField.setFieldValue(opinionRemarkObj);
+        detail.getFields().add(opinionRemarkField);
+        //9.适用情况
+        OldOaDetailField applyField = new OldOaDetailField();
+        applyField.setFieldName("适用情况");
+        applyField.setFieldValue(applyObj);
+        detail.getFields().add(applyField);
+    }
+
+    /**
+     * 设置项目计划需要显示的字段
+     * @param detail
+     * @param detailJson
+     */
+    private void setUpXiangMuJiHuaDetailFields(OldOAToDoDetail detail, Map<String, Object> detailJson) {
+        Object titleObj = detailJson.get("workflowTitle");
+        Object serialObj = detailJson.get("lsh");
+        Object projectObj = detailJson.get("xiangmumingcheng");
+        Object noObj = detailJson.get("xiangmubianhao");
+        Object startObj = detailJson.get("kaishishijian");
+        Object endObj = detailJson.get("jiezhishijian");
+        Object tenetObj = detailJson.get("gzyj_zygzyz");
+        Object rangeObj = detailJson.get("gongzuofanwei");
+        Object qualityObj = detailJson.get("zlxxfkqkyy");
+        Object controlObj = detailJson.get("zlkzcs");
+        Object riskObj = detailJson.get("hyfx_zywt");
+        Object timeObj = detailJson.get("shijiananpai");
+
+        //1.流程标题
+        OldOaDetailField titleField = new OldOaDetailField();
+        titleField.setFieldName("流程标题");
+        titleField.setFieldValue(titleObj);
+        detail.getFields().add(titleField);
+        //2.流水号
+        OldOaDetailField serialField = new OldOaDetailField();
+        serialField.setFieldName("流水号");
+        serialField.setFieldValue(serialObj);
+        detail.getFields().add(serialField);
+        //3.项目名称
+        OldOaDetailField projectField = new OldOaDetailField();
+        projectField.setFieldName("项目名称");
+        projectField.setFieldValue(projectObj);
+        detail.getFields().add(projectField);
+        //4.项目编号
+        OldOaDetailField noField = new OldOaDetailField();
+        noField.setFieldName("项目编号");
+        noField.setFieldValue(noObj);
+        detail.getFields().add(noField);
+        //5.开始时间
+        OldOaDetailField startField = new OldOaDetailField();
+        startField.setFieldName("开始时间");
+        startField.setFieldValue(startObj);
+        detail.getFields().add(startField);
+        //6.结束时间
+        OldOaDetailField endField = new OldOaDetailField();
+        endField.setFieldName("结束时间");
+        endField.setFieldValue(endObj);
+        detail.getFields().add(endField);
+        //7.作依据及主要工作原则
+        OldOaDetailField tenetField = new OldOaDetailField();
+        tenetField.setFieldName("作依据及主要工作原则");
+        tenetField.setFieldValue(tenetObj);
+        detail.getFields().add(tenetField);
+        //8.工作范围
+        OldOaDetailField rangeField = new OldOaDetailField();
+        rangeField.setFieldName("工作范围");
+        rangeField.setFieldValue(rangeObj);
+        detail.getFields().add(rangeField);
+        //9.质量信息反馈情况的应用
+        OldOaDetailField qualityField = new OldOaDetailField();
+        qualityField.setFieldName("质量信息反馈情况的应用");
+        qualityField.setFieldValue(qualityObj);
+        detail.getFields().add(qualityField);
+        //10.质量控制措施
+        OldOaDetailField controlField = new OldOaDetailField();
+        controlField.setFieldName("质量控制措施");
+        controlField.setFieldValue(controlObj);
+        detail.getFields().add(controlField);
+        //11.行业风险及注意问题
+        OldOaDetailField riskField = new OldOaDetailField();
+        riskField.setFieldName("行业风险及注意问题");
+        riskField.setFieldValue(riskObj);
+        detail.getFields().add(riskField);
+        //12.时间安排
+        OldOaDetailField timeField = new OldOaDetailField();
+        timeField.setFieldName("时间安排");
+        timeField.setFieldValue(timeObj);
+        detail.getFields().add(timeField);
+    }
+
+    /**
+     * 设置项目计划变更需要显示的字段
+     * @param detail
+     * @param detailJson
+     */
+    private void setUpXiangMuJiHuaBianGengDetailFields(OldOAToDoDetail detail, Map<String, Object> detailJson) {
+        setUpXiangMuJiHuaDetailFields(detail, detailJson);
+    }
+
+    /**
+     * 设置项目组成员需要显示的字段
+     * @param detail
+     * @param detailJson
+     */
+    private void setUpXiangMuZuChengYuanDetailFields(OldOAToDoDetail detail, Map<String, Object> detailJson) {
+        Object titleObj = detailJson.get("workflowTitle");
+        Object serialObj = detailJson.get("lsh");
+        Object projectObj = detailJson.get("xiangmumingcheng");
+        Object noObj = detailJson.get("xiangmubianhao");
+        Object leaderObj = detailJson.get("xmtd_fzr");
+        Object remarkObj = detailJson.get("xmtd_sm");
+        Object memberObj = detailJson.get("subList");
+
+        //1.流程标题
+        OldOaDetailField titleField = new OldOaDetailField();
+        titleField.setFieldName("流程标题");
+        titleField.setFieldValue(titleObj);
+        detail.getFields().add(titleField);
+        //2.流水号
+        OldOaDetailField serialField = new OldOaDetailField();
+        serialField.setFieldName("流水号");
+        serialField.setFieldValue(serialObj);
+        detail.getFields().add(serialField);
+        //3.项目名称
+        OldOaDetailField projectField = new OldOaDetailField();
+        projectField.setFieldName("项目名称");
+        projectField.setFieldValue(projectObj);
+        detail.getFields().add(projectField);
+        //4.项目编号
+        OldOaDetailField noField = new OldOaDetailField();
+        noField.setFieldName("项目编号");
+        noField.setFieldValue(noObj);
+        detail.getFields().add(noField);
+        //5.负责人
+        OldOaDetailField leaderField = new OldOaDetailField();
+        leaderField.setFieldName("负责人");
+        leaderField.setFieldValue(leaderObj);
+        detail.getFields().add(leaderField);
+        //6.项目团队说明
+        OldOaDetailField remarkField = new OldOaDetailField();
+        remarkField.setFieldName("项目团队说明");
+        remarkField.setFieldValue(remarkObj);
+        detail.getFields().add(remarkField);
+        //7.项目成员
+        if(memberObj != null) {
+            List<Map<String, Object>> memberList = (List<Map<String, Object>>) memberObj;
+            for(int i=0; i<memberList.size(); i++){
+                Map<String, Object> member = memberList.get(i);
+                OldOaDetailField memberField = new OldOaDetailField();
+                memberField.setFieldName("项目组成员"+(i+1));
+                StringBuilder memberInfo = new StringBuilder();
+                memberInfo.append(member.get("xingming")!=null?(String) member.get("xingming"):"").append("-");
+                memberInfo.append(member.get("xingbie")!=null?(String) member.get("xingbie"):"").append("-");
+                memberInfo.append(member.get("xiangmujuese")!=null?(String) member.get("xiangmujuese"):"").append("-");
+                memberInfo.append(member.get("lianxifangshi")!=null?(String) member.get("lianxifangshi"):"").append("-");
+                memberInfo.append(member.get("bumen")!=null?(String) member.get("bumen"):"");
+                memberField.setFieldValue(memberInfo.toString());
+                detail.getFields().add(memberField);
+            }
+        }
+    }
+
+    /**
+     * 设置项目组成员变更需要显示的字段
+     * @param detail
+     * @param detailJson
+     */
+    private void setUpXiangMuZuChengYuanBianGengDetailFields(OldOAToDoDetail detail, Map<String, Object> detailJson) {
+        setUpXiangMuZuChengYuanDetailFields(detail, detailJson);
+//        Object titleObj = detailJson.get("workflowTitle");
+//        Object serialObj = detailJson.get("lsh");
+//        Object projectObj = detailJson.get("xiangmumingcheng");
+//        Object noObj = detailJson.get("xiangmubianhao");
+//        Object leaderObj = detailJson.get("xmtd_fzr");
+//        Object remarkObj = detailJson.get("xmtd_sm");
+//        Object memberObj = detailJson.get("subList");
+//
+//        //1.流程标题
+//        OldOaDetailField titleField = new OldOaDetailField();
+//        titleField.setFieldName("流程标题");
+//        titleField.setFieldValue(titleObj!=null?(String)titleObj:"");
+//        detail.getFields().add(titleField);
+//        //2.流水号
+//        OldOaDetailField serialField = new OldOaDetailField();
+//        serialField.setFieldName("流水号");
+//        serialField.setFieldValue(serialObj!=null?(String)serialObj:"");
+//        detail.getFields().add(serialField);
+//        //3.项目名称
+//        OldOaDetailField projectField = new OldOaDetailField();
+//        projectField.setFieldName("项目名称");
+//        projectField.setFieldValue(projectObj!=null?(String)projectObj:"");
+//        detail.getFields().add(projectField);
+//        //4.项目编号
+//        OldOaDetailField noField = new OldOaDetailField();
+//        noField.setFieldName("项目编号");
+//        noField.setFieldValue(noObj!=null?(String)noObj:"");
+//        detail.getFields().add(noField);
+//        //5.负责人
+//        OldOaDetailField leaderField = new OldOaDetailField();
+//        leaderField.setFieldName("负责人");
+//        leaderField.setFieldValue(leaderObj!=null?(String)leaderObj:"");
+//        detail.getFields().add(leaderField);
+//        //6.项目团队说明
+//        OldOaDetailField remarkField = new OldOaDetailField();
+//        remarkField.setFieldName("项目团队说明");
+//        remarkField.setFieldValue(remarkObj!=null?(String)remarkObj:"");
+//        detail.getFields().add(remarkField);
+//        //7.项目成员
+//        if(memberObj != null) {
+//            List<Map<String, Object>> memberList = (List<Map<String, Object>>) memberObj;
+//            for(int i=0; i<memberList.size(); i++){
+//                Map<String, Object> member = memberList.get(i);
+//                OldOaDetailField memberField = new OldOaDetailField();
+//                memberField.setFieldName("项目组成员"+(i+1));
+//                StringBuilder memberInfo = new StringBuilder();
+//                memberInfo.append(member.get("xingming")!=null?(String) member.get("xingming"):"").append("-");
+//                memberInfo.append(member.get("xingbie")!=null?(String) member.get("xingbie"):"").append("-");
+//                memberInfo.append(member.get("xiangmujuese")!=null?(String) member.get("xiangmujuese"):"").append("-");
+//                memberInfo.append(member.get("lianxifangshi")!=null?(String) member.get("lianxifangshi"):"").append("-");
+//                memberInfo.append(member.get("bumen")!=null?(String) member.get("bumen"):"");
+//                memberField.setFieldValue(memberInfo.toString());
+//                detail.getFields().add(memberField);
+//            }
+//        }
+    }
+
+    /**
+     * 设置项目开工通知单流程需要显示的字段
+     * @param detail
+     * @param detailJson
+     */
+    private void setUpXiangMuKaiGongTongZhiDanDetailFields(OldOAToDoDetail detail, Map<String, Object> detailJson) {
+        Object titleObj = detailJson.get("workflowTitle");
+        Object serialObj = detailJson.get("lsh");
+        Object projectObj = detailJson.get("xiangmumingcheng");
+        Object noObj = detailJson.get("xiangmubianhao");
+        Object contractTitleObj = detailJson.get("hetongbiaoti");
+        Object contractNoObj = detailJson.get("hetongbianhao");
+        Object natureObj = detailJson.get("jianshexingzhi");
+        Object customerObj = detailJson.get("jianshedanweimc");
+        Object contactObj = detailJson.get("jianshedanwei_lxrmc");
+        Object phoneObj = detailJson.get("jianshedanwei_lxdh");
+        Object contractObj = detailJson.get("hetong_weituoshu");
+        Object approvalObj = detailJson.get("lixiang_lxr");
+        Object startObj = detailJson.get("kaigongriqi");
+        Object endObj = detailJson.get("beian_jfrq");
+        Object deptObj = detailJson.get("guishubumen");
+        Object requieObj = detailJson.get("xiangguanyaoqiu");
+
+        //1.流程标题
+        OldOaDetailField titleField = new OldOaDetailField();
+        titleField.setFieldName("流程标题");
+        titleField.setFieldValue(titleObj!=null?(String)titleObj:"");
+        detail.getFields().add(titleField);
+        //2.流水号
+        OldOaDetailField serialField = new OldOaDetailField();
+        serialField.setFieldName("流水号");
+        serialField.setFieldValue(serialObj!=null?(String)serialObj:"");
+        detail.getFields().add(serialField);
+        //3.项目名称
+        OldOaDetailField projectField = new OldOaDetailField();
+        projectField.setFieldName("项目名称");
+        projectField.setFieldValue(projectObj!=null?(String)projectObj:"");
+        detail.getFields().add(projectField);
+        //4.项目编号
+        OldOaDetailField noField = new OldOaDetailField();
+        noField.setFieldName("项目编号");
+        noField.setFieldValue(noObj!=null?(String)noObj:"");
+        detail.getFields().add(noField);
+        //5.合同标题
+        OldOaDetailField contractTitleField = new OldOaDetailField();
+        contractTitleField.setFieldName("合同标题");
+        contractTitleField.setFieldValue(contractTitleObj!=null?(String)contractTitleObj:"");
+        detail.getFields().add(contractTitleField);
+        //6.合同编号
+        OldOaDetailField contractNoField = new OldOaDetailField();
+        contractNoField.setFieldName("合同编号");
+        contractNoField.setFieldValue(contractNoObj!=null?(String)contractNoObj:"");
+        detail.getFields().add(contractNoField);
+        //7.建设性质
+        OldOaDetailField natureField = new OldOaDetailField();
+        natureField.setFieldName("建设性质");
+        natureField.setFieldValue(natureObj!=null?(String)natureObj:"");
+        detail.getFields().add(natureField);
+        //8.建设单位(客户)
+        OldOaDetailField customerField = new OldOaDetailField();
+        customerField.setFieldName("建设单位(客户)");
+        customerField.setFieldValue(customerObj!=null?(String)customerObj:"");
+        detail.getFields().add(customerField);
+        //9.建设单位联系人
+        OldOaDetailField contactField = new OldOaDetailField();
+        contactField.setFieldName("建设单位联系人");
+        contactField.setFieldValue(contactObj!=null?(String)contactObj:"");
+        detail.getFields().add(contactField);
+        //10.联系电话
+        OldOaDetailField phoneField = new OldOaDetailField();
+        phoneField.setFieldName("联系电话");
+        phoneField.setFieldValue(phoneObj!=null?(String)phoneObj:"");
+        detail.getFields().add(phoneField);
+        //11.合同或委托书
+        OldOaDetailField contractField = new OldOaDetailField();
+        contractField.setFieldName("合同或委托书");
+        contractField.setFieldValue(contractObj!=null?(String)contractObj:"");
+        detail.getFields().add(contractField);
+        //12.立项联系人
+        OldOaDetailField approvalField = new OldOaDetailField();
+        approvalField.setFieldName("立项联系人");
+        approvalField.setFieldValue(approvalObj!=null?(String)approvalObj:"");
+        detail.getFields().add(approvalField);
+        //9.开工日期
+        OldOaDetailField startField = new OldOaDetailField();
+        startField.setFieldName("开工日期");
+        startField.setFieldValue(startObj!=null?(String)startObj:"");
+        detail.getFields().add(startField);
+        //10.备案/交付日期
+        OldOaDetailField endField = new OldOaDetailField();
+        endField.setFieldName("备案/交付日期");
+        endField.setFieldValue(endObj!=null?(String)endObj:"");
+        detail.getFields().add(endField);
+        //11.归属部门
+        OldOaDetailField deptField = new OldOaDetailField();
+        deptField.setFieldName("归属部门");
+        deptField.setFieldValue(deptObj!=null?(String)deptObj:"");
+        detail.getFields().add(deptField);
+        //12.相关要求
+        OldOaDetailField requieField = new OldOaDetailField();
+        requieField.setFieldName("相关要求");
+        requieField.setFieldValue(requieObj!=null?(String)requieObj:"");
+        detail.getFields().add(requieField);
+    }
+
+    /**
+     * 设置项目开工通知单变更需要显示的字段
+     * @param detail
+     * @param detailJson
+     */
+    private void setUpXiangMuKaiGongTongZhiDanBianGengDetailFields(OldOAToDoDetail detail, Map<String, Object> detailJson) {
+        Object titleObj = detailJson.get("workflowTitle");
+        Object serialObj = detailJson.get("lsh");
+        Object projectObj = detailJson.get("xiangmumingcheng");
+        Object noObj = detailJson.get("xiangmubianhao");
+        Object contractTitleObj = detailJson.get("hetongbiaoti");
+        Object contractNoObj = detailJson.get("hetongbianhao");
+        Object natureObj = detailJson.get("jianshexingzhi");
+        Object customerObj = detailJson.get("jianshedanweimc");
+        Object contactObj = detailJson.get("jianshedanwei_lxrmc");
+        Object phoneObj = detailJson.get("jianshedanwei_lxdh");
+        Object contractObj = detailJson.get("hetong_weituoshu");
+        Object approvalObj = detailJson.get("lixiang_lxr");
+        Object startObj = detailJson.get("kaigongriqi");
+        Object endObj = detailJson.get("beian_jfrq");
+        Object deptObj = detailJson.get("guishubumen");
+        Object requieObj = detailJson.get("xiangguanyaoqiu");
+        Object remarkObj = detailJson.get("biangengshuoming");
+
+        //1.流程标题
+        OldOaDetailField titleField = new OldOaDetailField();
+        titleField.setFieldName("流程标题");
+        titleField.setFieldValue(titleObj!=null?(String)titleObj:"");
+        detail.getFields().add(titleField);
+        //2.流水号
+        OldOaDetailField serialField = new OldOaDetailField();
+        serialField.setFieldName("流水号");
+        serialField.setFieldValue(serialObj!=null?(String)serialObj:"");
+        detail.getFields().add(serialField);
+        //3.项目名称
+        OldOaDetailField projectField = new OldOaDetailField();
+        projectField.setFieldName("项目名称");
+        projectField.setFieldValue(projectObj!=null?(String)projectObj:"");
+        detail.getFields().add(projectField);
+        //4.项目编号
+        OldOaDetailField noField = new OldOaDetailField();
+        noField.setFieldName("项目编号");
+        noField.setFieldValue(noObj!=null?(String)noObj:"");
+        detail.getFields().add(noField);
+        //5.合同标题
+        OldOaDetailField contractTitleField = new OldOaDetailField();
+        contractTitleField.setFieldName("合同标题");
+        contractTitleField.setFieldValue(contractTitleObj!=null?(String)contractTitleObj:"");
+        detail.getFields().add(contractTitleField);
+        //6.合同编号
+        OldOaDetailField contractNoField = new OldOaDetailField();
+        contractNoField.setFieldName("合同编号");
+        contractNoField.setFieldValue(contractNoObj!=null?(String)contractNoObj:"");
+        detail.getFields().add(contractNoField);
+        //7.建设性质
+        OldOaDetailField natureField = new OldOaDetailField();
+        natureField.setFieldName("建设性质");
+        natureField.setFieldValue(natureObj!=null?(String)natureObj:"");
+        detail.getFields().add(natureField);
+        //8.建设单位(客户)
+        OldOaDetailField customerField = new OldOaDetailField();
+        customerField.setFieldName("建设单位(客户)");
+        customerField.setFieldValue(customerObj!=null?(String)customerObj:"");
+        detail.getFields().add(customerField);
+        //9.建设单位联系人
+        OldOaDetailField contactField = new OldOaDetailField();
+        contactField.setFieldName("建设单位联系人");
+        contactField.setFieldValue(contactObj!=null?(String)contactObj:"");
+        detail.getFields().add(contactField);
+        //10.联系电话
+        OldOaDetailField phoneField = new OldOaDetailField();
+        phoneField.setFieldName("联系电话");
+        phoneField.setFieldValue(phoneObj!=null?(String)phoneObj:"");
+        detail.getFields().add(phoneField);
+        //11.合同或委托书
+        OldOaDetailField contractField = new OldOaDetailField();
+        contractField.setFieldName("合同或委托书");
+        contractField.setFieldValue(contractObj!=null?(String)contractObj:"");
+        detail.getFields().add(contractField);
+        //12.立项联系人
+        OldOaDetailField approvalField = new OldOaDetailField();
+        approvalField.setFieldName("立项联系人");
+        approvalField.setFieldValue(approvalObj!=null?(String)approvalObj:"");
+        detail.getFields().add(approvalField);
+        //13.开工日期
+        OldOaDetailField startField = new OldOaDetailField();
+        startField.setFieldName("开工日期");
+        startField.setFieldValue(startObj!=null?(String)startObj:"");
+        detail.getFields().add(startField);
+        //14.备案/交付日期
+        OldOaDetailField endField = new OldOaDetailField();
+        endField.setFieldName("备案/交付日期");
+        endField.setFieldValue(endObj!=null?(String)endObj:"");
+        detail.getFields().add(endField);
+        //15.归属部门
+        OldOaDetailField deptField = new OldOaDetailField();
+        deptField.setFieldName("归属部门");
+        deptField.setFieldValue(deptObj!=null?(String)deptObj:"");
+        detail.getFields().add(deptField);
+        //16.相关要求
+        OldOaDetailField requieField = new OldOaDetailField();
+        requieField.setFieldName("相关要求");
+        requieField.setFieldValue(requieObj!=null?(String)requieObj:"");
+        detail.getFields().add(requieField);
+        //17.变更说明
+        OldOaDetailField remarkField = new OldOaDetailField();
+        remarkField.setFieldName("变更说明");
+        remarkField.setFieldValue(remarkObj!=null?(String)remarkObj:"");
+        detail.getFields().add(remarkField);
+    }
+
+    /**
+     * 设置合同会签申请需要展示的字段
+     * @param detail
+     * @param detailJson
+     */
+    private void setUpHeTongHuiQianShenQingDetailFields(OldOAToDoDetail detail, Map<String, Object> detailJson) {
+        Object titleObj = detailJson.get("workflowTitle");
+        Object contractTitleObj = detailJson.get("hetongbiaoti");
+        Object contractNoObj = detailJson.get("hetongbianhao");
+        Object connectObj = detailJson.get("guanlianhetong");
+        Object customerObj = detailJson.get("khmc");
+        Object applyDateObj = detailJson.get("chuangjianriqi");
+        Object receiveObj = detailJson.get("shouruleixing");
+        Object buzDeptObj = detailJson.get("yewubumen");
+        Object amountObj = detailJson.get("chengjiaojine");
+        Object industryObj = detailJson.get("suoshuhangye");
+        Object ownerTypeObj = detailJson.get("yezhuleixing");
+        Object peopleObj = detailJson.get("guishuren");
+        Object deptObj = detailJson.get("hetongcbbm");
+        Object natureObj = detailJson.get("hetongxingzhi");
+        Object contentObj = detailJson.get("yezhuxuqiu");
+
+        //1.流程标题
+        OldOaDetailField titleField = new OldOaDetailField();
+        titleField.setFieldName("流程标题");
+        titleField.setFieldValue(titleObj!=null?(String)titleObj:"");
+        detail.getFields().add(titleField);
+        //2.合同名称
+        OldOaDetailField contractTitleField = new OldOaDetailField();
+        contractTitleField.setFieldName("合同名称");
+        contractTitleField.setFieldValue(contractTitleObj!=null?(String)contractTitleObj:"");
+        detail.getFields().add(contractTitleField);
+        //3.合同编号
+        OldOaDetailField contractNoField = new OldOaDetailField();
+        contractNoField.setFieldName("合同编号");
+        contractNoField.setFieldValue(contractNoObj!=null?(String)contractNoObj:"");
+        detail.getFields().add(contractNoField);
+        //4.关联合同
+        OldOaDetailField connectField = new OldOaDetailField();
+        connectField.setFieldName("关联合同");
+        connectField.setFieldValue(connectObj!=null?(String)connectObj:"");
+        detail.getFields().add(connectField);
+        //5.客户
+        OldOaDetailField customerField = new OldOaDetailField();
+        customerField.setFieldName("客户");
+        customerField.setFieldValue(customerObj!=null?(String)customerObj:"");
+        detail.getFields().add(customerField);
+        //6.申请日期
+        OldOaDetailField applyDateField = new OldOaDetailField();
+        applyDateField.setFieldName("申请日期");
+        applyDateField.setFieldValue(applyDateObj!=null?(String)applyDateObj:"");
+        detail.getFields().add(applyDateField);
+        //7.回款方式
+        OldOaDetailField receiveField = new OldOaDetailField();
+        receiveField.setFieldName("回款方式");
+        receiveField.setFieldValue(receiveObj!=null?(String)receiveObj:"");
+        detail.getFields().add(receiveField);
+        //8.业务部门
+        OldOaDetailField buzDeptField = new OldOaDetailField();
+        buzDeptField.setFieldName("业务部门");
+        buzDeptField.setFieldValue(buzDeptObj!=null?(String)buzDeptObj:"");
+        detail.getFields().add(buzDeptField);
+        //9.合同金额(万元)
+        OldOaDetailField amountField = new OldOaDetailField();
+        amountField.setFieldName("合同金额(万元)");
+        amountField.setFieldValue(amountObj!=null?(String)amountObj:"");
+        detail.getFields().add(amountField);
+        //10.所属行业
+        OldOaDetailField industryField = new OldOaDetailField();
+        industryField.setFieldName("所属行业");
+        industryField.setFieldValue(industryObj!=null?(String)industryObj:"");
+        detail.getFields().add(industryField);
+        //11.业主类型
+        OldOaDetailField ownerTypeField = new OldOaDetailField();
+        ownerTypeField.setFieldName("业主类型");
+        ownerTypeField.setFieldValue(ownerTypeObj!=null?(String)ownerTypeObj:"");
+        detail.getFields().add(ownerTypeField);
+        //12.合同经办人
+        OldOaDetailField peopleField = new OldOaDetailField();
+        peopleField.setFieldName("合同经办人");
+        peopleField.setFieldValue(peopleObj!=null?(String)peopleObj:"");
+        detail.getFields().add(peopleField);
+        //13.合同承办部门
+        OldOaDetailField deptField = new OldOaDetailField();
+        deptField.setFieldName("合同承办部门");
+        deptField.setFieldValue(deptObj!=null?(String)deptObj:"");
+        detail.getFields().add(deptField);
+        //14.合同性质
+        OldOaDetailField natureField = new OldOaDetailField();
+        natureField.setFieldName("合同性质");
+        natureField.setFieldValue(natureObj!=null?(String)natureObj:"");
+        detail.getFields().add(natureField);
+        //15.合同主要内容
+        OldOaDetailField contentField = new OldOaDetailField();
+        contentField.setFieldName("合同主要内容");
+        contentField.setFieldValue(contentObj!=null?(String)contentObj:"");
+        detail.getFields().add(contentField);
+    }
+
+    /**
+     * 设置合同变更申请需要展示的字段
+     * @param detail
+     * @param detailJson
+     */
+    private void setUpHeTongBianGengShenQingDeailFields(OldOAToDoDetail detail, Map<String, Object> detailJson) {
+        setUpHeTongHuiQianShenQingDetailFields(detail, detailJson);
+    }
+
+    /**
+     * 设置项目风险分析需要展示的字段
+     * @param detail
+     * @param detailJson
+     */
+    private void setUpXiangMuFengXianFenXiDetailFields(OldOAToDoDetail detail, Map<String, Object> detailJson) {
+        Object serialObj = detailJson.get("lsh");
+        Object projectObj = detailJson.get("xmfx_xiangmumingcheng");
+        Object scaleObj = detailJson.get("gongchengguimo");
+        Object customerObj = detailJson.get("khmc");
+        Object surveyObj = detailJson.get("xiangmugaikuang");
+        Object riskObj = detailJson.get("zyfx_cpyqps");
+        Object resultObj = detailJson.get("fx_psjg");
+
+        //1.流水号
+        OldOaDetailField serialField = new OldOaDetailField();
+        serialField.setFieldName("流水号");
+        serialField.setFieldValue(serialObj!=null?(String)serialObj:"");
+        detail.getFields().add(serialField);
+        //2.项目名称
+        OldOaDetailField projectField = new OldOaDetailField();
+        projectField.setFieldName("项目名称");
+        projectField.setFieldValue(projectObj!=null?(String)projectObj:"");
+        detail.getFields().add(projectField);
+        //3.工程规模
+        OldOaDetailField scaleField = new OldOaDetailField();
+        scaleField.setFieldName("工程规模");
+        scaleField.setFieldValue(scaleObj!=null?(String)scaleObj:"");
+        detail.getFields().add(scaleField);
+        //4.客户
+        OldOaDetailField customerField = new OldOaDetailField();
+        customerField.setFieldName("客户");
+        customerField.setFieldValue(customerObj!=null?(String)customerObj:"");
+        detail.getFields().add(customerField);
+        //5.项目概况
+        OldOaDetailField surveyField = new OldOaDetailField();
+        surveyField.setFieldName("项目概况");
+        surveyField.setFieldValue(surveyObj!=null?(String)surveyObj:"");
+        detail.getFields().add(surveyField);
+        //6.主要风险分析 产品要求评审
+        OldOaDetailField riskField = new OldOaDetailField();
+        riskField.setFieldName("主要风险分析 产品要求评审");
+        riskField.setFieldValue(riskObj!=null?(String)riskObj:"");
+        detail.getFields().add(riskField);
+        //7.分析/评审结果
+        OldOaDetailField resultField = new OldOaDetailField();
+        resultField.setFieldName("分析/评审结果");
+        resultField.setFieldValue(resultObj!=null?(String)resultObj:"");
+        detail.getFields().add(resultField);
+    }
+
+    /**
+     * 设置新闻中心流程需要显示的字段
+     * @param detail
+     * @param detailJson
+     */
+    private void setUpXinWenZhongXinDetailFields(OldOAToDoDetail detail, Map<String, Object> detailJson) {
+        Object applyObj = detailJson.get("djr");
+        Object typeObj = detailJson.get("messageType");
+        Object typeNameObj = detailJson.get("moduleTypeName");
+        Object titleObj = detailJson.get("messageTitle");
+        Object deptObj = detailJson.get("");
+        Object dateObj = detailJson.get("publishDateTime");
+        Object contentObj = detailJson.get("zwmc");
+
+        //1.申请人
+        OldOaDetailField applyField = new OldOaDetailField();
+        applyField.setFieldName("申请人");
+        applyField.setFieldValue(applyObj!=null?(String)applyObj:"");
+        detail.getFields().add(applyField);
+        //2.信息类型
+        StringBuilder messageContent = new StringBuilder();
+        messageContent.append(typeNameObj!=null?(String)typeNameObj:"").append(typeObj!=null?(String)typeObj:"");
+        OldOaDetailField typeField = new OldOaDetailField();
+        typeField.setFieldName("信息类型");
+        typeField.setFieldValue(messageContent.toString());
+        detail.getFields().add(typeField);
+        //3.标题
+        OldOaDetailField titleField = new OldOaDetailField();
+        titleField.setFieldName("标题");
+        titleField.setFieldValue(titleObj!=null?(String)titleObj:"");
+        detail.getFields().add(titleField);
+        //4.查看部门
+        OldOaDetailField deptField = new OldOaDetailField();
+        deptField.setFieldName("查看部门");
+        deptField.setFieldValue(deptObj!=null?(String)deptObj:"");
+        detail.getFields().add(deptField);
+        //5.发布日期
+        OldOaDetailField dateField = new OldOaDetailField();
+        dateField.setFieldName("发布日期");
+        dateField.setFieldValue(dateObj!=null?(String)dateObj:"");
+        detail.getFields().add(dateField);
+        //6.发布内容
+        OldOaDetailField contentField = new OldOaDetailField();
+        contentField.setFieldName("发布内容");
+        contentField.setFieldValue(contentObj!=null?(String)contentObj:"");
+        detail.getFields().add(contentField);
+    }
+
+    /**
+     * 设置请示办理流程需要显示的字段
+     * @param detail
+     * @param detailJson
+     */
+    private void setUpQingShiBanLiDetailFields(OldOAToDoDetail detail, Map<String, Object> detailJson) {
+        Object applyObj = detailJson.get("djr");
+        Object typeObj = detailJson.get("askType");
+        Object titleObj = detailJson.get("askTitle");
+        Object contentObj = detailJson.get("fileName");
+
+        //1.申请人
+        OldOaDetailField applyField = new OldOaDetailField();
+        applyField.setFieldName("申请人");
+        applyField.setFieldValue(applyObj!=null?(String)applyObj:"");
+        detail.getFields().add(applyField);
+        //2.请示类型
+        OldOaDetailField typeField = new OldOaDetailField();
+        typeField.setFieldName("请示类型");
+        typeField.setFieldValue(typeObj!=null?(String)typeObj:"");
+        detail.getFields().add(typeField);
+        //3.请示标题
+        OldOaDetailField titleField = new OldOaDetailField();
+        titleField.setFieldName("请示标题");
+        titleField.setFieldValue(titleObj!=null?(String)titleObj:"");
+        detail.getFields().add(titleField);
+        //4.请示正文
+        OldOaDetailField contentField = new OldOaDetailField();
+        contentField.setFieldName("请示正文");
+        contentField.setFieldValue(contentObj!=null?(String)contentObj:"");
+        detail.getFields().add(contentField);
+    }
+
+    /**
+     * 设置收文办理流程需要显示的字段
+     * @param detail
+     * @param detailJson
+     */
+    private void setUpShouWenBanLiDetailFields(OldOAToDoDetail detail, Map<String, Object> detailJson) {
+        Object applyObj = detailJson.get("djr");
+        Object typeObj = detailJson.get("acceptType");
+        Object titleObj = detailJson.get("acceptTitle");
+        Object noObj = detailJson.get("acceptNO");
+        Object dateObj = detailJson.get("acceptDate");
+        Object fromObj = detailJson.get("acceptFrom");
+        Object keyObj = detailJson.get("acceptKey");
+        Object contentObj = detailJson.get("zwmc");
+
+        //1.申请人
+        OldOaDetailField applyField = new OldOaDetailField();
+        applyField.setFieldName("申请人");
+        applyField.setFieldValue(applyObj!=null?(String)applyObj:"");
+        detail.getFields().add(applyField);
+        //2.收文类型
+        OldOaDetailField typeField = new OldOaDetailField();
+        typeField.setFieldName("收文类型");
+        typeField.setFieldValue(typeObj!=null?(String)typeObj:"");
+        detail.getFields().add(typeField);
+        //3.来文标题
+        OldOaDetailField titleField = new OldOaDetailField();
+        titleField.setFieldName("来文标题");
+        titleField.setFieldValue(titleObj!=null?(String)titleObj:"");
+        detail.getFields().add(titleField);
+        //4.收文编号
+        OldOaDetailField noField = new OldOaDetailField();
+        noField.setFieldName("收文编号");
+        noField.setFieldValue(noObj!=null?(String)noObj:"");
+        detail.getFields().add(noField);
+        //5.收文日期
+        OldOaDetailField dateField = new OldOaDetailField();
+        dateField.setFieldName("收文日期");
+        dateField.setFieldValue(dateObj!=null?(String)dateObj:"");
+        detail.getFields().add(dateField);
+        //6.来文单位
+        OldOaDetailField fromField = new OldOaDetailField();
+        fromField.setFieldName("来文单位");
+        fromField.setFieldValue(fromObj!=null?(String)fromObj:"");
+        detail.getFields().add(fromField);
+        //7.关键词
+        OldOaDetailField keyField = new OldOaDetailField();
+        keyField.setFieldName("关键词");
+        keyField.setFieldValue(keyObj!=null?(String)keyObj:"");
+        detail.getFields().add(keyField);
+        //8.正文名称
+        OldOaDetailField contentField = new OldOaDetailField();
+        contentField.setFieldName("正文名称");
+        contentField.setFieldValue(contentObj!=null?(String)contentObj:"");
+        detail.getFields().add(contentField);
+    }
+
+    /**
+     * 设置发文办理流程需要展示的字段
+     * @param detail
+     * @param detailJson
+     */
+    private void setUpFaWenBanLiDetailFields(OldOAToDoDetail detail, Map<String, Object> detailJson) {
+        Object applyObj = detailJson.get("djr");
+        Object typeObj = detailJson.get("fwlx");
+        Object titleObj = detailJson.get("sendTitle");
+        Object toObj = detailJson.get("sendZsdw");
+        Object keyObj = detailJson.get("sendKey");
+        Object fromObj = detailJson.get("sendfwbm");
+        Object dateObj = detailJson.get("subDate");
+        Object contentObj = detailJson.get("zwmc");
+
+        //1.申请人
+        OldOaDetailField applyField = new OldOaDetailField();
+        applyField.setFieldName("申请人");
+        applyField.setFieldValue(applyObj!=null?(String)applyObj:"");
+        detail.getFields().add(applyField);
+        //2.发文类型
+        OldOaDetailField typeField = new OldOaDetailField();
+        typeField.setFieldName("发文类型");
+        typeField.setFieldValue(typeObj!=null?(String)typeObj:"");
+        detail.getFields().add(typeField);
+        //3.发文标题
+        OldOaDetailField titleField = new OldOaDetailField();
+        titleField.setFieldName("发文标题");
+        titleField.setFieldValue(titleObj!=null?(String)titleObj:"");
+        detail.getFields().add(titleField);
+        //4.主送单位
+        OldOaDetailField toField = new OldOaDetailField();
+        toField.setFieldName("主送单位");
+        toField.setFieldValue(toObj!=null?(String)toObj:"");
+        detail.getFields().add(toField);
+        //5.关键词
+        OldOaDetailField keyField = new OldOaDetailField();
+        keyField.setFieldName("关键词");
+        keyField.setFieldValue(keyObj!=null?(String)keyObj:"");
+        detail.getFields().add(keyField);
+        //6.发文部门
+        OldOaDetailField fromField = new OldOaDetailField();
+        fromField.setFieldName("发文部门");
+        fromField.setFieldValue(fromObj!=null?(String)fromObj:"");
+        detail.getFields().add(fromField);
+        //7.发文日期
+        OldOaDetailField dateField = new OldOaDetailField();
+        dateField.setFieldName("发文日期");
+        dateField.setFieldValue(dateObj!=null?(String)dateObj:"");
+        detail.getFields().add(dateField);
+        //8.正文名称
+        OldOaDetailField contentField = new OldOaDetailField();
+        contentField.setFieldName("正文名称");
+        contentField.setFieldValue(contentObj!=null?(String)contentObj:"");
+        detail.getFields().add(contentField);
     }
 }

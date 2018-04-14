@@ -112,9 +112,9 @@ public class HTTPUtil {
         HTTPResponse result = new HTTPResponse();
         StringBuilder log = new StringBuilder();
         log.append("============ 第三方接口访问日志 ============\n");
-        log.append("url: " + post.getURI());
-        log.append("headers: " + JSON.toJSONString(post.getAllHeaders()));
-        log.append("parameter: " + EntityUtils.toString(post.getEntity()));
+        log.append("url: " + post.getURI()).append("\n");
+        log.append("headers: " + JSON.toJSONString(post.getAllHeaders())).append("\n");
+        log.append("parameter: " + EntityUtils.toString(post.getEntity())).append("\n");
         CloseableHttpResponse response = client.execute(post);
         try {
             HttpEntity entity = response.getEntity();
@@ -122,8 +122,8 @@ public class HTTPUtil {
             result.setResult(EntityUtils.toString(entity));
             result.setCookies(cookieStore.getCookies());
             EntityUtils.consume(entity);
-            log.append("response: " + result.getResult());
-            log.append("====================================");
+            log.append("response: " + result.getResult()).append("\n");
+            log.append("====================================").append("\n");
             logger.info(log);
         } finally {
             response.close();
