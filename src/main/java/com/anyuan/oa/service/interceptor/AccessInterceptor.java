@@ -45,7 +45,7 @@ public class AccessInterceptor implements HandlerInterceptor {
             return true;
         } else {
             //验证不通过则返回无权限页面
-            httpServletResponse.sendRedirect("/web-service/access/noPermission");
+            httpServletResponse.sendRedirect("https://weixin.anyuanhb.com/web-service/access/noPermission");
             return false;
         }
     }
