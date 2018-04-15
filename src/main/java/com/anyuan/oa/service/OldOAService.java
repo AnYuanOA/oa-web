@@ -97,7 +97,7 @@ public class OldOAService {
         Map<String, Object> param = new HashMap<String, Object>();
         param.put("CurrentPage", currentPage);
         param.put("Obj_Title", "");
-        param.put("PageSize", 100);
+        param.put("PageSize", 10);
         param.put("lastTime", "");
         param.put("setload", 0);
         Map<String, String> headers = HTTPUtil.getAuthHeaders(token);
