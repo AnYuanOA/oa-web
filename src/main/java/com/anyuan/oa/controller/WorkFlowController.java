@@ -271,6 +271,32 @@ public class WorkFlowController extends BaseController{
         }
     }
 
+    @RequestMapping("/getStartAcceptUserList")
+    @ResponseBody
+    public Map<String, Object> getStartAcceptUserList(String buttonId,
+                                                 String workflowName,
+                                                 String currentStepId,
+                                                 String flowVersion,
+                                                 String appID,
+                                                 HttpServletRequest request) throws IOException {
+        if(buttonId!=null && workflowName!=null){
+            OldServiceResponse<OldOAToDoStepInfo> response = oldOAService.getStartAcceptUserList(
+                    SessionHelper.getInstance().getAccessToken(request),
+                    buttonId,
+                    workflowName,
+                    currentStepId,
+                    flowVersion,
+                    appID);
+            if(response.isSuccess()){
+                return coverSuccessData(response.getData());
+            }else {
+                return coverErrorMessage(response.getError_description());
+            }
+        }else {
+            return coverErrorMessage(ConstantUtil.REQUEST_PARAM_ERROR);
+        }
+    }
+
     /**
      * 获取流程步骤
      * @param buttonId
