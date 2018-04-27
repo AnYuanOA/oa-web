@@ -73,7 +73,7 @@ public class FileController implements InitializingBean {
 
     @Override
     public void afterPropertiesSet() throws Exception {
-        String uploadDir = PropertiesLoaderUtils.loadAllProperties("jdbc.properties").getProperty("upload.dir");
+        String uploadDir = PropertiesLoaderUtils.loadAllProperties("server.properties").getProperty("upload.dir");
         Assert.notNull(uploadDir);
         File file = new File(uploadDir);
         if (!file.exists()) {

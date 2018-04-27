@@ -4,22 +4,27 @@ package com.anyuan.oa.utils;
  * Created by pengkan on 2018/2/7.
  */
 public class OldServiceConstant {
+
+    private static final String URL = ServerConstant.OLD_AY_HOST;
     /**
      * 基础URL
      */
-    private static final String BASE_URL = "http://101.37.171.186/bapi/api";
+    private static final String BASE_URL = URL + "/bapi/api";
     /**
      * OA基础API
      */
-    private static final String OA_BASE_URL = "http://101.37.171.186/oapi/api";
+    private static final String OA_BASE_URL = URL + "/oapi/api";
     /**
      * 基础业务URL
      */
-    private static final String BASE_URL_BUZAPI = "http://101.37.171.186/aymapi/api";
+    private static final String BASE_URL_BUZAPI = URL + "/aymapi/api";
+
+
+
     /**
      * 登录URI
      */
-    private static final String TOKEN_URI = "http://101.37.171.186/bapi/Token";
+    private static final String TOKEN_URI = URL + "/bapi/Token";
     /**
      * 待办列表URI
      */

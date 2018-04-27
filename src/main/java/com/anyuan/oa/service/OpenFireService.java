@@ -1,6 +1,7 @@
 package com.anyuan.oa.service;
 
 import com.anyuan.oa.model.User;
+import com.anyuan.oa.utils.ServerConstant;
 import org.igniterealtime.restclient.RestApiClient;
 import org.igniterealtime.restclient.entity.*;
 import org.springframework.stereotype.Component;
@@ -14,12 +15,15 @@ import java.util.List;
 @Component("openFireService")
 public class OpenFireService {
 
-    private static final String HOST = "http://101.37.171.186";
+    private static final String HOST = ServerConstant.OPEN_FIRE_HOST;
 
-    private static final int PORT = 9090;
+    private static final int PORT = Integer.parseInt(ServerConstant.OPEN_FIRE_HOST_PORT);
 
     private static final String TOKEN = "37704lBBUy127ALX";
 
+    static {
+
+    }
 
     /**
      * 创建openfire通讯用户或修改用户信息
