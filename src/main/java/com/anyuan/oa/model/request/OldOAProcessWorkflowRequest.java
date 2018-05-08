@@ -45,6 +45,8 @@ public class OldOAProcessWorkflowRequest {
 
     private String targetStepID;
 
+    private String appContent;//审批意见
+
     public String getOaSPYJ() {
         return oaSPYJ;
     }
@@ -131,5 +133,13 @@ public class OldOAProcessWorkflowRequest {
 
     public void setTargetStepID(String targetStepID) {
         this.targetStepID = targetStepID;
+    }
+
+    public String getAppContent() {
+        return appContent;
+    }
+
+    public void setAppContent(String appContent) {
+        this.appContent = appContent;
     }
 }
