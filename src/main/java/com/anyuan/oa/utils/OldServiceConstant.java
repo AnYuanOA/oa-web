@@ -6,6 +6,9 @@ package com.anyuan.oa.utils;
 public class OldServiceConstant {
 
     private static final String URL = ServerConstant.OLD_AY_HOST;
+
+    private static final String AYXZ_URL=ServerConstant.AYXZ_HOST;
+
     /**
      * 基础URL
      */
@@ -268,4 +271,29 @@ public class OldServiceConstant {
      * 发文办理
      */
     public static final String WORKFLOW_FAWEN_URL = BASE_URL + "/GWC6SendDoc/Detail";
+
+    /**
+     * 年度计划
+     */
+    public static final String AYXZ_YEAR_PLAN_URL=AYXZ_URL+"/ayxz/dorado/yearPlan";
+
+    /**
+     * 月计划
+     */
+    public static final String AYXZ_MONTH_PLAN_URL=AYXZ_URL+"/ayxz/dorado/monthPlan";
+
+    /**
+     * 周计划
+     */
+    public static final String AYXZ_WEEK_PLAN_URL=AYXZ_URL+"/ayxz/dorado/weekPlan";
+
+    /**
+     * 个人工作
+     */
+    public static final String AYXZ_SELF_PLAN_URL=AYXZ_URL+"/ayxz/dorado/grPlan";
+
+    /**
+     * ayxz转化数据接口url
+     */
+    public static final String AYXZ_CONVER_URL=AYXZ_URL+"/ayxz/dorado/getData";
 }

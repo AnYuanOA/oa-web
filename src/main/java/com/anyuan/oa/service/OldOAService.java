@@ -8,10 +8,7 @@ import com.anyuan.oa.model.request.OldOALeaveRequest;
 import com.anyuan.oa.model.request.OldOAProcessWorkflowRequest;
 import com.anyuan.oa.model.request.OldOAUsCarRequest;
 import com.anyuan.oa.model.response.*;
-import com.anyuan.oa.utils.ConstantUtil;
-import com.anyuan.oa.utils.HTTPUtil;
-import com.anyuan.oa.utils.OldServiceConstant;
-import com.anyuan.oa.utils.WorkflowName;
+import com.anyuan.oa.utils.*;
 import com.anyuan.oa.utils.thread.HTTPTask;
 import com.anyuan.oa.utils.thread.HTTPTaskCallback;
 import com.sun.org.apache.xpath.internal.operations.Bool;
@@ -20,6 +17,7 @@ import org.springframework.stereotype.Component;
 
 import javax.annotation.Resource;
 import java.io.IOException;
+import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -2379,4 +2377,102 @@ public class OldOAService {
         contentField.setFieldValue(contentObj);
         detail.getFields().add(contentField);
     }
+
+    /**
+     * 获取年度计划查询信息
+     * @param empNo 工号
+     * @param year 年度
+     * @param pageNo 第几页
+     * @param pageSize 每页多少条数据
+     * @return
+     * @throws Exception
+     */
+    public Map<String, Object> getAYXZ_yearPlan(String empNo,String year,int pageNo,int pageSize) throws Exception{
+        String service_url=OldServiceConstant.AYXZ_YEAR_PLAN_URL+"/"+empNo+"/"+year;
+        Map<String, Object> param = new HashMap<String, Object>();
+        param.put("pageNo",pageNo);
+        param.put("pageSize",pageSize);
+        String result=HttpClientUtil.httpGetRequest(service_url,param);
+        return JSON.parseObject(result,Map.class);
+    }
+
+    /**
+     * 获取月度计划查询信息
+     * @param empNo 工号
+     * @param year 年度
+     * @param month 月份
+     * @param pageNo
+     * @param pageSize
+     * @return
+     * @throws Exception
+     */
+    public Map<String,Object> getAYXZ_monthPlan(String empNo,String year,String month,int pageNo,int pageSize) throws Exception{
+        String service_url=OldServiceConstant.AYXZ_MONTH_PLAN_URL+"/"+empNo+"/"+year+"/"+month;
+        Map<String, Object> param = new HashMap<String, Object>();
+        param.put("pageNo",pageNo);
+        param.put("pageSize",pageSize);
+        String result=HttpClientUtil.httpGetRequest(service_url,param);
+        return JSON.parseObject(result,Map.class);
+    }
+
+    /**
+     * 获取周计划查询信息
+     * @param empNo 工号
+     * @param year 年度
+     * @param week 多少周
+     * @param pageNo
+     * @param pageSize
+     * @return
+     * @throws Exception
+     */
+    public Map<String,Object> getAYXZ_weekPlan(String empNo,String year,String week,int pageNo,int pageSize) throws Exception{
+        String service_url=OldServiceConstant.AYXZ_WEEK_PLAN_URL+"/"+empNo+"/"+year+"/"+week;
+        Map<String, Object> param = new HashMap<String, Object>();
+        param.put("pageNo",pageNo);
+        param.put("pageSize",pageSize);
+        String result=HttpClientUtil.httpGetRequest(service_url,param);
+        return JSON.parseObject(result,Map.class);
+    }
+
+    /**
+     * 获取个人工作信息
+     * @param empNo 工号
+     * @param pageNo
+     * @param pageSize
+     * @return
+     * @throws Exception
+     */
+    public Map<String,Object> getAYXZ_selfWork(String empNo,int pageNo,int pageSize) throws Exception{
+        String service_url=OldServiceConstant.AYXZ_SELF_PLAN_URL+"/"+empNo;
+        Map<String, Object> param = new HashMap<String, Object>();
+        param.put("pageNo",pageNo);
+        param.put("pageSize",pageSize);
+        String result=HttpClientUtil.httpGetRequest(service_url,param);
+        return JSON.parseObject(result,Map.class);
+    }
+
+    /**
+     * 获取ayxz转义集合
+     * @param type 待转义类型
+     * @return
+     * @throws Exception
+     */
+    public Map<String,Object> getAYXZ_conver(String type) throws Exception{
+        String service_url=OldServiceConstant.AYXZ_CONVER_URL+"/"+type;
+        String result=HttpClientUtil.httpGetRequest(service_url);
+        return JSON.parseObject(result,Map.class);
+    }
+//    public static void main(String[] args) {
+//        String service_url="http://101.37.171.186:8081/ayxz/dorado/yearPlan/admin/2018";
+//        Map<String, Object> param = new HashMap<String, Object>();
+//        param.put("pageNo",1);
+//        param.put("pageSize",10);
+//        try {
+//            String result=HttpClientUtil.httpGetRequest(service_url,param);
+//            Map map=JSON.parseObject(result,Map.class);
+//            System.out.print(map);
+//        } catch (URISyntaxException e) {
+//            e.printStackTrace();
+//        }
+//    }
 }

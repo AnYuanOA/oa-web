@@ -5,7 +5,9 @@ import com.anyuan.oa.dao.PlanMapper;
 import com.anyuan.oa.model.PlanCollect;
 import com.anyuan.oa.model.PlanDetail;
 import com.anyuan.oa.model.PlanMain;
+import com.anyuan.oa.service.OldOAService;
 import com.anyuan.oa.utils.ConstantUtil;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
@@ -24,6 +26,9 @@ public class PlanController extends BaseController {
 
     @Resource
     private PlanMapper planMapper;
+    @Autowired
+    private OldOAService oldOAService;
+
 
     /**
      * 计划汇总数据
@@ -116,6 +121,81 @@ public class PlanController extends BaseController {
                 }
             }
             return coverSuccessData(listMain);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return coverErrorMessage(ConstantUtil.RESPONSE_EXCEPTION);
+        }
+    }
+
+    /**
+     * ayxz年计划
+     * @return
+     */
+    @RequestMapping("/ayxzYearPlan")
+    @ResponseBody
+    public Map<String, Object> ayxzYearPlan(String empNo,String year,int pageNo,int pageSize) {
+        try {
+            return oldOAService.getAYXZ_yearPlan(empNo, year, pageNo, pageSize);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return coverErrorMessage(ConstantUtil.RESPONSE_EXCEPTION);
+        }
+    }
+
+    /**
+     * ayxz月计划
+     * @return
+     */
+    @RequestMapping("/ayxzMonthPlan")
+    @ResponseBody
+    public Map<String, Object> ayxzMonthPlan(String empNo,String year,String month,int pageNo,int pageSize) {
+        try {
+            return oldOAService.getAYXZ_monthPlan(empNo, year, month, pageNo, pageSize);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return coverErrorMessage(ConstantUtil.RESPONSE_EXCEPTION);
+        }
+    }
+
+    /**
+     * ayxz周计划
+     * @return
+     */
+    @RequestMapping("/ayxzMonthPlan")
+    @ResponseBody
+    public Map<String, Object> ayxzWeekPlan(String empNo,String year,String week,int pageNo,int pageSize) {
+        try {
+            return oldOAService.getAYXZ_weekPlan(empNo, year, week, pageNo, pageSize);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return coverErrorMessage(ConstantUtil.RESPONSE_EXCEPTION);
+        }
+    }
+
+    /**
+     * ayxz个人工作
+     * @return
+     */
+    @RequestMapping("/ayxzSelfWork")
+    @ResponseBody
+    public Map<String, Object> ayxzWeekPlan(String empNo,int pageNo,int pageSize) {
+        try {
+            return oldOAService.getAYXZ_selfWork(empNo, pageNo, pageSize);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return coverErrorMessage(ConstantUtil.RESPONSE_EXCEPTION);
+        }
+    }
+
+    /**
+     * ayxz转义数据
+     * @return
+     */
+    @RequestMapping("/ayxzConver")
+    @ResponseBody
+    public Map<String, Object> ayxzWeekPlan(String type) {
+        try {
+            return oldOAService.getAYXZ_conver(type);
         } catch (Exception e) {
             e.printStackTrace();
             return coverErrorMessage(ConstantUtil.RESPONSE_EXCEPTION);
