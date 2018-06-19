@@ -15,7 +15,7 @@ import javax.servlet.http.HttpSession;
 public class AccessInterceptor implements HandlerInterceptor {
     public boolean preHandle(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse, Object o) throws Exception {
         String url = httpServletRequest.getRequestURI();
-        if (url.contains("/login") || url.contains("/access")) {
+        if (url.contains("/login") || url.contains("/access")||url.contains("/plan")) {
             //如果是登录请求默认不拦截，直接走登录的controller进行登录处理
             //如果是无权限进行操作的，直接走无权限controller处理
             return true;

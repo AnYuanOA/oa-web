@@ -2,8 +2,11 @@ package com.anyuan.oa.service;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
+import com.alibaba.fastjson.JSONObject;
 import com.alibaba.fastjson.TypeReference;
+import com.anyuan.oa.model.DictionVO;
 import com.anyuan.oa.model.OldAccessToken;
+import com.anyuan.oa.model.plan.PlanVo;
 import com.anyuan.oa.model.request.OldOALeaveRequest;
 import com.anyuan.oa.model.request.OldOAProcessWorkflowRequest;
 import com.anyuan.oa.model.request.OldOAUsCarRequest;
@@ -14,6 +17,7 @@ import com.anyuan.oa.utils.thread.HTTPTaskCallback;
 import com.sun.org.apache.xpath.internal.operations.Bool;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.stereotype.Component;
+import org.springframework.util.ObjectUtils;
 
 import javax.annotation.Resource;
 import java.io.IOException;
@@ -2387,13 +2391,21 @@ public class OldOAService {
      * @return
      * @throws Exception
      */
-    public Map<String, Object> getAYXZ_yearPlan(String empNo,String year,int pageNo,int pageSize) throws Exception{
+    public List<PlanVo> getAYXZ_yearPlan(String empNo,String year,int pageNo,int pageSize) throws Exception{
+        List<PlanVo> list=null;
         String service_url=OldServiceConstant.AYXZ_YEAR_PLAN_URL+"/"+empNo+"/"+year;
         Map<String, Object> param = new HashMap<String, Object>();
         param.put("pageNo",pageNo);
         param.put("pageSize",pageSize);
         String result=HttpClientUtil.httpGetRequest(service_url,param);
-        return JSON.parseObject(result,Map.class);
+        JSONObject r1=JSONObject.parseObject(result);
+        if (r1 != null && !r1.isEmpty()) {
+            JSONArray array = (JSONArray) r1.get("data");
+            if (array != null && !array.isEmpty()) {
+                list = JSON.parseArray(array.toString(), PlanVo.class);
+            }
+        }
+        return list;
     }
 
     /**
@@ -2406,13 +2418,21 @@ public class OldOAService {
      * @return
      * @throws Exception
      */
-    public Map<String,Object> getAYXZ_monthPlan(String empNo,String year,String month,int pageNo,int pageSize) throws Exception{
+    public List<PlanVo> getAYXZ_monthPlan(String empNo,String year,String month,int pageNo,int pageSize) throws Exception{
+        List<PlanVo> list=null;
         String service_url=OldServiceConstant.AYXZ_MONTH_PLAN_URL+"/"+empNo+"/"+year+"/"+month;
         Map<String, Object> param = new HashMap<String, Object>();
         param.put("pageNo",pageNo);
         param.put("pageSize",pageSize);
         String result=HttpClientUtil.httpGetRequest(service_url,param);
-        return JSON.parseObject(result,Map.class);
+        JSONObject r1=JSONObject.parseObject(result);
+        if (r1 != null && !r1.isEmpty()) {
+            JSONArray array = (JSONArray) r1.get("data");
+            if (array != null && !array.isEmpty()) {
+                list = JSON.parseArray(array.toString(), PlanVo.class);
+            }
+        }
+        return list;
     }
 
     /**
@@ -2425,13 +2445,21 @@ public class OldOAService {
      * @return
      * @throws Exception
      */
-    public Map<String,Object> getAYXZ_weekPlan(String empNo,String year,String week,int pageNo,int pageSize) throws Exception{
+    public List<PlanVo> getAYXZ_weekPlan(String empNo,String year,String week,int pageNo,int pageSize) throws Exception{
+        List<PlanVo> list=null;
         String service_url=OldServiceConstant.AYXZ_WEEK_PLAN_URL+"/"+empNo+"/"+year+"/"+week;
         Map<String, Object> param = new HashMap<String, Object>();
         param.put("pageNo",pageNo);
         param.put("pageSize",pageSize);
         String result=HttpClientUtil.httpGetRequest(service_url,param);
-        return JSON.parseObject(result,Map.class);
+        JSONObject r1=JSONObject.parseObject(result);
+        if (r1 != null && !r1.isEmpty()) {
+            JSONArray array = (JSONArray) r1.get("data");
+            if (array != null && !array.isEmpty()) {
+                list = JSON.parseArray(array.toString(), PlanVo.class);
+            }
+        }
+        return list;
     }
 
     /**
@@ -2442,13 +2470,21 @@ public class OldOAService {
      * @return
      * @throws Exception
      */
-    public Map<String,Object> getAYXZ_selfWork(String empNo,int pageNo,int pageSize) throws Exception{
+    public List<PlanVo> getAYXZ_selfWork(String empNo,int pageNo,int pageSize) throws Exception{
+        List<PlanVo> list=null;
         String service_url=OldServiceConstant.AYXZ_SELF_PLAN_URL+"/"+empNo;
         Map<String, Object> param = new HashMap<String, Object>();
         param.put("pageNo",pageNo);
         param.put("pageSize",pageSize);
         String result=HttpClientUtil.httpGetRequest(service_url,param);
-        return JSON.parseObject(result,Map.class);
+        JSONObject r1=JSONObject.parseObject(result);
+        if (r1 != null && !r1.isEmpty()) {
+            JSONArray array = (JSONArray) r1.get("data");
+            if (array != null && !array.isEmpty()) {
+                list = JSON.parseArray(array.toString(), PlanVo.class);
+            }
+        }
+        return list;
     }
 
     /**
@@ -2457,10 +2493,18 @@ public class OldOAService {
      * @return
      * @throws Exception
      */
-    public Map<String,Object> getAYXZ_conver(String type) throws Exception{
+    public Map<String,String> getAYXZ_conver(String type) throws Exception{
+        Map<String,String> map=new HashMap<>();
         String service_url=OldServiceConstant.AYXZ_CONVER_URL+"/"+type;
         String result=HttpClientUtil.httpGetRequest(service_url);
-        return JSON.parseObject(result,Map.class);
+        JSONObject r1=JSONObject.parseObject(result);
+        if (r1 != null && !r1.isEmpty()) {
+            JSONObject array = (JSONObject) r1.get("data");
+            if (array != null && !array.isEmpty()) {
+                map = JSON.parseObject(array.toString(),Map.class);
+            }
+        }
+        return map;
     }
 //    public static void main(String[] args) {
 //        String service_url="http://101.37.171.186:8081/ayxz/dorado/yearPlan/admin/2018";
@@ -2469,8 +2513,7 @@ public class OldOAService {
 //        param.put("pageSize",10);
 //        try {
 //            String result=HttpClientUtil.httpGetRequest(service_url,param);
-//            Map map=JSON.parseObject(result,Map.class);
-//            System.out.print(map);
+//            System.out.println(result);
 //        } catch (URISyntaxException e) {
 //            e.printStackTrace();
 //        }

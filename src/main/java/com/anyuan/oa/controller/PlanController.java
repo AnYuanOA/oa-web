@@ -2,11 +2,14 @@ package com.anyuan.oa.controller;
 
 import com.anyuan.oa.controller.base.BaseController;
 import com.anyuan.oa.dao.PlanMapper;
+import com.anyuan.oa.model.DictionVO;
 import com.anyuan.oa.model.PlanCollect;
 import com.anyuan.oa.model.PlanDetail;
 import com.anyuan.oa.model.PlanMain;
+import com.anyuan.oa.model.plan.PlanVo;
 import com.anyuan.oa.service.OldOAService;
 import com.anyuan.oa.utils.ConstantUtil;
+import com.anyuan.oa.utils.PlanParamFillUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -135,7 +138,11 @@ public class PlanController extends BaseController {
     @ResponseBody
     public Map<String, Object> ayxzYearPlan(String empNo,String year,int pageNo,int pageSize) {
         try {
-            return oldOAService.getAYXZ_yearPlan(empNo, year, pageNo, pageSize);
+            List<PlanVo> list = oldOAService.getAYXZ_yearPlan(empNo, year, pageNo, pageSize);
+            Map<String,String> dic_op_map = oldOAService.getAYXZ_conver("opNo");
+            Map<String,String> dic_level_map = oldOAService.getAYXZ_conver("level");
+            Map<String,String> dic_statusAudit_map = oldOAService.getAYXZ_conver("statusAudit");
+            return coverSuccessData(PlanParamFillUtil.transParamFromKey(list,dic_op_map,dic_level_map,dic_statusAudit_map));
         } catch (Exception e) {
             e.printStackTrace();
             return coverErrorMessage(ConstantUtil.RESPONSE_EXCEPTION);
@@ -150,7 +157,11 @@ public class PlanController extends BaseController {
     @ResponseBody
     public Map<String, Object> ayxzMonthPlan(String empNo,String year,String month,int pageNo,int pageSize) {
         try {
-            return oldOAService.getAYXZ_monthPlan(empNo, year, month, pageNo, pageSize);
+            List<PlanVo> list = oldOAService.getAYXZ_monthPlan(empNo, year, month, pageNo, pageSize);
+            Map<String,String> dic_op_map = oldOAService.getAYXZ_conver("opNo");
+            Map<String,String> dic_level_map = oldOAService.getAYXZ_conver("level");
+            Map<String,String> dic_statusAudit_map = oldOAService.getAYXZ_conver("statusAudit");
+            return coverSuccessData(PlanParamFillUtil.transParamFromKey(list,dic_op_map,dic_level_map,dic_statusAudit_map));
         } catch (Exception e) {
             e.printStackTrace();
             return coverErrorMessage(ConstantUtil.RESPONSE_EXCEPTION);
@@ -165,7 +176,11 @@ public class PlanController extends BaseController {
     @ResponseBody
     public Map<String, Object> ayxzWeekPlan(String empNo,String year,String week,int pageNo,int pageSize) {
         try {
-            return oldOAService.getAYXZ_weekPlan(empNo, year, week, pageNo, pageSize);
+            List<PlanVo> list = oldOAService.getAYXZ_weekPlan(empNo, year, week, pageNo, pageSize);
+            Map<String,String> dic_op_map = oldOAService.getAYXZ_conver("opNo");
+            Map<String,String> dic_level_map = oldOAService.getAYXZ_conver("level");
+            Map<String,String> dic_statusAudit_map = oldOAService.getAYXZ_conver("statusAudit");
+            return coverSuccessData(PlanParamFillUtil.transParamFromKey(list,dic_op_map,dic_level_map,dic_statusAudit_map));
         } catch (Exception e) {
             e.printStackTrace();
             return coverErrorMessage(ConstantUtil.RESPONSE_EXCEPTION);
@@ -178,9 +193,13 @@ public class PlanController extends BaseController {
      */
     @RequestMapping("/ayxzSelfWork")
     @ResponseBody
-    public Map<String, Object> ayxzWeekPlan(String empNo,int pageNo,int pageSize) {
+    public Map<String, Object> ayxzSelfWork(String empNo,int pageNo,int pageSize) {
         try {
-            return oldOAService.getAYXZ_selfWork(empNo, pageNo, pageSize);
+            List<PlanVo> list = oldOAService.getAYXZ_selfWork(empNo, pageNo, pageSize);
+            Map<String,String> dic_op_map = oldOAService.getAYXZ_conver("opNo");
+            Map<String,String> dic_level_map = oldOAService.getAYXZ_conver("level");
+            Map<String,String> dic_statusAudit_map = oldOAService.getAYXZ_conver("statusAudit");
+            return coverSuccessData(PlanParamFillUtil.transParamFromKey(list,dic_op_map,dic_level_map,dic_statusAudit_map));
         } catch (Exception e) {
             e.printStackTrace();
             return coverErrorMessage(ConstantUtil.RESPONSE_EXCEPTION);
@@ -193,9 +212,9 @@ public class PlanController extends BaseController {
      */
     @RequestMapping("/ayxzConver")
     @ResponseBody
-    public Map<String, Object> ayxzWeekPlan(String type) {
+    public Map<String, Object> ayxzConver(String type) {
         try {
-            return oldOAService.getAYXZ_conver(type);
+            return coverSuccessData(oldOAService.getAYXZ_conver(type));
         } catch (Exception e) {
             e.printStackTrace();
             return coverErrorMessage(ConstantUtil.RESPONSE_EXCEPTION);
