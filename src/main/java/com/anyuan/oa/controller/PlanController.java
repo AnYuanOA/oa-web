@@ -161,7 +161,7 @@ public class PlanController extends BaseController {
      * ayxz周计划
      * @return
      */
-    @RequestMapping("/ayxzMonthPlan")
+    @RequestMapping("/ayxzWeekPlan")
     @ResponseBody
     public Map<String, Object> ayxzWeekPlan(String empNo,String year,String week,int pageNo,int pageSize) {
         try {
