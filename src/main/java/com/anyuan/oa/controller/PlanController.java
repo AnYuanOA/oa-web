@@ -16,6 +16,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import javax.annotation.Resource;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -215,6 +216,87 @@ public class PlanController extends BaseController {
     public Map<String, Object> ayxzConver(String type) {
         try {
             return coverSuccessData(oldOAService.getAYXZ_conver(type));
+        } catch (Exception e) {
+            e.printStackTrace();
+            return coverErrorMessage(ConstantUtil.RESPONSE_EXCEPTION);
+        }
+    }
+
+    /**
+     * ayxz字典数据转成{key:'x',value:'x'}形式方便小程序端调用
+     * @return
+     */
+    @RequestMapping("/ayxzConverDiction")
+    @ResponseBody
+    public Map<String, Object> ayxzConverDiction(String type) {
+        try {
+            List<DictionVO> resultList=new ArrayList<>();
+            Map<String,String> resultMap=oldOAService.getAYXZ_conver(type);
+            for(Map.Entry<String,String> entry:resultMap.entrySet()){
+                DictionVO dictionVO=new DictionVO();
+                dictionVO.setKey(entry.getKey());
+                dictionVO.setValue(entry.getValue());
+                resultList.add(dictionVO);
+            }
+            return coverSuccessData(resultList);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return coverErrorMessage(ConstantUtil.RESPONSE_EXCEPTION);
+        }
+    }
+
+    /**
+     * 获取计划或工作详情
+     * @param opId
+     * @param opType
+     * @return
+     */
+    public Map<String,Object> ayxzGetPlanWorkDetail(String opId,String opType){
+        try {
+            return coverSuccessData(oldOAService.getAYXZ_planWorkDetail(opId, opType));
+        } catch (Exception e) {
+            e.printStackTrace();
+            return coverErrorMessage(ConstantUtil.RESPONSE_EXCEPTION);
+        }
+    }
+
+    /**
+     * 个人工作修改个人进度
+     */
+    public Map<String,Object> ayxzUpdateSelfWork(PlanVo planVo){
+        try {
+            return coverSuccessData(oldOAService.updateAYXZ_selfWork(planVo));
+        } catch (Exception e) {
+            e.printStackTrace();
+            return coverErrorMessage(ConstantUtil.RESPONSE_EXCEPTION);
+        }
+    }
+
+    /**
+     * 月度计划修改个人进度
+     */
+    public Map<String,Object> ayxzUpdateMonthPlan(PlanVo planVo){
+        try {
+            return coverSuccessData(oldOAService.updateAYXZ_monthPlan(planVo));
+        } catch (Exception e) {
+            e.printStackTrace();
+            return coverErrorMessage(ConstantUtil.RESPONSE_EXCEPTION);
+        }
+    }
+
+    /**
+     * 选入本周或选入下周
+     * @param type
+     * @param opId
+     * @return
+     */
+    public Map<String,Object> ayxzChangeWorkToPlan(int type,String opId){
+        try {
+            if(1==type){
+                return coverSuccessData(oldOAService.changeAYXZ_thisWeek(opId));
+            }else{
+                return coverSuccessData(oldOAService.changeAYXZ_nextWeek(opId));
+            }
         } catch (Exception e) {
             e.printStackTrace();
             return coverErrorMessage(ConstantUtil.RESPONSE_EXCEPTION);

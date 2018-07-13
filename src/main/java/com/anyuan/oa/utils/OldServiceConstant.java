@@ -296,4 +296,29 @@ public class OldServiceConstant {
      * ayxz转化数据接口url
      */
     public static final String AYXZ_CONVER_URL=AYXZ_URL+"/ayxz/dorado/getData";
+
+    /**
+     * 查看单个计划或工作详情
+     */
+    public static final String AYXZ_PLAN_WORK_DETAIL_URL=AYXZ_URL+"ayxz/dorado/getPlanByID";
+
+    /**
+     * 修改个人工作
+     */
+    public static final String AYXZ_UPDATE_SELF_WORK_URL=AYXZ_URL+"ayxz/dorado/updateGrPlan";
+
+    /**
+     * 修改月度计划
+     */
+    public static final String AYXZ_UPDATE_MONTH_PLAN_URL=AYXZ_URL+"ayxz/dorado/updateMonthPlan";
+
+    /**
+     * 个人工作计划选入本周
+     */
+    public static final String AYXZ_SELTO_THISWEEK_URL=AYXZ_URL+"ayxz/dorado/updateWeek";
+
+    /**
+     * 个人工作计划选入下周
+     */
+    public static final String AYXZ_SELTO_NEXTWEEK_URL=AYXZ_URL+"ayxz/dorado/updateNextWeek";
 }

@@ -2506,6 +2506,112 @@ public class OldOAService {
         }
         return map;
     }
+
+    /**
+     * 获取单个工作或计划详情
+     * @param opId
+     * @param opType
+     * @return
+     * @throws Exception
+     */
+    public PlanVo getAYXZ_planWorkDetail(String opId,String opType) throws Exception{
+        PlanVo planVo=null;
+        String service_url=OldServiceConstant.AYXZ_PLAN_WORK_DETAIL_URL+"/"+opType+"/"+opId;
+        String result=HttpClientUtil.httpGetRequest(service_url);
+        JSONObject r1=JSONObject.parseObject(result);
+        if (r1 != null && !r1.isEmpty()) {
+            JSONArray array = (JSONArray) r1.get("data");
+            if (array != null && !array.isEmpty()) {
+                planVo = JSON.parseObject(array.toString(), PlanVo.class);
+            }
+        }
+        return planVo;
+    }
+
+    /**
+     * 修改个人工作
+     * @param planVo
+     * @return
+     * @throws Exception
+     */
+    public Map<String,String> updateAYXZ_selfWork(PlanVo planVo) throws Exception{
+        Map<String, Object> headers=new HashMap<>();
+        headers.put("Content-Type","application/json");
+        Map<String,String> map=new HashMap<>();
+        String service_url=OldServiceConstant.AYXZ_UPDATE_SELF_WORK_URL+"/"+planVo.getOpId();
+        String result=HttpClientUtil.httpPostRequest(service_url,headers,JSON.toJSONString(planVo));
+        JSONObject r1=JSONObject.parseObject(result);
+        if (r1 != null && !r1.isEmpty()) {
+            JSONObject array = (JSONObject) r1.get("data");
+            if (array != null && !array.isEmpty()) {
+                map = JSON.parseObject(array.toString(),Map.class);
+            }
+        }
+        return map;
+    }
+
+
+    /**
+     * 修改月度计划
+     * @param planVo
+     * @return
+     * @throws Exception
+     */
+    public Map<String,String> updateAYXZ_monthPlan(PlanVo planVo) throws Exception{
+        Map<String, Object> headers=new HashMap<>();
+        headers.put("Content-Type","application/json");
+        Map<String,String> map=new HashMap<>();
+        String service_url=OldServiceConstant.AYXZ_UPDATE_MONTH_PLAN_URL+"/"+planVo.getOpId();
+        String result=HttpClientUtil.httpPostRequest(service_url,headers,JSON.toJSONString(planVo));
+        JSONObject r1=JSONObject.parseObject(result);
+        if (r1 != null && !r1.isEmpty()) {
+            JSONObject array = (JSONObject) r1.get("data");
+            if (array != null && !array.isEmpty()) {
+                map = JSON.parseObject(array.toString(),Map.class);
+            }
+        }
+        return map;
+    }
+
+    /**
+     * 选入本周
+     * @param opId
+     * @return
+     * @throws Exception
+     */
+    public Map<String,String> changeAYXZ_thisWeek(String opId) throws Exception{
+        Map<String,String> map=new HashMap<>();
+        String service_url=OldServiceConstant.AYXZ_SELTO_THISWEEK_URL+"/"+opId;
+        String result=HttpClientUtil.httpPostRequest(service_url);
+        JSONObject r1=JSONObject.parseObject(result);
+        if (r1 != null && !r1.isEmpty()) {
+            JSONObject array = (JSONObject) r1.get("data");
+            if (array != null && !array.isEmpty()) {
+                map = JSON.parseObject(array.toString(),Map.class);
+            }
+        }
+        return map;
+    }
+
+    /**
+     * 选入下周
+     * @param opId
+     * @return
+     * @throws Exception
+     */
+    public Map<String,String> changeAYXZ_nextWeek(String opId) throws Exception{
+        Map<String,String> map=new HashMap<>();
+        String service_url=OldServiceConstant.AYXZ_SELTO_NEXTWEEK_URL+"/"+opId;
+        String result=HttpClientUtil.httpPostRequest(service_url);
+        JSONObject r1=JSONObject.parseObject(result);
+        if (r1 != null && !r1.isEmpty()) {
+            JSONObject array = (JSONObject) r1.get("data");
+            if (array != null && !array.isEmpty()) {
+                map = JSON.parseObject(array.toString(),Map.class);
+            }
+        }
+        return map;
+    }
 //    public static void main(String[] args) {
 //        String service_url="http://101.37.171.186:8081/ayxz/dorado/yearPlan/admin/2018";
 //        Map<String, Object> param = new HashMap<String, Object>();
