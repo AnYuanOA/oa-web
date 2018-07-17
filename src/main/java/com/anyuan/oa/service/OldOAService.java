@@ -18,6 +18,7 @@ import com.sun.org.apache.xpath.internal.operations.Bool;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.stereotype.Component;
 import org.springframework.util.ObjectUtils;
+import org.springframework.util.StringUtils;
 
 import javax.annotation.Resource;
 import java.io.IOException;
@@ -2391,9 +2392,14 @@ public class OldOAService {
      * @return
      * @throws Exception
      */
-    public List<PlanVo> getAYXZ_yearPlan(String empNo,String year,int pageNo,int pageSize) throws Exception{
+    public List<PlanVo> getAYXZ_yearPlan(String empNo,String year,String opNo,int pageNo,int pageSize) throws Exception{
         List<PlanVo> list=null;
-        String service_url=OldServiceConstant.AYXZ_YEAR_PLAN_URL+"/"+empNo+"/"+year;
+        String service_url;
+        if(StringUtils.isEmpty(opNo)){
+            service_url=OldServiceConstant.AYXZ_YEAR_PLAN_URL+"/"+empNo+"/"+year;
+        }else{
+            service_url=OldServiceConstant.AYXZ_YEAR_PLAN_URL+"/"+empNo+"/"+year+"/"+opNo;
+        }
         Map<String, Object> param = new HashMap<String, Object>();
         param.put("pageNo",pageNo);
         param.put("pageSize",pageSize);
@@ -2418,9 +2424,14 @@ public class OldOAService {
      * @return
      * @throws Exception
      */
-    public List<PlanVo> getAYXZ_monthPlan(String empNo,String year,String month,int pageNo,int pageSize) throws Exception{
+    public List<PlanVo> getAYXZ_monthPlan(String empNo,String year,String month,String opNo,int pageNo,int pageSize) throws Exception{
         List<PlanVo> list=null;
-        String service_url=OldServiceConstant.AYXZ_MONTH_PLAN_URL+"/"+empNo+"/"+year+"/"+month;
+        String service_url;
+        if(StringUtils.isEmpty(opNo)){
+            service_url=OldServiceConstant.AYXZ_MONTH_PLAN_URL+"/"+empNo+"/"+year+"/"+month;
+        }else{
+            service_url=OldServiceConstant.AYXZ_MONTH_PLAN_URL+"/"+empNo+"/"+year+"/"+month+"/"+opNo;
+        }
         Map<String, Object> param = new HashMap<String, Object>();
         param.put("pageNo",pageNo);
         param.put("pageSize",pageSize);
@@ -2445,9 +2456,14 @@ public class OldOAService {
      * @return
      * @throws Exception
      */
-    public List<PlanVo> getAYXZ_weekPlan(String empNo,String year,String week,int pageNo,int pageSize) throws Exception{
+    public List<PlanVo> getAYXZ_weekPlan(String empNo,String year,String week,String opNo,int pageNo,int pageSize) throws Exception{
         List<PlanVo> list=null;
-        String service_url=OldServiceConstant.AYXZ_WEEK_PLAN_URL+"/"+empNo+"/"+year+"/"+week;
+        String service_url;
+        if(StringUtils.isEmpty(opNo)){
+            service_url=OldServiceConstant.AYXZ_WEEK_PLAN_URL+"/"+empNo+"/"+year+"/"+week;
+        }else{
+            service_url=OldServiceConstant.AYXZ_WEEK_PLAN_URL+"/"+empNo+"/"+year+"/"+week+"/"+opNo;
+        }
         Map<String, Object> param = new HashMap<String, Object>();
         param.put("pageNo",pageNo);
         param.put("pageSize",pageSize);
@@ -2470,9 +2486,14 @@ public class OldOAService {
      * @return
      * @throws Exception
      */
-    public List<PlanVo> getAYXZ_selfWork(String empNo,int pageNo,int pageSize) throws Exception{
+    public List<PlanVo> getAYXZ_selfWork(String empNo,String opNo,int pageNo,int pageSize) throws Exception{
         List<PlanVo> list=null;
-        String service_url=OldServiceConstant.AYXZ_SELF_PLAN_URL+"/"+empNo;
+        String service_url;
+        if(StringUtils.isEmpty(opNo)){
+            service_url=OldServiceConstant.AYXZ_SELF_PLAN_URL+"/"+empNo;
+        }else{
+            service_url=OldServiceConstant.AYXZ_SELF_PLAN_URL+"/"+empNo+"/"+opNo;
+        }
         Map<String, Object> param = new HashMap<String, Object>();
         param.put("pageNo",pageNo);
         param.put("pageSize",pageSize);
