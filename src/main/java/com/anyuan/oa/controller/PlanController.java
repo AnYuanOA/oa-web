@@ -258,6 +258,8 @@ public class PlanController extends BaseController {
      * @param opType
      * @return
      */
+    @RequestMapping("/ayxzGetPlanWorkDetail")
+    @ResponseBody
     public Map<String, Object> ayxzGetPlanWorkDetail(String opId, String opType) {
         try {
             return coverSuccessData(oldOAService.getAYXZ_planWorkDetail(opId, opType));
@@ -270,6 +272,8 @@ public class PlanController extends BaseController {
     /**
      * 个人工作修改个人进度
      */
+    @RequestMapping("/ayxzUpdateSelfWork")
+    @ResponseBody
     public Map<String, Object> ayxzUpdateSelfWork(PlanVo planVo) {
         try {
             return coverSuccessData(oldOAService.updateAYXZ_selfWork(planVo));
@@ -282,6 +286,8 @@ public class PlanController extends BaseController {
     /**
      * 月度计划修改个人进度
      */
+    @RequestMapping("/ayxzUpdateMonthPlan")
+    @ResponseBody
     public Map<String, Object> ayxzUpdateMonthPlan(PlanVo planVo) {
         try {
             return coverSuccessData(oldOAService.updateAYXZ_monthPlan(planVo));
@@ -298,6 +304,8 @@ public class PlanController extends BaseController {
      * @param opId
      * @return
      */
+    @RequestMapping("/ayxzChangeWorkToPlan")
+    @ResponseBody
     public Map<String, Object> ayxzChangeWorkToPlan(int type, String opId) {
         try {
             if (1 == type) {
