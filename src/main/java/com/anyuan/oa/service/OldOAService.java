@@ -553,7 +553,7 @@ public class OldOAService {
                     OldOAToDoStartInfo startInfo = JSON.parseObject(infoResponse.getResult(), OldOAToDoStartInfo.class);
                     success = success && startInfo.getSuccess()==1 && startInfo.getAppButton().size()>0;
                     if(success){
-                        serviceResponse = submitWorkflow(token,
+                        serviceResponse = startWorkflow(token,
                                 startInfo.getAppButton().get(0),
                                 WorkflowName.LEAVE.getValue(),
                                 requestParam.getWorkflowTitle(),
@@ -630,7 +630,7 @@ public class OldOAService {
                     OldOAToDoStartInfo startInfo = JSON.parseObject(infoResponse.getResult(), OldOAToDoStartInfo.class);
                     success = success && startInfo.getSuccess()==1 && startInfo.getAppButton().size()>0;
                     if(success){
-                        serviceResponse = submitWorkflow(token,
+                        serviceResponse = startWorkflow(token,
                                 startInfo.getAppButton().get(0),
                                 WorkflowName.USCAR.getValue(),
                                 requestParam.getWorkflowTitle(),
@@ -715,6 +715,114 @@ public class OldOAService {
                                 break;
                             }
                         }
+//                        if (stepList.size() > currentIndex + 1) {
+//                            currentIndex++;
+//                        }
+                    }
+                }
+
+                OldOAToDoStepInfo step = stepList.size()>currentIndex?stepList.get(currentIndex):null;
+                OldOAToDoAcceptUserInfo userInfo = null;
+                if(step!=null && step.getAcceptUserInfo().size()>0 && appFieldName!=null){
+                    for(int i=0; i<step.getAcceptUserInfo().size(); i++) {
+                        OldOAToDoAcceptUserInfo tmp = step.getAcceptUserInfo().get(i);
+                        if (appFieldName.equals(tmp.getAppFieldName())) {
+                            userInfo = tmp;
+                            break;
+                        }
+                    }
+                }
+
+                if(userInfo == null && step!=null){
+                    if(step.getAcceptUserInfo().size() > 0){
+                        userInfo = step.getAcceptUserInfo().get(0);
+                    }
+                }
+
+                Map<String, Object> params = buildSubmitProcessParam(
+                        !"5".equals(button.getButtonId()),
+                        in_sp_id,
+                        buzPKID,
+                        Integer.parseInt(button.getAppID()),
+                        workflowName,
+                        workflowTitle,
+                        Integer.parseInt(button.getButtonId()),
+                        userInfo!=null?userInfo.getAppFieldName():null,
+                        userInfo!=null?userInfo.getAppFieldValue():null,
+                        step!=null?step.getNextStepID():null,
+                        step!=null?step.getNextStepName():null,
+                        isNewFlag,
+                        flowVersion
+                );
+                String processUrl = OldServiceConstant.WORKFLOW_PROCESS_URL;
+                HTTPResponse processResponse = HTTPUtil.sendPostWithJson(processUrl, params, headers);
+                if (processResponse.getCode() == HTTPResponse.SUCCESS) {
+                    Map<String, Object> processJson = JSON.parseObject(processResponse.getResult(), new TypeReference<Map<String, Object>>() {
+                    });
+                    if ((Boolean) processJson.get("isSucceed")) {
+                        serviceResponse.setSuccess(true);
+                    }
+                }
+            }
+        }
+
+        //任务没有全部执行成功
+        if(!serviceResponse.isSuccess()){
+            serviceResponse.setError(ConstantUtil.RESPONSE_EXCEPTION);
+            serviceResponse.setError_description(ConstantUtil.RESPONSE_EXCEPTION);
+        }
+
+        return serviceResponse;
+    }
+
+    public OldServiceResponse startWorkflow(OldAccessToken token,
+                                             OldOAAppButton button,
+                                             String workflowName,
+                                             String workflowTitle,
+                                             int in_sp_id,
+                                             int buzPKID,
+                                             String currentStepId,
+                                             String appFieldName,
+                                             int isNewFlag,
+                                             String flowVersion,
+                                             String targetStepId) throws IOException{
+        OldServiceResponse serviceResponse = new OldServiceResponse();
+        Map<String, String> headers = HTTPUtil.getAuthHeaders(token);
+        //请求获取审批步骤接口
+        String stepUrl = OldServiceConstant.WORKFLOW_GET_STEPLIST_URL;
+        Map<String, Object> stepParam = new HashMap<String, Object>();
+        stepParam.put("ButtonType", button.getButtonId());
+        stepParam.put("appID", button.getAppID()!=null?Integer.parseInt(button.getAppID()):0);
+        stepParam.put("appTID", workflowName);
+        stepParam.put("appVersion", flowVersion);
+        stepParam.put("businessId", "");
+        stepParam.put("condition", "");
+        stepParam.put("isNewFlag", 0);
+        HTTPResponse stepResponse = HTTPUtil.sendPostWithJson(stepUrl, stepParam, headers);
+        Map<String, Object> stepJson = JSON.parseObject(stepResponse.getResult(), new TypeReference<Map<String, Object>>() {
+        });
+        if ((Integer) stepJson.get("success") == 1 || "9".equals(button.getButtonId())) {
+            List<OldOAToDoStepInfo> stepList = JSON.parseArray(JSON.toJSONString(stepJson.get("wfNextStepList")), OldOAToDoStepInfo.class);
+            if (stepList.size()>0 || "9".equals(button.getButtonId())) {
+                //获取第一个审批步骤，组装参数，并执行流程办理任务
+                int currentIndex = 0;
+                if(targetStepId != null){
+                    for (int i = 0; i < stepList.size(); i++) {
+                        OldOAToDoStepInfo tmp = stepList.get(i);
+                        if (targetStepId.equals(tmp.getNextStepID())) {
+                            currentIndex = i;
+                            break;
+                        }
+                    }
+                }else {
+                    if (currentStepId != null && !currentStepId.equals("null")) {
+                        for (int i = 0; i < stepList.size(); i++) {
+                            OldOAToDoStepInfo tmp = stepList.get(i);
+                            if (currentStepId.equals(tmp.getNextStepID())) {
+                                currentIndex = i;
+                                break;
+                            }
+                        }
                         if (stepList.size() > currentIndex + 1) {
                             currentIndex++;
                         }
@@ -754,6 +862,9 @@ public class OldOAService {
                         isNewFlag,
                         flowVersion
                 );
+                Map<String, Object> buttonMap = (Map<String, Object>)params.get("button");
+                buttonMap.put("isNewFlag", 0);
+
                 String processUrl = OldServiceConstant.WORKFLOW_PROCESS_URL;
                 HTTPResponse processResponse = HTTPUtil.sendPostWithJson(processUrl, params, headers);
                 if (processResponse.getCode() == HTTPResponse.SUCCESS) {
@@ -908,9 +1019,9 @@ public class OldOAService {
                             break;
                         }
                     }
-                    if (stepList.size() > currentIndex + 1) {
-                        currentIndex++;
-                    }
+//                    if (stepList.size() > currentIndex + 1) {
+//                        currentIndex++;
+//                    }
                 }
                 OldOAToDoStepInfo step = stepList.get(currentIndex);
                 serviceResponse.setSuccess(true);
@@ -962,9 +1073,9 @@ public class OldOAService {
                             break;
                         }
                     }
-                    if (stepList.size() > currentIndex + 1) {
-                        currentIndex++;
-                    }
+//                    if (stepList.size() > currentIndex + 1) {
+//                        currentIndex++;
+//                    }
                 }
                 OldOAToDoStepInfo step = stepList.get(currentIndex);
                 serviceResponse.setSuccess(true);
