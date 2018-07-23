@@ -2652,7 +2652,7 @@ public class OldOAService {
         String result=HttpClientUtil.httpGetRequest(service_url);
         JSONObject r1=JSONObject.parseObject(result);
         if (r1 != null && !r1.isEmpty()) {
-            JSONArray array = (JSONArray) r1.get("data");
+            JSONObject array = (JSONObject) r1.get("data");
             if (array != null && !array.isEmpty()) {
                 planVo = JSON.parseObject(array.toString(), PlanVo.class);
             }
